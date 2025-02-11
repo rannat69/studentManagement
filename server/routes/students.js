@@ -1,0 +1,65 @@
+const express = require("express");
+const router = express.Router();
+const sqlite3 = require("sqlite3").verbose();
+
+// Create or open the SQLite database
+const db = new sqlite3.Database("sql.db");
+
+// API to get all students
+router.get("/", (req, res) => {
+	db.all("SELECT * FROM student", [], (err, rows) => {
+		if (err) {
+			res.status(500).json({ error: err.message });
+		} else {
+			res.json(rows);
+		}
+	});
+});
+
+// API to add a student
+router.post("/", (req, res) => {
+	const { name, expected_grad_date, ta_available } = req.body;
+
+	db.run(
+		`INSERT INTO student (name, expected_grad_date, ta_available) VALUES (?, ?, ?)`,
+		[name, expected_grad_date, ta_available],
+		function (err) {
+			if (err) {
+				res.status(500).json({ error: err.message });
+			} else {
+				res.json({ id: this.lastID });
+			}
+		}
+	);
+});
+
+// Modify student
+router.put("/:id", (req, res) => {
+	const { id } = req.params;
+	const { name, expected_grad_date, ta_available } = req.body;
+	db.run(
+		`UPDATE student SET name = ?, expected_grad_date = ?, ta_available = ? WHERE id = ?`,
+		[name, expected_grad_date, ta_available, id],
+		function (err) {
+			if (err) {
+				res.status(500).json({ error: err.message });
+			} else {
+				res.json({ id });
+			}
+		}
+	);
+});
+
+// Delete a student
+router.delete("/:id", (req, res) => {
+	const { id } = req.params;
+	db.run(`DELETE FROM student WHERE id = ?`, [id], function (err) {
+		if (err) {
+			res.status(500).json({ error: err.message });
+		} else {
+			res.json({ id });
+		}
+	});
+});
+
+module.exports = router;

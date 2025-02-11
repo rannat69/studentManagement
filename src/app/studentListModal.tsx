@@ -1,0 +1,205 @@
+// Modal.tsx
+import { useEffect, useState } from "react";
+import styles from "./modal.module.css";
+import { Student } from "./studentListData";
+import axios from "axios";
+import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "./constants";
+
+interface ModalProps {
+	isOpen: boolean;
+	student: any;
+	onClose: () => void;
+	onSave: (updatedStudent: any) => void;
+}
+
+const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
+	const [formData, setFormData] = useState<Student>(student);
+	const [mode, setMode] = useState<string>("");
+	const [errorMessage, setErrorMessage] = useState<string>("");
+
+	useEffect(() => {
+		if (student) {
+			setMode(MODE_EDITION);
+			setFormData(student);
+		} else {
+			// We are in creation mode
+			setFormData({
+				id: 0,
+				name: "",
+				expected_grad_date: new Date(),
+				ta_available: 0,
+				deleted: false,
+			});
+			setMode(MODE_CREATION);
+		}
+	}, [student]); // Add student to the dependency array
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const { name, value } = e.target;
+		setFormData({ ...formData, [name]: value });
+	};
+
+	const createStudent = async (studentData: Student) => {
+		try {
+			const response = await fetch("http://localhost:5000/students", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(studentData),
+			});
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			const data = await response.json();
+			console.log("Student added:", data);
+			return data; // Return the newly created student ID or object
+		} catch (error) {
+			console.error("Error adding student:", error);
+			throw error; // Rethrow the error for handling in the caller
+		}
+	};
+
+	const updateStudent = async (id: number, updatedData: Student) => {
+		try {
+			const response = await axios.put(
+				`http://localhost:5000/students/${id}`,
+				updatedData
+			);
+		} catch (error) {
+			console.error("Error updating student:", error);
+		}
+	};
+
+	const deleteStudent = async (id: number) => {
+		try {
+			const response = await fetch(`http://localhost:5000/students/${id}`, {
+				method: "DELETE",
+			});
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			const data = await response.json();
+			console.log("Student deleted:", data);
+			return data; // Return the deleted student ID or any other info
+		} catch (error) {
+			console.error("Error deleting student:", error);
+			throw error; // Rethrow the error for handling in the caller
+		}
+	};
+
+	const handleCancel = () => {
+		setErrorMessage("");
+		onClose();
+	};
+
+	const handleDelete = () => {
+		setMode(MODE_DELETE);
+
+		setErrorMessage("");
+		onClose();
+		deleteStudent(student.id);
+
+		student.deleted = true;
+
+		onSave(student);
+	};
+
+	const handleSubmit = (e: React.FormEvent) => {
+		setErrorMessage("");
+
+		e.preventDefault();
+
+		// check if ta_available is number
+		if (isNaN(Number(formData.ta_available))) {
+			setErrorMessage("T.A. available must be a number");
+			return;
+		}
+
+		formData.expected_grad_date = new Date(formData.expected_grad_date);
+
+		if (mode === MODE_CREATION) {
+			createStudent(formData).then((newStudent) => {
+				// Update the state with the new student
+				formData.id = newStudent.id;
+
+				onSave(formData);
+			});
+		} else {
+			if (mode === MODE_DELETE) {
+				formData.deleted = true;
+
+				console.log("formData", formData);
+			} else {
+				updateStudent(formData.id, formData);
+			}
+			onSave(formData);
+		}
+
+		onClose();
+	};
+
+	const formatDate = (date: Date) => {
+		const d = new Date(date);
+		const year = d.getFullYear();
+
+		const month = String(d.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+		const day = String(d.getDate()).padStart(2, "0");
+		return `${year}-${month}-${day}`;
+	};
+
+	const formattedDate =
+		formData && formData.expected_grad_date
+			? formatDate(formData.expected_grad_date)
+			: "";
+
+	if (!isOpen) return null;
+
+	return (
+		<div className={styles.modal}>
+			<div>
+				<span className={styles.close} onClick={onClose}>
+					&times;
+				</span>
+
+				<button onClick={() => handleCancel()}>Cancel</button>
+
+				<form onSubmit={handleSubmit} className={styles.modalContent}>
+					{mode === MODE_EDITION ? <h2>Edit Student</h2> : <h2>Add Student</h2>}
+					<input
+						name='name'
+						value={formData ? formData.name : ""}
+						onChange={handleChange}
+						placeholder='Name'
+					/>
+					<input
+						name='expected_grad_date'
+						type='date'
+						value={formData ? formattedDate : ""}
+						onChange={handleChange}
+					/>
+
+					<input
+						name='ta_available'
+						value={formData ? formData.ta_available : ""}
+						onChange={handleChange}
+						placeholder='Number of T.A. available'
+					/>
+					{/* Add more fields as needed */}
+					<button type='submit'>Save</button>
+
+					{errorMessage.length > 0 && (
+						<div className={styles.error}>{errorMessage}</div>
+					)}
+				</form>
+				<button onClick={() => handleDelete()}>Delete</button>
+			</div>
+		</div>
+	);
+};
+
+export default Modal;
