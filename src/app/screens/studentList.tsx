@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 
-import styles from "./page.module.css";
+import styles from "./styles/page.module.css";
 import Modal from "./studentListModal"; // Adjust the import path as necessary
-import { Student } from "./studentListData";
+import { Student } from "../data/studentListData";
 
 import axios from "axios";
 
@@ -41,8 +41,6 @@ export default function StudentList() {
 
 		let updatedList;
 
-		console.log("Updated Student:", updatedStudent);
-
 		// Check if the student is marked for deletion
 		if (updatedStudent.deleted) {
 			// Remove the student from the list
@@ -62,9 +60,6 @@ export default function StudentList() {
 				: [...studentListState, updatedStudent];
 		}
 
-		// Log the updated list for debugging
-		console.log("Updated Student List:", updatedList);
-
 		// Update the state with the new student list
 		setStudentListState(updatedList);
 	};
@@ -79,7 +74,10 @@ export default function StudentList() {
 							key={student.id}
 							className={styles.element}
 							onClick={() => handleClickStudent(student)}>
-							<h2>{student.name}</h2>
+							<h2>
+								{student.l_name} {student.f_names}
+							</h2>
+							<h2>{student.unoff_name}</h2>
 							<p>
 								{new Date(student.expected_grad_date).getDate() +
 									"/" +

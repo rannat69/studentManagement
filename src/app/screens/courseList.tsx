@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 
-import styles from "./page.module.css";
+import styles from "./styles/page.module.css";
 import Modal from "./courseListModal"; // Adjust the import path as necessary
-import { Course } from "./courseListData";
+import { Course } from "../data/courseListData";
 
 import axios from "axios";
 
@@ -74,7 +74,7 @@ export default function CourseList() {
 							key={course.id}
 							className={styles.element}
 							onClick={() => handleClickCourse(course)}>
-							<h2>{course.name}</h2>
+							<h2>{course.hkust_identifier + " - " + course.name}</h2>
 
 							<p>{"T.A. needed : " + course.ta_needed}</p>
 						</div>

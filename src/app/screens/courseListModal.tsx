@@ -1,9 +1,9 @@
 // Modal.tsx
 import { useEffect, useState } from "react";
-import styles from "./modal.module.css";
-import { Course } from "./courseListData";
+import styles from "./styles/modal.module.css";
+import { Course } from "../data/courseListData";
 import axios from "axios";
-import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "./constants";
+import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "../constants";
 
 interface ModalProps {
 	isOpen: boolean;
@@ -25,6 +25,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			// We are in creation mode
 			setFormData({
 				id: 0,
+				hkust_identifier: "",
 				name: "",
 				description: "",
 				field: "",
@@ -156,6 +157,19 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			onSave(formData);
 		}
 
+		setFormData({
+			id: 0,
+			hkust_identifier: "",
+			name: "",
+			description: "",
+			field: "",
+			keywords: "",
+			semester: 0,
+			year: 0,
+			ta_needed: 0,
+			deleted: false,
+		});
+
 		onClose();
 	};
 
@@ -181,6 +195,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 				<form onSubmit={handleSubmit} className={styles.modalContent}>
 					{mode === MODE_EDITION ? <h2>Edit Course</h2> : <h2>Add Course</h2>}
+					Identifier
+					<input
+						name='hkust_identifier'
+						value={formData ? formData.hkust_identifier : ""}
+						onChange={handleChange}
+						placeholder='Identifier'
+					/>
 					Name
 					<input
 						name='name'

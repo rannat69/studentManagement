@@ -7,8 +7,6 @@ const db = new sqlite3.Database("sql.db");
 
 // API to get all courses
 router.get("/", (req, res) => {
-	console.log("Received a GET request to /courses");
-
 	db.all("SELECT * FROM course", [], (err, rows) => {
 		if (err) {
 			res.status(500).json({ error: err.message });
@@ -20,13 +18,29 @@ router.get("/", (req, res) => {
 
 // API to add a course
 router.post("/", (req, res) => {
-	const { name, description, semester, year, field, keywords, ta_needed } =
-		req.body;
-
+	const {
+		hkust_identifier,
+		name,
+		description,
+		semester,
+		year,
+		field,
+		keywords,
+		ta_needed,
+	} = req.body;
 
 	db.run(
-		`INSERT INTO course (name, description, semester, year, field, keywords, ta_needed) VALUES (?, ?, ?, ?,?,?,?)`,
-		[name, description, semester, year, field, keywords, ta_needed],
+		`INSERT INTO course (hkust_identifier, name, description, semester, year, field, keywords, ta_needed) VALUES (?, ?, ?,?, ?,?,?,?)`,
+		[
+			hkust_identifier,
+			name,
+			description,
+			semester,
+			year,
+			field,
+			keywords,
+			ta_needed,
+		],
 		function (err) {
 			if (err) {
 				console.log(err);
@@ -42,11 +56,29 @@ router.post("/", (req, res) => {
 // Modify course
 router.put("/:id", (req, res) => {
 	const { id } = req.params;
-	const { name, description, semester, year, field, keywords, ta_needed } =
-		req.body;
+	const {
+		hkust_identifier,
+		name,
+		description,
+		semester,
+		year,
+		field,
+		keywords,
+		ta_needed,
+	} = req.body;
 	db.run(
-		`UPDATE course SET name = ?, description = ?, semester = ?, year = ?, field = ?, keywords = ?, ta_needed = ?  WHERE id = ?`,
-		[name, description, semester, year, field, keywords, ta_needed, id],
+		`UPDATE course SET hkust_identifier = ?,  name = ?, description = ?, semester = ?, year = ?, field = ?, keywords = ?, ta_needed = ?  WHERE id = ?`,
+		[
+			hkust_identifier,
+			name,
+			description,
+			semester,
+			year,
+			field,
+			keywords,
+			ta_needed,
+			id,
+		],
 		function (err) {
 			if (err) {
 				res.status(500).json({ error: err.message });

@@ -85,6 +85,11 @@
 	font-weight: 600;
 }
 
+.columns {
+	display: flex;
+	flex-direction: row;
+}
+
 .element {
 	padding: 1rem;
 	border: 0.3rem solid;
@@ -114,6 +119,42 @@
 	background-color: lightgreen; /* Change to your desired hover background color */
 	border-color: #0a0186; /* Change to your desired hover border color */
 	color: #1a1a1a;
+}
+
+.page {
+	display: flex;
+	justify-content: space-between;
+	padding: 20px;
+	margin: 1rem;
+}
+
+.columns {
+	display: flex;
+	flex-direction: row;
+}
+
+.availableColumn {
+	flex: 1; /* Takes up space proportional to available space */
+	margin-right: 20px; /* Space between columns */
+}
+
+.dropAreas {
+	display: flex;
+	flex-direction: column; /* Stack drop areas vertically */
+	flex: 2; /* Takes up more space than available column */
+}
+
+.dropArea {
+	border: 1px dashed #ccc;
+	padding: 10px;
+	margin-bottom: 10px; /* Space between drop areas */
+	width: 20rem;
+}
+
+.innerDropArea {
+	border: 1px solid #aaa;
+	min-height: 100px; /* Minimum height for the drop area */
+	padding: 10px;
 }
 
 .ctas {

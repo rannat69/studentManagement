@@ -16,13 +16,25 @@ router.get("/", (req, res) => {
 	});
 });
 
+// API to get all students with at least 1 TA
+router.get("/ta_avail", (req, res) => {
+	db.all("SELECT * FROM student where ta_available > 0", [], (err, rows) => {
+		if (err) {
+			res.status(500).json({ error: err.message });
+		} else {
+			res.json(rows);
+		}
+	});
+});
+
 // API to add a student
 router.post("/", (req, res) => {
-	const { name, expected_grad_date, ta_available } = req.body;
+	const { l_name, f_names, unoff_name, expected_grad_date, ta_available } =
+		req.body;
 
 	db.run(
-		`INSERT INTO student (name, expected_grad_date, ta_available) VALUES (?, ?, ?)`,
-		[name, expected_grad_date, ta_available],
+		`INSERT INTO student (l_name, f_names, unoff_name,expected_grad_date, ta_available) VALUES (?, ?,?,?, ?)`,
+		[l_name, f_names, unoff_name, expected_grad_date, ta_available],
 		function (err) {
 			if (err) {
 				res.status(500).json({ error: err.message });
@@ -36,13 +48,16 @@ router.post("/", (req, res) => {
 // Modify student
 router.put("/:id", (req, res) => {
 	const { id } = req.params;
-	const { name, expected_grad_date, ta_available } = req.body;
+	const { l_name, f_names, unoff_name, expected_grad_date, ta_available } =
+		req.body;
 	db.run(
-		`UPDATE student SET name = ?, expected_grad_date = ?, ta_available = ? WHERE id = ?`,
-		[name, expected_grad_date, ta_available, id],
+		`UPDATE student SET l_name = ?, f_names = ?, unoff_name = ?,  expected_grad_date = ?, ta_available = ? WHERE id = ?`,
+		[l_name, f_names, unoff_name, expected_grad_date, ta_available, id],
 		function (err) {
 			if (err) {
 				res.status(500).json({ error: err.message });
+
+				console.log(err);
 			} else {
 				res.json({ id });
 			}

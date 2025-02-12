@@ -1,9 +1,9 @@
 // Modal.tsx
 import { useEffect, useState } from "react";
-import styles from "./modal.module.css";
-import { Student } from "./studentListData";
+import styles from "./styles/modal.module.css";
+import { Student } from "../data/studentListData";
 import axios from "axios";
-import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "./constants";
+import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "../constants";
 
 interface ModalProps {
 	isOpen: boolean;
@@ -23,12 +23,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			setFormData(student);
 		} else {
 			// We are in creation mode
+
 			setFormData({
 				id: 0,
-				name: "",
+				l_name: "",
+				f_names: "",
+				unoff_name: "",
 				expected_grad_date: new Date(),
 				ta_available: 0,
 				deleted: false,
+				dropZone: 0,
 			});
 			setMode(MODE_CREATION);
 		}
@@ -54,7 +58,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			}
 
 			const data = await response.json();
-			console.log("Student added:", data);
+
 			return data; // Return the newly created student ID or object
 		} catch (error) {
 			console.error("Error adding student:", error);
@@ -132,13 +136,22 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 		} else {
 			if (mode === MODE_DELETE) {
 				formData.deleted = true;
-
-				console.log("formData", formData);
 			} else {
 				updateStudent(formData.id, formData);
 			}
 			onSave(formData);
 		}
+
+		setFormData({
+			id: 0,
+			l_name: "",
+			f_names: "",
+			unoff_name: "",
+			expected_grad_date: new Date(),
+			ta_available: 0,
+			deleted: false,
+			dropZone: 0,
+		});
 
 		onClose();
 	};
@@ -171,11 +184,26 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				<form onSubmit={handleSubmit} className={styles.modalContent}>
 					{mode === MODE_EDITION ? <h2>Edit Student</h2> : <h2>Add Student</h2>}
 					<input
-						name='name'
-						value={formData ? formData.name : ""}
+						name='l_name'
+						value={formData ? formData.l_name : ""}
 						onChange={handleChange}
-						placeholder='Name'
+						placeholder='Surname'
 					/>
+
+					<input
+						name='f_names'
+						value={formData ? formData.f_names : ""}
+						onChange={handleChange}
+						placeholder='Other names'
+					/>
+
+					<input
+						name='unoff_name'
+						value={formData ? formData.unoff_name : ""}
+						onChange={handleChange}
+						placeholder='Unofficial name'
+					/>
+
 					<input
 						name='expected_grad_date'
 						type='date'
