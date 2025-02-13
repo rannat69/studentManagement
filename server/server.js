@@ -8,13 +8,20 @@ const studentCourseRoutes = require("./routes/studentCourse");
 const app = express();
 const db = new sqlite3.Database("sql.db"); // Use a file instead for persistent storage
 
+const cron = require("node-cron");
+
+const fs = require("fs");
+
+const path = require("path");
+
+const { exec } = require("child_process");
+
 app.use(cors());
 app.use(express.json());
 
 db.serialize(() => {
 	//db.run(`DROP TABLE student`);
 	//db.run(`DROP TABLE course`);
-
 	//db.run(`DROP TABLE student_course`);
 });
 
@@ -57,6 +64,43 @@ db.serialize(() => {
 app.use("/students", studentRoutes);
 app.use("/courses", coursesRoutes);
 app.use("/studentcourse", studentCourseRoutes);
+
+// cronjob that copies and renames sql.db every day at 23:50
+
+cron.schedule("50 23 * * *", () => {
+	const currentDate = new Date().toISOString().slice(0, 10);
+
+	const newFileName = `sql_${currentDate}.db`;
+
+	const newFilePath = path.join(__dirname, newFileName);
+
+	const oldFilePath = path.join(__dirname, "sql.db");
+
+	fs.copyFileSync(oldFilePath, newFilePath);
+
+	console.log(`Database copied to ${newFilePath}`);
+
+});
+
+// cronjob that sends a console log every minute
+/*cron.schedule("* * * * *", () => {
+	console.log("This message is logged every minute");
+
+	const currentDate = new Date().toISOString().slice(0, 10);
+
+	const newFileName = `sql_${currentDate}.db`;
+
+	const newFilePath = path.join(__dirname, newFileName);
+
+	const oldFilePath = path.join(__dirname, "sql.db");
+
+	fs.copyFileSync(oldFilePath, newFilePath);
+
+	console.log(`Database copied to ${newFilePath}`);
+
+
+});*/
+
 // Start the server
 app.listen(5000, () => {
 	console.log("Server is running on http://localhost:5000");
