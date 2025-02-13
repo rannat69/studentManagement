@@ -125,6 +125,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			return;
 		}
 
+		if (formData.ta_available < 0) {
+			setErrorMessage("T.A. available must be a positive number");
+			return;
+		}
+
+		if (formData.expected_grad_year <= 0) {
+			setErrorMessage("Year must be a positive number");
+			return;
+		}
+
+		if (!formData.l_name || formData.l_name.length === 0) {
+			setErrorMessage("Please enter a surname");
+			return;
+		}
+
 		if (mode === MODE_CREATION) {
 			createStudent(formData).then((newStudent) => {
 				// Update the state with the new student
@@ -202,13 +217,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 					<select
 						name='expected_grad_semester'
 						onChange={handleChange}
-						value={formData ? formData.expected_grad_semester : ""}>
-						<option value='1'>1</option>
+						value={formData ? formData.expected_grad_semester : "Spring"}>
+						<option value='Spring'>Spring</option>
 
-						<option value='2'>2</option>
+						<option value='Summer'>Summer</option>
 
-						<option value='3'>3</option>
-						<option value='4'>4</option>
+						<option value='Fall'>Fall</option>
+						<option value='Winter'>Winter</option>
 					</select>
 					T.A. available
 					<input

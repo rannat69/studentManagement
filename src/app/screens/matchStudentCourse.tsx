@@ -17,6 +17,8 @@ export default function MatchStudentCourse() {
 
 	const [courseListNeeded, setCourseListNeeded] = useState<Course[]>([]);
 
+	const [errorMessage, setErrorMessage] = useState<String>("");
+
 	useEffect(() => {
 		// list of students with at least 1 T.A.
 		const fetchStudents = async () => {
@@ -70,9 +72,11 @@ export default function MatchStudentCourse() {
 		student: Student
 	) => {
 		event.dataTransfer.setData("student", JSON.stringify(student));
+		setErrorMessage("");
 	};
 
 	const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+		setErrorMessage("");
 		event.preventDefault(); // Prevent default to allow drop
 	};
 
@@ -169,6 +173,8 @@ export default function MatchStudentCourse() {
 		event: React.DragEvent<HTMLDivElement>,
 		dropZone: number
 	) => {
+		setErrorMessage("");
+
 		event.preventDefault();
 		const student = event.dataTransfer.getData("student");
 
@@ -277,6 +283,7 @@ export default function MatchStudentCourse() {
 				courseTemp = courseListNeeded[courseIndex];
 
 				if (courseTemp.ta_needed < 1) {
+					setErrorMessage("No T.A. is needed for this course");
 					return;
 				}
 			}
@@ -288,6 +295,7 @@ export default function MatchStudentCourse() {
 					student.id === studentTemp.id && student.dropZone === dropZone
 			);
 			if (studentIndex > -1) {
+				setErrorMessage("This student is already in this course");
 				return;
 			}
 
@@ -485,6 +493,10 @@ export default function MatchStudentCourse() {
 					</div>
 				))}
 			</div>
+
+			{errorMessage.length > 0 && (
+				<div className={styles.error}>{errorMessage}</div>
+			)}
 		</div>
 	);
 }

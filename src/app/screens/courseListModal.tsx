@@ -121,23 +121,33 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 		e.preventDefault();
 
+		if (
+			!formData.hkust_identifier ||
+			formData.hkust_identifier.length === 0 ||
+			!formData.name ||
+			formData.name.length === 0
+		) {
+			setErrorMessage("Please enter an identifier and a name");
+			return;
+		}
+
 		// check if ta_available is number
 		if (isNaN(Number(formData.ta_needed))) {
 			setErrorMessage("T.A. available must be a number");
 			return;
 		}
 
-		// same for  semester
-		if (isNaN(Number(formData.semester))) {
-			setErrorMessage("Semester must be a number");
+		if (formData.ta_needed < 0) {
+			setErrorMessage("T.A. available must be a positive number");
 			return;
 		}
 
-		// same for  semester
-		if (isNaN(Number(formData.year))) {
-			setErrorMessage("Semester must be a number");
+		if (formData.year <= 0) {
+			setErrorMessage("Year must be a positive number");
 			return;
 		}
+
+
 
 		if (mode === MODE_CREATION) {
 			createCourse(formData).then((newCourse) => {
@@ -230,13 +240,17 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						type='number'
 					/>
 					Semester
-					<input
+					<select
 						name='semester'
-						value={formData ? formData.semester : ""}
 						onChange={handleChange}
-						placeholder='Semester'
-						type='number'
-					/>
+						value={formData ? formData.semester : "Spring"}>
+						<option value='Spring'>Spring</option>
+
+						<option value='Summer'>Summer</option>
+
+						<option value='Fall'>Fall</option>
+						<option value='Winter'>Winter</option>
+					</select>
 					T.A. needed
 					<input
 						name='ta_needed'

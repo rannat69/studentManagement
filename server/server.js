@@ -13,7 +13,7 @@ app.use(express.json());
 
 db.serialize(() => {
 	//db.run(`DROP TABLE student`);
-	//	db.run(`DROP TABLE course`);
+	//db.run(`DROP TABLE course`);
 
 	//db.run(`DROP TABLE student_course`);
 });
@@ -26,7 +26,7 @@ db.serialize(() => {
             f_names TEXT,
             unoff_name TEXT,
         expected_grad_year INTEGER,
-        expected_grad_semester INTEGER,
+        expected_grad_semester TEXT,
         ta_available INTEGER
     )`);
 
@@ -36,7 +36,7 @@ db.serialize(() => {
             hkust_identifier TEXT,
             name TEXT,
             description TEXT,
-            semester INTEGER, 
+            semester TEXT, 
             year INTEGER,
 
             ta_needed INTEGER,
