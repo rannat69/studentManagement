@@ -183,43 +183,44 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 				<form onSubmit={handleSubmit} className={styles.modalContent}>
 					{mode === MODE_EDITION ? <h2>Edit Student</h2> : <h2>Add Student</h2>}
+					Surname
 					<input
 						name='l_name'
 						value={formData ? formData.l_name : ""}
 						onChange={handleChange}
 						placeholder='Surname'
 					/>
-
+					Other names{" "}
 					<input
 						name='f_names'
 						value={formData ? formData.f_names : ""}
 						onChange={handleChange}
 						placeholder='Other names'
 					/>
-
+					Unofficial name
 					<input
 						name='unoff_name'
 						value={formData ? formData.unoff_name : ""}
 						onChange={handleChange}
 						placeholder='Unofficial name'
 					/>
-
+					Expected graduation date{" "}
 					<input
 						name='expected_grad_date'
 						type='date'
 						value={formData ? formattedDate : ""}
 						onChange={handleChange}
 					/>
-
+					T.A. available
 					<input
 						name='ta_available'
+						type='number'
 						value={formData ? formData.ta_available : ""}
 						onChange={handleChange}
 						placeholder='Number of T.A. available'
 					/>
 					{/* Add more fields as needed */}
 					<button type='submit'>Save</button>
-
 					{errorMessage.length > 0 && (
 						<div className={styles.error}>{errorMessage}</div>
 					)}

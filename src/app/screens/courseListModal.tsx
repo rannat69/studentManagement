@@ -173,15 +173,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 		onClose();
 	};
 
-	const formatDate = (date: Date) => {
-		const d = new Date(date);
-		const year = d.getFullYear();
-
-		const month = String(d.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-		const day = String(d.getDate()).padStart(2, "0");
-		return `${year}-${month}-${day}`;
-	};
-
 	if (!isOpen) return null;
 
 	return (
@@ -236,6 +227,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						value={formData ? formData.year : ""}
 						onChange={handleChange}
 						placeholder='Year'
+						type='number'
 					/>
 					Semester
 					<input
@@ -243,6 +235,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						value={formData ? formData.semester : ""}
 						onChange={handleChange}
 						placeholder='Semester'
+						type='number'
 					/>
 					T.A. needed
 					<input
@@ -250,6 +243,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						value={formData ? formData.ta_needed : ""}
 						onChange={handleChange}
 						placeholder='Number of T.A. needed'
+						type='number'
 					/>
 					{/* Add more fields as needed */}
 					<button type='submit'>Save</button>
