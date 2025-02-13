@@ -77,13 +77,12 @@ export default function StudentList() {
 							<h2>
 								{student.l_name} {student.f_names}
 							</h2>
-							<h2>{student.unoff_name}</h2>
+							<h4>{student.unoff_name}</h4>
 							<p>
-								{new Date(student.expected_grad_date).getDate() +
-									"/" +
-									(new Date(student.expected_grad_date).getMonth() + 1) +
-									"/" +
-									new Date(student.expected_grad_date).getFullYear()}
+								{"Y. " +
+									student.expected_grad_year +
+									" S. " +
+									student.expected_grad_semester}
 							</p>
 							<p>{"T.A. available : " + student.ta_available}</p>
 						</div>

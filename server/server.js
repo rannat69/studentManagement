@@ -25,7 +25,8 @@ db.serialize(() => {
             l_name TEXT,
             f_names TEXT,
             unoff_name TEXT,
-        expected_grad_date DATE,
+        expected_grad_year INTEGER,
+        expected_grad_semester INTEGER,
         ta_available INTEGER
     )`);
 

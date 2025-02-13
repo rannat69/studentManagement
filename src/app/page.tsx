@@ -14,11 +14,19 @@ export default function Home() {
 
 	const [userLoggedIn, setUserLoggedIn] = useState<string>("");
 
-	const [errorMessage, setErrorMessage]= useState<string>("");
+	const [errorMessage, setErrorMessage] = useState<string>("");
 
 	const changeTab = (tab: string) => {
 		setActiveTab(tab);
 	};
+
+	useEffect(() => {
+		// Check if the user is already logged in
+		const storedUserLoggedIn = localStorage.getItem("userLoggedIn");
+		if (storedUserLoggedIn) {
+			setUserLoggedIn(storedUserLoggedIn);
+		}
+	}, []);
 
 	function handleLogin(): void {
 		// check if login = admin and password = 123
@@ -29,6 +37,9 @@ export default function Home() {
 			(document.getElementById("password") as HTMLInputElement).value === "123"
 		) {
 			setUserLoggedIn("admin");
+
+			// also store in local storage
+			localStorage.setItem("userLoggedIn", "admin");
 		} else {
 			setErrorMessage("Wrong login or password");
 		}
@@ -81,7 +92,9 @@ export default function Home() {
 						<div className={styles.add} onClick={() => handleLogin()}>
 							Login
 						</div>
-						<div className={styles.error}>{errorMessage}</div>
+						{errorMessage.length > 0 && (
+							<div className={styles.error}>{errorMessage}</div>
+						)}
 					</div>
 				</>
 			)}

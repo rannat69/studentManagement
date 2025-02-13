@@ -29,7 +29,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				l_name: "",
 				f_names: "",
 				unoff_name: "",
-				expected_grad_date: new Date(),
+				expected_grad_year: 0,
+				expected_grad_semester: 0,
 				ta_available: 0,
 				deleted: false,
 				dropZone: 0,
@@ -124,8 +125,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			return;
 		}
 
-		formData.expected_grad_date = new Date(formData.expected_grad_date);
-
 		if (mode === MODE_CREATION) {
 			createStudent(formData).then((newStudent) => {
 				// Update the state with the new student
@@ -147,7 +146,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			l_name: "",
 			f_names: "",
 			unoff_name: "",
-			expected_grad_date: new Date(),
+			expected_grad_year: 0,
+			expected_grad_semester: 0,
 			ta_available: 0,
 			deleted: false,
 			dropZone: 0,
@@ -155,20 +155,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 		onClose();
 	};
-
-	const formatDate = (date: Date) => {
-		const d = new Date(date);
-		const year = d.getFullYear();
-
-		const month = String(d.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-		const day = String(d.getDate()).padStart(2, "0");
-		return `${year}-${month}-${day}`;
-	};
-
-	const formattedDate =
-		formData && formData.expected_grad_date
-			? formatDate(formData.expected_grad_date)
-			: "";
 
 	if (!isOpen) return null;
 
@@ -204,13 +190,26 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						onChange={handleChange}
 						placeholder='Unofficial name'
 					/>
-					Expected graduation date{" "}
+					Expected graduation date
+					<br /> Year
 					<input
-						name='expected_grad_date'
-						type='date'
-						value={formData ? formattedDate : ""}
+						name='expected_grad_year'
+						type='number'
+						value={formData ? formData.expected_grad_year : ""}
 						onChange={handleChange}
 					/>
+					Semester
+					<select
+						name='expected_grad_semester'
+						onChange={handleChange}
+						value={formData ? formData.expected_grad_semester : ""}>
+						<option value='1'>1</option>
+
+						<option value='2'>2</option>
+
+						<option value='3'>3</option>
+						<option value='4'>4</option>
+					</select>
 					T.A. available
 					<input
 						name='ta_available'
