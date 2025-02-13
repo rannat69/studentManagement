@@ -34,9 +34,12 @@ export default function MatchStudentCourse() {
 					if (student.id === studentCourse.student_id) {
 						// remove record from studentListTemp
 
-						student.dropZone = studentCourse.course_id;
+						// temporary student to not get same value twice
+						var studentTemp = JSON.parse(JSON.stringify(student));
 
-						studentListAssignedTemp.push(student);
+						studentTemp.dropZone = studentCourse.course_id;
+
+						studentListAssignedTemp.push(studentTemp);
 					}
 				});
 			});
@@ -44,8 +47,6 @@ export default function MatchStudentCourse() {
 			studentListTemp = studentListTemp.filter(
 				(student: Student) => student.ta_available !== 0
 			);
-
-			console.log("studentListAssignedTemp", studentListAssignedTemp);
 
 			setStudentListAvail(studentListTemp);
 			setStudentListAssigned(studentListAssignedTemp);
@@ -69,7 +70,6 @@ export default function MatchStudentCourse() {
 		student: Student
 	) => {
 		event.dataTransfer.setData("student", JSON.stringify(student));
-		console.log("Dragging:", student);
 	};
 
 	const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -172,13 +172,26 @@ export default function MatchStudentCourse() {
 		event.preventDefault();
 		const student = event.dataTransfer.getData("student");
 
-		var courseTemp = null;
+		var courseTemp: Course = {
+			id: 0,
+			hkust_identifier: "",
+			name: "",
+			description: "",
+			field: "",
+			keywords: "",
+			semester: 0,
+			year: 0,
+			ta_needed: 0,
+			deleted: false,
+		};
 
 		// if destination is Students Available, remove record from its drop area and add it back to Students available
 		if (dropZone === 0) {
 			// find the student in the list and remove it
 			let index = studentListAssigned.findIndex(
-				(s) => s.id === JSON.parse(student).id
+				(s) =>
+					s.id === JSON.parse(student).id &&
+					s.dropZone === JSON.parse(student).dropZone
 			);
 
 			if (index > -1) {
@@ -187,19 +200,37 @@ export default function MatchStudentCourse() {
 
 			var studentTemp = JSON.parse(student);
 
-			studentTemp.dropZone = "";
 			// If back to student available, ta available again
+			studentTemp.dropZone = 0;
 			studentTemp.ta_available += 1;
 
 			// check if student already in studentListAvail
 			const studentExists = studentListAvail.some(
 				(student) => student.id === studentTemp.id
 			);
+
 			if (!studentExists) {
 				setStudentListAvail([...studentListAvail, studentTemp]);
+			} else {
+				//
+
+				const studentIndex = studentListAvail.findIndex(
+					(student) => student.id === studentTemp.id
+				);
+				if (studentIndex > -1) {
+					studentListAvail[studentIndex].ta_available++;
+
+					studentTemp = studentListAvail[studentIndex];
+				}
+				setStudentListAvail(studentListAvail);
+				// Update the student in the list
+				//const updatedStudentList = [...studentListAvail];
+				//updatedStudentList[index] = studentTemp;
+
+				//updatedStudentList);
 			}
 
-			// course T.A.  +1 when removing a student from it
+			// course T.A. needed  +1 when removing a student from it
 
 			// find record of courseList with id = student.dropzone and make +1 to ta_needed
 			const courseIndex = courseListNeeded.findIndex(
@@ -220,14 +251,24 @@ export default function MatchStudentCourse() {
 			}
 
 			// Update student and course record
-			updateCourse(courseTemp);
+			if (courseTemp.id) {
+				updateCourse(courseTemp);
+
+				if (studentTemp.id) {
+					deleteStudentCourse(studentTemp, courseTemp);
+				}
+			}
+
+			// Update student and course record
+			updateStudent(studentTemp);
 
 			// Remove student from course
-			deleteStudentCourse(studentTemp, courseTemp);
 		} else {
 			// If destination is a drop zone, then either move from other drop zone or from student available
 
 			// check if course has at least T.A. needed. If not, cancel.
+
+			var studentTemp = JSON.parse(student);
 
 			let courseIndex = courseListNeeded.findIndex(
 				(course) => course.id === dropZone
@@ -240,11 +281,28 @@ export default function MatchStudentCourse() {
 				}
 			}
 
-			var studentTemp = JSON.parse(student);
+			// check if course already has this student. If not, cancel.
 
-			console.log(studentTemp);
+			let studentIndex = studentListAssigned.findIndex(
+				(student) =>
+					student.id === studentTemp.id && student.dropZone === dropZone
+			);
+			if (studentIndex > -1) {
+				return;
+			}
 
-			var courseTemp = null;
+			var courseTemp: Course = {
+				id: 0,
+				hkust_identifier: "",
+				name: "",
+				description: "",
+				field: "",
+				keywords: "",
+				semester: 0,
+				year: 0,
+				ta_needed: 0,
+				deleted: false,
+			};
 
 			if (
 				!studentTemp.dropZone ||
@@ -255,19 +313,39 @@ export default function MatchStudentCourse() {
 
 				studentTemp.ta_available -= 1;
 
-				// find the student in the available list and remove it
-				const index = studentListAvail.findIndex(
-					(s) => s.id === studentTemp.id
-				);
+				// if student no more available, remove from available list
+				if (studentTemp.ta_available < 1) {
+					// find the student in the available list and remove it
+					const index = studentListAvail.findIndex(
+						(s) => s.id === studentTemp.id
+					);
 
-				if (index > -1) {
-					studentListAvail.splice(index, 1);
+					if (index > -1) {
+						studentListAvail.splice(index, 1);
+					}
+				} else {
+					// if still available, -1 from ta_available in the available list
+					const index = studentListAvail.findIndex(
+						(s) => s.id === studentTemp.id
+					);
+
+					if (index > -1) {
+						studentListAvail[index].ta_available -= 1;
+
+						setStudentListAvail([...studentListAvail]);
+
+						// Check all records in studentListAssigned for this student, and ta_available - 1
+						studentListAssigned.forEach((student) => {
+							if (student.id === studentTemp.id) {
+								student.ta_available -= 1;
+							}
+						});
+					}
 				}
 			} else {
-				console.log("origin is " + studentTemp.dropZone);
 				// find the student in the list and remove it
 				const index = studentListAssigned.findIndex(
-					(s) => s.id === studentTemp.id
+					(s) => s.id === studentTemp.id && s.dropZone === studentTemp.dropZone
 				);
 
 				if (index > -1) {
@@ -303,7 +381,9 @@ export default function MatchStudentCourse() {
 
 			// check if student already in studentListAssigned
 			const studentExists = studentListAssigned.some(
-				(student) => student.id === studentTemp.id
+				(student) =>
+					student.id === studentTemp.id &&
+					student.dropZone === studentTemp.dropZone
 			);
 			if (!studentExists) {
 				setStudentListAssigned([...studentListAssigned, studentTemp]);
