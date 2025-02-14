@@ -16,6 +16,18 @@ router.get("/", (req, res) => {
 	});
 });
 
+// API to get a specific course by ID
+router.get("/:id", (req, res) => {
+	const { id } = req.params;
+	db.get("SELECT * FROM course WHERE id = ?", [id], (err, row) => {
+		if (err) {
+			res.status(500).json({ error: err.message });
+		} else {
+			res.json(row);
+		}
+	});
+});
+
 // API to add a course
 router.post("/", (req, res) => {
 	const {

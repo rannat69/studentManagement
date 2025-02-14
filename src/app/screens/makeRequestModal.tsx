@@ -77,7 +77,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
-		setFormData({ ...formData, [name]: value });
+
+		setFormData({
+			...formData,
+			[name]: name === "want" ? value === "true" : value, // Convert to boolean if  });
+		});
 	};
 
 	const createRequest = async (requestData: Request) => {
@@ -202,19 +206,19 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 					)}
 					Request made by{" "}
 					<select
-						name='student_id'
+						name='request_from'
 						onChange={handleChange}
-						value={formData ? formData.request_from : 0}>
-						<option value={0}>-- Who made the request ? --</option>
+						value={formData ? formData.request_from : ""}>
+						<option value={""}>-- Who made the request ? --</option>
 						<option value={"Teacher"}>Teacher</option>
 						<option value={"Student"}>Student</option>
 					</select>
 					<select
 						name='want'
 						onChange={handleChange}
-						value={formData ? formData.want : true}>
-						<option value={true}>Want</option>
-						<option value={false}>Do not want</option>
+						value={formData ? formData.want : "true"}>
+						<option value={"true"}>Want</option>
+						<option value={"false"}>Do not want</option>
 					</select>
 					Student list
 					<select
