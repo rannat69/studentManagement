@@ -458,7 +458,7 @@ export default function MatchStudentCourse() {
 
 				{courseListNeeded.map((course) => (
 					<div key={course.id} className={styles.dropAreas}>
-						<h2>{course.id}</h2>
+						<h2>{course.hkust_identifier}</h2>
 						<h2>{course.name}</h2>
 						<h3>T.A. needed : {course.ta_needed}</h3>
 						<div className={styles.dropArea}>

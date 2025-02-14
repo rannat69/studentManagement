@@ -5,9 +5,17 @@ import React, { useEffect, useState } from "react";
 import styles from "./screens/styles/page.module.css";
 
 import StudentList from "./screens/studentList";
-import { STUDENT_LIST, COURSE_LIST, MATCH_STUDENT_COURSE } from "./constants";
+import {
+	STUDENT_LIST,
+	COURSE_LIST,
+	MATCH_STUDENT_COURSE,
+	TEACHER_LIST,
+	MAKE_REQUEST,
+} from "./constants";
 import CourseList from "./screens/courseList";
 import MatchStudentCourse from "./screens/matchStudentCourse";
+import TeacherList from "./screens/teacherList";
+import MakeRequest from "./screens/makeRequest";
 
 export default function Home() {
 	const [activeTab, setActiveTab] = useState<string | null>(STUDENT_LIST);
@@ -60,6 +68,12 @@ export default function Home() {
 							onClick={() => changeTab(COURSE_LIST)}>
 							Course list{" "}
 						</div>
+
+						<div
+							className={activeTab === TEACHER_LIST ? styles.active : ""}
+							onClick={() => changeTab(TEACHER_LIST)}>
+							Teacher list{" "}
+						</div>
 						<div
 							className={
 								activeTab === MATCH_STUDENT_COURSE ? styles.active : ""
@@ -67,16 +81,30 @@ export default function Home() {
 							onClick={() => changeTab(MATCH_STUDENT_COURSE)}>
 							Match Student and Course{" "}
 						</div>
+
+						<div
+							className={activeTab === MAKE_REQUEST ? styles.active : ""}
+							onClick={() => changeTab(MAKE_REQUEST)}>
+							Requests{" "}
+						</div>
 					</div>
 
 					<div>
 						{activeTab && activeTab === STUDENT_LIST && <StudentList />}
 					</div>
 					<div>{activeTab && activeTab === COURSE_LIST && <CourseList />}</div>
+
+					<div>
+						{activeTab && activeTab === TEACHER_LIST && <TeacherList />}
+					</div>
 					<div>
 						{activeTab && activeTab === MATCH_STUDENT_COURSE && (
 							<MatchStudentCourse />
 						)}
+					</div>
+
+					<div>
+						{activeTab && activeTab === MAKE_REQUEST && <MakeRequest />}
 					</div>
 				</>
 			) : (

@@ -3,7 +3,9 @@ const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 const studentRoutes = require("./routes/students"); // Adjust the path as necessary
 const coursesRoutes = require("./routes/courses");
+const teachersRoutes = require("./routes/teachers");
 const studentCourseRoutes = require("./routes/studentCourse");
+const requestsRoutes = require("./routes/requests");
 
 const app = express();
 const db = new sqlite3.Database("sql.db"); // Use a file instead for persistent storage
@@ -23,6 +25,8 @@ db.serialize(() => {
 	//db.run(`DROP TABLE student`);
 	//db.run(`DROP TABLE course`);
 	//db.run(`DROP TABLE student_course`);
+
+	db.run(`DELETE FROM student_course`);
 });
 
 // Create the student table
@@ -58,12 +62,38 @@ db.serialize(() => {
             FOREIGN KEY (student_id) REFERENCES student(id),
             FOREIGN KEY (course_id) REFERENCES course(id)
         )`);
+
+	db.run(`CREATE TABLE IF NOT EXISTS teacher (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                               l_name TEXT,
+            f_names TEXT,
+            unoff_name TEXT,
+            field TEXT
+   
+        )`);
+
+	db.run(`CREATE TABLE IF NOT EXISTS request (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+               student_id INTEGER,
+                        teacher_id INTEGER,
+                        course_id INTEGER,
+                        message TEXT,
+                        status TEXT,
+                        request_from TEXT, 
+                        want BOOLEAN,
+FOREIGN KEY (student_id) REFERENCES student(id),
+FOREIGN KEY (teacher_id) REFERENCES teacher(id),
+FOREIGN KEY (course_id) REFERENCES course(id)
+
+ )`);
 });
 
 // Use the student routes
 app.use("/students", studentRoutes);
 app.use("/courses", coursesRoutes);
 app.use("/studentcourse", studentCourseRoutes);
+app.use("/teachers", teachersRoutes);
+app.use("/requests", requestsRoutes);
 
 // cronjob that copies and renames sql.db every day at 23:50
 
@@ -79,7 +109,6 @@ cron.schedule("50 23 * * *", () => {
 	fs.copyFileSync(oldFilePath, newFilePath);
 
 	console.log(`Database copied to ${newFilePath}`);
-
 });
 
 // cronjob that sends a console log every minute
