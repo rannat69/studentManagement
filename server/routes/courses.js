@@ -39,10 +39,11 @@ router.post("/", (req, res) => {
 		field,
 		keywords,
 		ta_needed,
+		ta_assigned,
 	} = req.body;
 
 	db.run(
-		`INSERT INTO course (hkust_identifier, name, description, semester, year, field, keywords, ta_needed) VALUES (?, ?, ?,?, ?,?,?,?)`,
+		`INSERT INTO course (hkust_identifier, name, description, semester, year, field, keywords, ta_needed, ta_assigned) VALUES (?, ?, ?,?, ?,?,?,?,?)`,
 		[
 			hkust_identifier,
 			name,
@@ -52,6 +53,7 @@ router.post("/", (req, res) => {
 			field,
 			keywords,
 			ta_needed,
+			ta_assigned,
 		],
 		function (err) {
 			if (err) {
@@ -77,9 +79,10 @@ router.put("/:id", (req, res) => {
 		field,
 		keywords,
 		ta_needed,
+		ta_assigned,
 	} = req.body;
 	db.run(
-		`UPDATE course SET hkust_identifier = ?,  name = ?, description = ?, semester = ?, year = ?, field = ?, keywords = ?, ta_needed = ?  WHERE id = ?`,
+		`UPDATE course SET hkust_identifier = ?,  name = ?, description = ?, semester = ?, year = ?, field = ?, keywords = ?, ta_needed = ?, ta_assigned = ? WHERE id = ?`,
 		[
 			hkust_identifier,
 			name,
@@ -89,6 +92,7 @@ router.put("/:id", (req, res) => {
 			field,
 			keywords,
 			ta_needed,
+			ta_assigned,
 			id,
 		],
 		function (err) {

@@ -18,7 +18,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sqlite3": "^5.1.7",
-    "websql": "^2.0.3"
+    "websql": "^2.0.3",
+    "xlsx": "^0.18.5",
+    "xslx": "^1.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

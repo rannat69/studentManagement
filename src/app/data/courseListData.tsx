@@ -8,5 +8,6 @@ export interface Course {
 	field: string;
 	keywords: string;
 	ta_needed: number;
+	ta_assigned: number;
 	deleted: boolean;
 }

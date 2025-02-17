@@ -188,6 +188,7 @@ export default function MatchStudentCourse() {
 			semester: 0,
 			year: 0,
 			ta_needed: 0,
+			ta_assigned: 0,
 			deleted: false,
 		};
 
@@ -246,6 +247,8 @@ export default function MatchStudentCourse() {
 			if (courseIndex > -1) {
 				courseTemp = courseListNeeded[courseIndex];
 				courseTemp.ta_needed += 1;
+
+				courseTemp.ta_assigned -=1;
 
 				// Update the course in the list
 				const updatedCourseList = [...courseListNeeded];
@@ -309,6 +312,7 @@ export default function MatchStudentCourse() {
 				semester: 0,
 				year: 0,
 				ta_needed: 0,
+				ta_assigned: 0,
 				deleted: false,
 			};
 
@@ -370,6 +374,8 @@ export default function MatchStudentCourse() {
 					courseTemp = courseListNeeded[courseIndex];
 					courseTemp.ta_needed += 1;
 
+					courseTemp.ta_assigned -= 1;
+
 					// Update the course in the list
 					const updatedCourseList = [...courseListNeeded];
 					updatedCourseList[courseIndex] = courseTemp;
@@ -407,6 +413,8 @@ export default function MatchStudentCourse() {
 			if (courseIndex > -1) {
 				courseTemp = courseListNeeded[courseIndex];
 				courseTemp.ta_needed -= 1;
+
+				courseTemp.ta_assigned += 1;
 
 				// Update the course in the list
 				const updatedCourseList = [...courseListNeeded];

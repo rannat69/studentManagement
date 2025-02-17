@@ -11,11 +11,13 @@ import {
 	MATCH_STUDENT_COURSE,
 	TEACHER_LIST,
 	MAKE_REQUEST,
+	IMPORT_EXPORT,
 } from "./constants";
 import CourseList from "./screens/courseList";
 import MatchStudentCourse from "./screens/matchStudentCourse";
 import TeacherList from "./screens/teacherList";
 import MakeRequest from "./screens/makeRequest";
+import ImportExport from "./screens/importExport";
 
 export default function Home() {
 	const [activeTab, setActiveTab] = useState<string | null>(STUDENT_LIST);
@@ -87,6 +89,12 @@ export default function Home() {
 							onClick={() => changeTab(MAKE_REQUEST)}>
 							Requests{" "}
 						</div>
+
+						<div
+							className={activeTab === IMPORT_EXPORT ? styles.active : ""}
+							onClick={() => changeTab(IMPORT_EXPORT)}>
+							Import / Export{" "}
+						</div>
 					</div>
 
 					<div>
@@ -105,6 +113,10 @@ export default function Home() {
 
 					<div>
 						{activeTab && activeTab === MAKE_REQUEST && <MakeRequest />}
+					</div>
+
+					<div>
+						{activeTab && activeTab === IMPORT_EXPORT && <ImportExport />}
 					</div>
 				</>
 			) : (

@@ -29,11 +29,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 				l_name: "",
 				f_names: "",
 				unoff_name: "",
-				expected_grad_year: 0,
-				expected_grad_semester: 0,
-				ta_available: 0,
+				field: "",
 				deleted: false,
-				dropZone: 0,
 			});
 			setMode(MODE_CREATION);
 		}

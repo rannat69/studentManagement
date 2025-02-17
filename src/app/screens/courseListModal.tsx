@@ -33,6 +33,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 				semester: 0,
 				year: 0,
 				ta_needed: 0,
+				ta_assigned: 0,
 				deleted: false,
 			});
 			setMode(MODE_CREATION);
@@ -177,6 +178,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			semester: 0,
 			year: 0,
 			ta_needed: 0,
+			ta_assigned: 0,
 			deleted: false,
 		});
 

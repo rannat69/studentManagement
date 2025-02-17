@@ -77,6 +77,7 @@ export default function CourseList() {
 							<h2>{course.hkust_identifier + " - " + course.name}</h2>
 
 							<p>{"T.A. needed : " + course.ta_needed}</p>
+							<p>{ course.ta_assigned ? "T.A. assigned : " + course.ta_assigned : "No T.A. assigned"}</p>
 						</div>
 					))}
 			</div>
