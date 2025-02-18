@@ -29,12 +29,31 @@ router.get("/ta_avail", (req, res) => {
 
 // API to add a student
 router.post("/", (req, res) => {
-	const { l_name, f_names, unoff_name, date_joined, expected_grad_year, expected_grad_semester, ta_available } =
-		req.body;
+	const {
+		student_number,
+		l_name,
+		f_names,
+		unoff_name,
+		program,
+		date_joined,
+		expected_grad_year,
+		expected_grad_semester,
+		ta_available,
+	} = req.body;
 
 	db.run(
-		`INSERT INTO student (l_name, f_names, unoff_name, date_joined, expected_grad_year, expected_grad_semester, ta_available) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		[l_name, f_names, unoff_name, date_joined, expected_grad_year, expected_grad_semester, ta_available],
+		`INSERT INTO student (student_number, l_name, f_names, unoff_name, program, date_joined, expected_grad_year, expected_grad_semester, ta_available) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)`,
+		[
+			student_number,
+			l_name,
+			f_names,
+			unoff_name,
+			program,
+			date_joined,
+			expected_grad_year,
+			expected_grad_semester,
+			ta_available,
+		],
 		function (err) {
 			if (err) {
 				res.status(500).json({ error: err.message });
@@ -48,11 +67,31 @@ router.post("/", (req, res) => {
 // Modify student
 router.put("/:id", (req, res) => {
 	const { id } = req.params;
-	const { l_name, f_names, unoff_name, date_joined, expected_grad_year, expected_grad_semester, ta_available } =
-		req.body;
+	const {
+		student_number,
+		l_name,
+		f_names,
+		unoff_name,
+		program,
+		date_joined,
+		expected_grad_year,
+		expected_grad_semester,
+		ta_available,
+	} = req.body;
 	db.run(
-		`UPDATE student SET l_name = ?, f_names = ?, unoff_name = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ? WHERE id = ?`,
-		[l_name, f_names, unoff_name, date_joined, expected_grad_year, expected_grad_semester, ta_available, id],
+		`UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ? WHERE id = ?`,
+		[
+			student_number,
+			l_name,
+			f_names,
+			unoff_name,
+			program,
+			date_joined,
+			expected_grad_year,
+			expected_grad_semester,
+			ta_available,
+			id,
+		],
 		function (err) {
 			if (err) {
 				res.status(500).json({ error: err.message });

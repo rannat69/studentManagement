@@ -22,17 +22,19 @@ app.use(cors());
 app.use(express.json());
 
 db.serialize(() => {
-	//db.run(`DROP TABLE student`);
+	db.run(`DROP TABLE student`);
 	//db.run(`DROP TABLE course`);
 	//db.run(`DROP TABLE student_course`);
 
-	//db.run(`DELETE FROM student_course`);
+	db.run(`DELETE FROM student_course`);
+    db.run(`DELETE FROM request`);
 });
 
 // Create the student table
 db.serialize(() => {
 	db.run(`CREATE TABLE IF NOT EXISTS student (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_number INTEGER,
             l_name TEXT,
             f_names TEXT,
             unoff_name TEXT,

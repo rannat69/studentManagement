@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import styles from "./styles/modal.module.css";
 import { Student } from "../data/studentListData";
 import axios from "axios";
-import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "../constants";
+import { MODE_CREATION, MODE_DELETE, MODE_EDITION, PROGRAMS } from "../constants";
 
 interface ModalProps {
 	isOpen: boolean;
@@ -26,6 +26,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 			setFormData({
 				id: 0,
+				student_number: 0,
 				l_name: "",
 				f_names: "",
 				unoff_name: "",
@@ -35,12 +36,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				ta_available: 0,
 				deleted: false,
 				dropZone: 0,
+				multiCourses: false,
 			});
 			setMode(MODE_CREATION);
 		}
 	}, [student]); // Add student to the dependency array
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleChange = (e: any) => {
 		const { name, value } = e.target;
 		setFormData({ ...formData, [name]: value });
 	};
@@ -120,6 +122,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 		e.preventDefault();
 
+		if (!formData.l_name || formData.l_name.length === 0) {
+			setErrorMessage("Please enter a surname");
+			return;
+		}
+
 		// check if ta_available is number
 		if (isNaN(Number(formData.ta_available))) {
 			setErrorMessage("T.A. available must be a number");
@@ -133,11 +140,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 		if (formData.expected_grad_year <= 0) {
 			setErrorMessage("Year must be a positive number");
-			return;
-		}
-
-		if (!formData.l_name || formData.l_name.length === 0) {
-			setErrorMessage("Please enter a surname");
 			return;
 		}
 
@@ -159,6 +161,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 		setFormData({
 			id: 0,
+			student_number: 0,
 			l_name: "",
 			f_names: "",
 			unoff_name: "",
@@ -168,6 +171,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			ta_available: 0,
 			deleted: false,
 			dropZone: 0,
+			multiCourses: false,
 		});
 
 		onClose();
@@ -186,6 +190,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 				<form onSubmit={handleSubmit} className={styles.modalContent}>
 					{mode === MODE_EDITION ? <h2>Edit Student</h2> : <h2>Add Student</h2>}
+					Student number
+					<input
+						name='student_number'
+						value={formData ? formData.student_number : 0}
+						onChange={handleChange}
+						placeholder='Student number'
+					/>
 					Surname
 					<input
 						name='l_name'
@@ -208,6 +219,19 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						placeholder='Unofficial name'
 					/>
 					<br />
+					Program
+					<select
+						name='program'
+						onChange={handleChange}
+						value={formData ? formData.program : ""}>
+						<option value=''>None</option>
+
+						{PROGRAMS.map((program) => (
+							<option key={program} value={program}>
+								{program}
+							</option>
+						))}
+					</select>
 					Date joined
 					<input
 						name='date_joined'

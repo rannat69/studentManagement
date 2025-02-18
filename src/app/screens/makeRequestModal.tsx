@@ -75,7 +75,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 		}
 	}, [request]); // Add request to the dependency array
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleChange = (e: any) => {
 		const { name, value } = e.target;
 
 		setFormData({
@@ -177,10 +177,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 
 		setFormData({
 			id: 0,
-			l_name: "",
-			f_names: "",
-			unoff_name: "",
-			field: "",
+			student_id: 0,
+			teacher_id: 0,
+			course_id: 0,
+			message: "",
+			status: "",
+			request_from: "",
+			want: true,
 			deleted: false,
 		});
 
@@ -269,7 +272,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 						<div className={styles.error}>{errorMessage}</div>
 					)}
 				</form>
-				{mode === MODE_EDITION && (<button onClick={() => handleDelete()}>Delete</button>)}
+				{mode === MODE_EDITION && (
+					<button onClick={() => handleDelete()}>Delete</button>
+				)}
 			</div>
 		</div>
 	);
