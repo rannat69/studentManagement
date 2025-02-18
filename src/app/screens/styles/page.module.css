@@ -45,6 +45,14 @@
 	max-width: 20rem;
 }
 
+.warning {
+	padding: 0.5rem;
+
+	border-radius: 0.5rem;
+	background-color: darkgoldenrod;
+	color: #f2f2f2;
+	max-width: 20rem;
+}
 
 .tab {
 	display: flex;
@@ -223,6 +231,10 @@ a.secondary {
 
 .footer img {
 	flex-shrink: 0;
+}
+
+.yellow {
+	color: darkgoldenrod;
 }
 
 /* Enable hover only on non-touch devices */

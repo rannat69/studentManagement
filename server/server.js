@@ -26,7 +26,7 @@ db.serialize(() => {
 	//db.run(`DROP TABLE course`);
 	//db.run(`DROP TABLE student_course`);
 
-	db.run(`DELETE FROM student_course`);
+	//db.run(`DELETE FROM student_course`);
 });
 
 // Create the student table
@@ -36,6 +36,7 @@ db.serialize(() => {
             l_name TEXT,
             f_names TEXT,
             unoff_name TEXT,
+            date_joined DATE, 
         expected_grad_year INTEGER,
         expected_grad_semester TEXT,
         ta_available INTEGER

@@ -201,7 +201,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 						<div className={styles.error}>{errorMessage}</div>
 					)}
 				</form>
-				<button onClick={() => handleDelete()}>Delete</button>
+				{mode === MODE_EDITION && (<button onClick={() => handleDelete()}>Delete</button>)}
 			</div>
 		</div>
 	);

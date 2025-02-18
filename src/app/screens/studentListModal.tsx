@@ -29,6 +29,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				l_name: "",
 				f_names: "",
 				unoff_name: "",
+				date_joined: new Date(),
 				expected_grad_year: 0,
 				expected_grad_semester: 0,
 				ta_available: 0,
@@ -161,6 +162,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			l_name: "",
 			f_names: "",
 			unoff_name: "",
+			date_joined: new Date(),
 			expected_grad_year: 0,
 			expected_grad_semester: 0,
 			ta_available: 0,
@@ -205,6 +207,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						onChange={handleChange}
 						placeholder='Unofficial name'
 					/>
+					<br />
+					Date joined
+					<input
+						name='date_joined'
+						type='date'
+						value={formData ? formData.date_joined : ""}
+						onChange={handleChange}
+					/>
 					Expected graduation date
 					<br /> Year
 					<input
@@ -239,7 +249,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						<div className={styles.error}>{errorMessage}</div>
 					)}
 				</form>
-				<button onClick={() => handleDelete()}>Delete</button>
+				{mode === MODE_EDITION && (
+					<button onClick={() => handleDelete()}>Delete</button>
+				)}
 			</div>
 		</div>
 	);

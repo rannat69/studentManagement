@@ -18,6 +18,7 @@ export default function MatchStudentCourse() {
 	const [courseListNeeded, setCourseListNeeded] = useState<Course[]>([]);
 
 	const [errorMessage, setErrorMessage] = useState<String>("");
+	const [warningMessage, setWarningMessage] = useState<String>("");
 
 	useEffect(() => {
 		// list of students with at least 1 T.A.
@@ -49,6 +50,20 @@ export default function MatchStudentCourse() {
 			studentListTemp = studentListTemp.filter(
 				(student: Student) => student.ta_available !== 0
 			);
+
+			console.log("studentListAssignedTemp", studentListAssignedTemp);
+
+			const idCount: number[] = [];
+
+			// Count occurrences of each id
+			for (const item of studentListAssignedTemp) {
+				idCount[item.id] = (idCount[item.id] || 0) + 1;
+			}
+
+			// Update multiCourses property based on the count
+			for (const item of studentListAssignedTemp) {
+				item.multiCourses = idCount[item.id] > 1;
+			}
 
 			setStudentListAvail(studentListTemp);
 			setStudentListAssigned(studentListAssignedTemp);
@@ -174,6 +189,7 @@ export default function MatchStudentCourse() {
 		dropZone: number
 	) => {
 		setErrorMessage("");
+		setWarningMessage("");
 
 		event.preventDefault();
 		const student = event.dataTransfer.getData("student");
@@ -194,18 +210,38 @@ export default function MatchStudentCourse() {
 
 		// if destination is Students Available, remove record from its drop area and add it back to Students available
 		if (dropZone === 0) {
+			var studentTemp = JSON.parse(student);
+
 			// find the student in the list and remove it
 			let index = studentListAssigned.findIndex(
-				(s) =>
-					s.id === JSON.parse(student).id &&
-					s.dropZone === JSON.parse(student).dropZone
+				(s) => s.id === studentTemp.id && s.dropZone === studentTemp.dropZone
 			);
 
 			if (index > -1) {
 				studentListAssigned.splice(index, 1);
 			}
 
-			var studentTemp = JSON.parse(student);
+			// Then, find other students with same id in this list, and -1 qty
+			// Also check if they have other courses
+
+			let count = 0;
+			let studentMultiCourses = false;
+
+			for (const item of studentListAssigned) {
+				if (item.id === studentTemp.id) {
+					count++;
+					if (count > 1) {
+						studentMultiCourses = true;
+					}
+				}
+			}
+
+			for (const item of studentListAssigned) {
+				if (item.id === studentTemp.id) {
+					item.ta_available ++;
+					item.multiCourses = studentMultiCourses;
+				}
+			}
 
 			// If back to student available, ta available again
 			studentTemp.dropZone = 0;
@@ -248,7 +284,7 @@ export default function MatchStudentCourse() {
 				courseTemp = courseListNeeded[courseIndex];
 				courseTemp.ta_needed += 1;
 
-				courseTemp.ta_assigned -=1;
+				courseTemp.ta_assigned -= 1;
 
 				// Update the course in the list
 				const updatedCourseList = [...courseListNeeded];
@@ -322,9 +358,7 @@ export default function MatchStudentCourse() {
 				studentTemp.dropZone === 0
 			) {
 				// If from student available, ta available -  1
-
 				studentTemp.ta_available -= 1;
-
 				// if student no more available, remove from available list
 				if (studentTemp.ta_available < 1) {
 					// find the student in the available list and remove it
@@ -352,6 +386,23 @@ export default function MatchStudentCourse() {
 								student.ta_available -= 1;
 							}
 						});
+					}
+				}
+
+				// check if student present multiple times in studentAssigned. If yes, display warning.
+				let count = 0;
+				let studentPresent = false;
+				for (const item of studentListAssigned) {
+					if (item.id === studentTemp.id) {
+						count++;
+						if (count > 0) {
+							studentPresent = true; // Found a duplicate
+							studentTemp.multiCourses = true;
+							item.multiCourses = true;
+							setWarningMessage(
+								"Student is already assigned to another course."
+							);
+						}
 					}
 				}
 			} else {
@@ -483,9 +534,15 @@ export default function MatchStudentCourse() {
 											key={student.id.toString()}
 											className={styles.element}
 											onDragStart={(event) => handleDragStart(event, student)}>
-											<h2>
-												{student.l_name} {student.f_names}
-											</h2>
+											{student.multiCourses ? (
+												<h2 className={styles.yellow}>
+													{student.l_name} {student.f_names}
+												</h2>
+											) : (
+												<h2>
+													{student.l_name} {student.f_names}
+												</h2>
+											)}
 											<h4>{student.unoff_name}</h4>
 											<p>
 												{"Y. " +
@@ -504,6 +561,10 @@ export default function MatchStudentCourse() {
 
 			{errorMessage.length > 0 && (
 				<div className={styles.error}>{errorMessage}</div>
+			)}
+
+			{warningMessage.length > 0 && (
+				<div className={styles.warning}>{warningMessage}</div>
 			)}
 		</div>
 	);

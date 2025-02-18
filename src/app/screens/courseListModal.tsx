@@ -148,8 +148,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			return;
 		}
 
-
-
 		if (mode === MODE_CREATION) {
 			createCourse(formData).then((newCourse) => {
 				// Update the state with the new course
@@ -267,8 +265,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						<div className={styles.error}>{errorMessage}</div>
 					)}
 				</form>
-
-				{mode != MODE_CREATION && (
+				{mode === MODE_EDITION && (
 					<button onClick={() => handleDelete()}>Delete</button>
 				)}
 			</div>
