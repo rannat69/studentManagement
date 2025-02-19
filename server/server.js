@@ -38,6 +38,7 @@ db.serialize(() => {
             l_name TEXT,
             f_names TEXT,
             unoff_name TEXT,
+            program TEXT, 
             date_joined DATE, 
         expected_grad_year INTEGER,
         expected_grad_semester TEXT,

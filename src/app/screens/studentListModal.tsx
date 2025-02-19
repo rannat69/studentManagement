@@ -3,7 +3,12 @@ import { useEffect, useState } from "react";
 import styles from "./styles/modal.module.css";
 import { Student } from "../data/studentListData";
 import axios from "axios";
-import { MODE_CREATION, MODE_DELETE, MODE_EDITION, PROGRAMS } from "../constants";
+import {
+	MODE_CREATION,
+	MODE_DELETE,
+	MODE_EDITION,
+	PROGRAMS,
+} from "../constants";
 
 interface ModalProps {
 	isOpen: boolean;
@@ -30,6 +35,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				l_name: "",
 				f_names: "",
 				unoff_name: "",
+				program: "",
 				date_joined: new Date(),
 				expected_grad_year: 0,
 				expected_grad_semester: 0,
@@ -165,6 +171,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			l_name: "",
 			f_names: "",
 			unoff_name: "",
+			program: "",
 			date_joined: new Date(),
 			expected_grad_year: 0,
 			expected_grad_semester: 0,

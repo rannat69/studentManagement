@@ -237,6 +237,22 @@ a.secondary {
 	color: darkgoldenrod;
 }
 
+.error {
+	padding: 0.5rem;
+
+	border-radius: 0.5rem;
+	background-color: red;
+	color: #f2f2f2;
+}
+
+.success {
+	padding: 0.5rem;
+
+	border-radius: 0.5rem;
+	background-color: green;
+	color: #f2f2f2;
+}
+
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
 	a.primary:hover {

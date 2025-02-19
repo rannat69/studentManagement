@@ -16,6 +16,28 @@ router.get("/", (req, res) => {
 	});
 });
 
+router.get("/:id", (req, res) => {
+	const studentId = req.params.id; // Get the ID from the request parameters
+
+	db.get("SELECT * FROM student WHERE id = ?", [studentId], (err, row) => {
+		if (err) {
+			res.status(500).json({ error: err.message });
+		} else {
+			res.json(row);
+		}
+	});
+});
+
+router.get("/", (req, res) => {
+	db.all("SELECT * FROM student", [], (err, rows) => {
+		if (err) {
+			res.status(500).json({ error: err.message });
+		} else {
+			res.json(rows);
+		}
+	});
+});
+
 // API to get all students with at least 1 TA
 router.get("/ta_avail", (req, res) => {
 	db.all("SELECT * FROM student where ta_available > 0", [], (err, rows) => {

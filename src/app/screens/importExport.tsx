@@ -13,6 +13,161 @@ import { Course } from "../data/courseListData";
 import { Teacher } from "../data/teacherListData";
 
 export default function ImportExport() {
+	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [successMessage, setSuccessMessage] = useState<string>("");
+
+	const handleImport = (e: any) => {
+		setSuccessMessage("");
+		setErrorMessage("");
+		// Open file from local drive.
+
+		const file = e.target.files[0];
+		const reader = new FileReader();
+
+		const errors: string[] = [];
+
+		const validateStudent = (item: any): boolean => {
+			const validKeys = [
+				"id",
+				"student_number",
+				"l_name",
+				"f_names",
+				"unoff_name",
+				"program",
+				"date_joined",
+				"expected_grad_year",
+				"expected_grad_semester",
+				"ta_available",
+				"deleted",
+				"dropZone",
+				"multiCourses",
+			];
+
+			// Check for missing required fields
+			if (
+				!item.l_name ||
+				item.ta_available === undefined ||
+				!item.expected_grad_year
+			) {
+				errors.push("Error: Missing required fields for a student");
+				return false;
+			}
+
+			// Check for invalid properties
+			const studentKeys = Object.keys(item);
+			for (const key of studentKeys) {
+				if (!validKeys.includes(key)) {
+					errors.push(
+						`Error: Invalid property "${key}" found in student object.`
+					);
+					return false;
+				}
+			}
+			return true;
+		};
+
+		reader.onload = async (event) => {
+			if (event && event.target) {
+				const data = new Uint8Array(event.target.result as ArrayBuffer);
+				const workbook = XLSX.read(data, { type: "array" });
+				const sheetName = workbook.SheetNames[0];
+				const sheet = workbook.Sheets[sheetName];
+				const sheetData: Student[] = XLSX.utils.sheet_to_json(sheet);
+
+				console.log("sheetData", sheetData);
+
+				for (const item of sheetData) {
+					console.log("item", item);
+
+					// if id is present, update
+					if (validateStudent(item)) {
+						if (item.id && item.id > 0) {
+							// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
+
+							console.log("item update", item);
+
+							// read record
+							// if not found, error
+							const fetchStudent = async (id: number) => {
+								try {
+									const response = await axios.get(
+										`http://localhost:5000/students/${id}`
+									);
+
+									console.log("fetchStudent", response);
+
+									return response.data;
+								} catch (error) {
+									// Handle other errors
+									console.error("Error:", error.message);
+
+									return false;
+								}
+							};
+
+							const fetchStudentResponse = await fetchStudent(item.id);
+							console.log("fetchStudentResponse", fetchStudentResponse);
+							if (fetchStudentResponse) {
+								updateStudent(item.id, item);
+							} else {
+								errors.push(`Error: Student with id ${item.id} not found`);
+							}
+						} else {
+							console.log("item create", item);
+							// if id not present, create
+							createStudent(item);
+						}
+					}
+				}
+
+				if (errors.length > 0) {
+					setErrorMessage(errors.join("\n")); // Display all errors
+				} else {
+					setSuccessMessage("Imported successfully");
+				}
+			}
+		};
+		reader.readAsArrayBuffer(file);
+	};
+
+	const createStudent = async (studentData: Student) => {
+		try {
+			const response = await fetch("http://localhost:5000/students", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(studentData),
+			});
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			const data = await response.json();
+
+			if (data.error) {
+				setErrorMessage(data.error);
+			}
+
+			return data; // Return the newly created student ID or object
+		} catch (error) {
+			console.error("Error adding student:", error);
+			throw error; // Rethrow the error for handling in the caller
+		}
+	};
+
+	const updateStudent = async (id: number, updatedData: Student) => {
+		try {
+			const response = await axios.put(
+				`http://localhost:5000/students/${id}`,
+				updatedData
+			);
+		} catch (error) {
+			console.error("Error updating student:", error);
+		}
+	};
+
 	async function handleExport(): Promise<void> {
 		// Read DB, then export in Excel file
 
@@ -77,13 +232,24 @@ export default function ImportExport() {
 		<div className={styles.page}>
 			<div className={styles.main}>
 				<div className={styles.element}>
-					<div className={styles.text}>Import</div>
+					<div className={styles.text}>
+						Import
+						<input type='file' onChange={handleImport} />
+					</div>
 				</div>
 				<div className={styles.element} onClick={() => handleExport()}>
 					<div className={styles.text}>Export</div>
 				</div>
 			</div>
-			<footer className={styles.footer}>Le Footer</footer>
+			<footer className={styles.footer}>
+				Le Footer
+				{errorMessage && errorMessage.length > 0 && (
+					<div className={styles.error}>{errorMessage} </div>
+				)}
+				{successMessage && successMessage.length > 0 && (
+					<div className={styles.success}>{successMessage} </div>
+				)}
+			</footer>
 		</div>
 	);
 }
