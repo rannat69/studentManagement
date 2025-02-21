@@ -1,9 +1,8 @@
-export function createTables(db) {
+export function createTables(db, bcrypt) {
 	db.serialize(() => {
 		//db.run(`DROP TABLE student`);
 		//db.run(`DROP TABLE course`);
 		//db.run(`DROP TABLE student_course`);
-
 		//db.run(`DELETE FROM student_course`);
 		//db.run(`DELETE FROM request`);
 	});
@@ -74,5 +73,33 @@ FOREIGN KEY (course_id) REFERENCES course(id)
             course_id INTEGER,           
             FOREIGN KEY (course_id) REFERENCES course(id)
         )`);
+
+		db.run(`DROP TABLE IF EXISTS user`);
+		db.run(`CREATE TABLE IF NOT EXISTS user (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            login TEXT,
+            password TEXT,
+            type TEXT
+        )`);
+
+		/*const user = "admin";
+		const password = "xxxxxxxxxxxxxxx"; // obfuscated
+		const type = "admin";
+		// Hash the password
+		bcrypt.hash(password, 10, (err, hash) => {
+			if (err) throw err;
+
+			// Insert into the database
+			db.run(
+				`INSERT INTO user (login, password, type) VALUES (?, ?, ?)`,
+				[user, hash, type],
+				function (err) {
+					if (err) {
+						return console.error(err.message);
+					}
+					console.log(`A row has been inserted with rowid ${this.lastID}`);
+				}
+			);
+		});*/
 	});
 }

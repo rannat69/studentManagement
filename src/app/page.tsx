@@ -19,6 +19,8 @@ import TeacherList from "./screens/teacherList";
 import MakeRequest from "./screens/makeRequest";
 import ImportExport from "./screens/importExport";
 
+import axios from "axios";
+
 export default function Home() {
 	const [activeTab, setActiveTab] = useState<string | null>(STUDENT_LIST);
 
@@ -38,21 +40,44 @@ export default function Home() {
 		}
 	}, []);
 
-	function handleLogin(): void {
+	async function handleLogin(): Promise<void> {
 		// check if login = admin and password = 123
 
-		if (
-			(document.getElementById("login") as HTMLInputElement).value ===
-				"admin" &&
-			(document.getElementById("password") as HTMLInputElement).value === "123"
-		) {
-			setUserLoggedIn("admin");
+		const login = (document.getElementById("login") as HTMLInputElement).value;
 
-			// also store in local storage
-			localStorage.setItem("userLoggedIn", "admin");
-		} else {
-			setErrorMessage("Wrong login or password");
+		const password = (document.getElementById("password") as HTMLInputElement)
+			.value;
+
+		const loginData = {
+			login: login, // User ID
+			password: password, // Password
+		};
+
+		const response = await fetch("http://localhost:5000/user/login", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(loginData),
+		});
+
+		if (!response.ok) {
+			throw new Error("Network response was not ok");
 		}
+
+		const data = await response.json();
+
+		console.log(data);
+
+		if (data.error) {
+			setErrorMessage(data.error);
+			return;
+		}
+
+		console.log("Login successful:", data);
+		setUserLoggedIn(login);
+		localStorage.setItem("userLoggedIn", login);
+
 	}
 
 	return (

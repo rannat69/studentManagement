@@ -7,8 +7,9 @@ const teachersRoutes = require("./routes/teachers");
 const studentCourseRoutes = require("./routes/studentCourse");
 const requestsRoutes = require("./routes/requests");
 const courseAreaRoutes = require("./routes/courseArea");
+const userRoutes = require("./routes/users");
 
-const {createTables} = require("./createTables");
+const { createTables } = require("./createTables");
 
 const app = express();
 const db = new sqlite3.Database("sql.db"); // Use a file instead for persistent storage
@@ -20,11 +21,13 @@ const fs = require("fs");
 const path = require("path");
 
 const { exec } = require("child_process");
+const bcrypt = require("bcrypt");
+
 
 app.use(cors());
 app.use(express.json());
 
-createTables(db);
+createTables(db, bcrypt);
 
 // Use the student routes
 app.use("/students", studentRoutes);
@@ -33,6 +36,8 @@ app.use("/studentcourse", studentCourseRoutes);
 app.use("/teachers", teachersRoutes);
 app.use("/requests", requestsRoutes);
 app.use("/coursearea", courseAreaRoutes);
+
+app.use("/user", userRoutes);
 
 // cronjob that copies and renames sql.db every day at 23:50
 
