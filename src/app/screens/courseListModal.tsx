@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import styles from "./styles/modal.module.css";
 import { Course } from "../data/courseListData";
 import axios from "axios";
-import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "../constants";
+import {
+	AREAS,
+	MODE_CREATION,
+	MODE_DELETE,
+	MODE_EDITION,
+	PROGRAMS,
+} from "../constants";
 
 interface ModalProps {
 	isOpen: boolean;
@@ -17,10 +23,37 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 	const [mode, setMode] = useState<string>("");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
+	const [areas, setAreas] = useState<string[]>();
+	const [selectedArea, setSelectedArea] = useState<string>("");
+
 	useEffect(() => {
 		if (course) {
 			setMode(MODE_EDITION);
 			setFormData(course);
+
+			const fetchAreas = async () => {
+				try {
+					const response = await axios.get(
+						`http://localhost:5000/coursearea/${course.id}`
+					);
+
+					console.log(response.data);
+
+					for (let i = 0; i < response.data.length; i++) {
+						response.data[i] = response.data[i].area;
+					}
+
+					setAreas(response.data);
+					return response.data;
+				} catch (error) {
+					// Handle other errors
+					console.error("Error:", error.message);
+
+					return false;
+				}
+			};
+
+			fetchAreas();
 		} else {
 			// We are in creation mode
 			setFormData({
@@ -36,11 +69,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 				ta_assigned: 0,
 				deleted: false,
 			});
+			setAreas([]);
 			setMode(MODE_CREATION);
 		}
 	}, [course]); // Add course to the dependency array
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleChange = (e: any) => {
 		const { name, value } = e.target;
 		setFormData({ ...formData, [name]: value });
 	};
@@ -49,7 +83,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 		console.log("courseData", courseData);
 
 		try {
-			const response = await fetch("http://localhost:5000/courses", {
+			let response = await fetch("http://localhost:5000/courses", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -63,6 +97,37 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 			const data = await response.json();
 			console.log("Course added:", data);
+
+			// Delete all areas for course first
+			response = await fetch(`http://localhost:5000/coursearea/${data.id}`, {
+				method: "DELETE",
+			});
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			// Add areas
+			if (areas && areas.length > 0) {
+				areas.forEach(async (area) => {
+					const courseArea = {
+						course_id: data.id,
+						area: area,
+					};
+					response = await fetch("http://localhost:5000/coursearea", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(courseArea),
+					});
+				});
+			}
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
 			return data; // Return the newly created course ID or object
 		} catch (error) {
 			console.error("Error adding course:", error);
@@ -72,10 +137,35 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 	const updateCourse = async (id: number, updatedData: Course) => {
 		try {
-			const response = await axios.put(
+			let response = await axios.put(
 				`http://localhost:5000/courses/${id}`,
 				updatedData
 			);
+
+			// Delete all areas for course first
+			let responseCourse = await fetch(
+				`http://localhost:5000/coursearea/${id}`,
+				{
+					method: "DELETE",
+				}
+			);
+
+			// Add areas
+			if (areas && areas.length > 0) {
+				areas.forEach(async (area) => {
+					const courseArea = {
+						course_id: id,
+						area: area,
+					};
+					responseCourse = await fetch("http://localhost:5000/coursearea", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(courseArea),
+					});
+				});
+			}
 		} catch (error) {
 			console.error("Error updating course:", error);
 		}
@@ -185,6 +275,33 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 	if (!isOpen) return null;
 
+	function addArea(): void {
+		// get the currently selected area and add it to the areas array
+		//in the formData
+
+		setErrorMessage("");
+
+		// the currently selected area is in the select whose idea is "area"
+
+		console.log(selectedArea);
+		if (selectedArea === "") {
+			setErrorMessage("Please select an area");
+			return;
+		}
+		if (areas && areas.includes(selectedArea)) {
+			setErrorMessage("Area already added");
+			return;
+		}
+
+		if (areas) {
+			setAreas([...areas, selectedArea]);
+			formData.keywords = areas.join(",");
+		} else {
+			setAreas([selectedArea]);
+			formData.keywords = selectedArea;
+		}
+	}
+
 	return (
 		<div className={styles.modal}>
 			<div>
@@ -259,6 +376,41 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						placeholder='Number of T.A. needed'
 						type='number'
 					/>
+					Areas
+					<div>
+						<select
+							id='areas'
+							onChange={(e) => setSelectedArea(e.target.value)}>
+							<option key='' value=''>
+								-- Choose an area --
+							</option>
+
+							{AREAS.map((area) => (
+								<option key={area} value={area}>
+									{area}
+								</option>
+							))}
+						</select>
+						<div onClick={() => addArea()}>+ </div>
+						{areas && areas.length > 0 && (
+							<div>
+								{areas.map((area) => (
+									<div key={area}>
+										{area}
+										<div
+											onClick={() => {
+												setAreas(areas.filter((a) => a !== area));
+												formData.keywords = areas
+													.filter((a) => a !== area)
+													.join(", ");
+											}}>
+											x
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
 					{/* Add more fields as needed */}
 					<button type='submit'>Save</button>
 					{errorMessage.length > 0 && (

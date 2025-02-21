@@ -66,25 +66,77 @@ export default function ImportExport() {
 			return true;
 		};
 
+		const validateCourse = (item: any): boolean => {
+			const validKeys = [
+				"id",
+				"hkust_identifier",
+				"name",
+				"description",
+				"semester",
+				"year",
+				"field",
+				"keywords",
+				"ta_needed",
+				"ta_assigned",
+				"deleted",
+			];
+
+			// Check for missing required fields
+			if (!item.hkust_identifier || !item.name) {
+				errors.push("Error: Missing required fields for a course");
+				return false;
+			}
+
+			// Check for invalid properties
+			const courseKeys = Object.keys(item);
+			for (const key of courseKeys) {
+				if (!validKeys.includes(key)) {
+					errors.push(
+						`Error: Invalid property "${key}" found in course object.`
+					);
+					return false;
+				}
+			}
+			return true;
+		};
+
+		const validateTeacher = (item: any): boolean => {
+			const validKeys = ["id", "l_name", "f_names", "unoff_name", "field"];
+
+			// Check for missing required fields
+			if (!item.l_name || !item.field) {
+				errors.push("Error: Missing required fields for a teacher");
+				return false;
+			}
+
+			// Check for invalid properties
+			const courseKeys = Object.keys(item);
+			for (const key of courseKeys) {
+				if (!validKeys.includes(key)) {
+					errors.push(
+						`Error: Invalid property "${key}" found in teacher object.`
+					);
+					return false;
+				}
+			}
+			return true;
+		};
+
 		reader.onload = async (event) => {
 			if (event && event.target) {
 				const data = new Uint8Array(event.target.result as ArrayBuffer);
 				const workbook = XLSX.read(data, { type: "array" });
-				const sheetName = workbook.SheetNames[0];
-				const sheet = workbook.Sheets[sheetName];
-				const sheetData: Student[] = XLSX.utils.sheet_to_json(sheet);
 
-				console.log("sheetData", sheetData);
+				// Student import
+				let sheetName = workbook.SheetNames[0];
+				let sheet = workbook.Sheets[sheetName];
+				let sheetDataStudent: Student[] = XLSX.utils.sheet_to_json(sheet);
 
-				for (const item of sheetData) {
-					console.log("item", item);
-
+				for (const item of sheetDataStudent) {
 					// if id is present, update
 					if (validateStudent(item)) {
 						if (item.id && item.id > 0) {
 							// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
-
-							console.log("item update", item);
 
 							// read record
 							// if not found, error
@@ -93,8 +145,6 @@ export default function ImportExport() {
 									const response = await axios.get(
 										`http://localhost:5000/students/${id}`
 									);
-
-									console.log("fetchStudent", response);
 
 									return response.data;
 								} catch (error) {
@@ -106,16 +156,100 @@ export default function ImportExport() {
 							};
 
 							const fetchStudentResponse = await fetchStudent(item.id);
-							console.log("fetchStudentResponse", fetchStudentResponse);
 							if (fetchStudentResponse) {
 								updateStudent(item.id, item);
 							} else {
 								errors.push(`Error: Student with id ${item.id} not found`);
 							}
 						} else {
-							console.log("item create", item);
 							// if id not present, create
 							createStudent(item);
+						}
+					}
+				}
+
+				// Course import
+				sheetName = workbook.SheetNames[1];
+				sheet = workbook.Sheets[sheetName];
+				let sheetDataCourse: Course[] = XLSX.utils.sheet_to_json(sheet);
+
+				for (const item of sheetDataCourse) {
+					console.log(item);
+
+					// if id is present, update
+					if (validateCourse(item)) {
+						if (item.id && item.id > 0) {
+							// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
+
+							// read record
+							// if not found, error
+							const fetchCourse = async (id: number) => {
+								try {
+									const response = await axios.get(
+										`http://localhost:5000/courses/${id}`
+									);
+
+									return response.data;
+								} catch (error) {
+									// Handle other errors
+									console.error("Error:", error.message);
+
+									return false;
+								}
+							};
+
+							const fetchCourseResponse = await fetchCourse(item.id);
+							if (fetchCourseResponse) {
+								updateCourse(item.id, item);
+							} else {
+								errors.push(`Error: Course with id ${item.id} not found`);
+							}
+						} else {
+							// if id not present, create
+							createCourse(item);
+						}
+					}
+				}
+
+				// Teacher import
+				sheetName = workbook.SheetNames[2];
+				sheet = workbook.Sheets[sheetName];
+				let sheetDataTeacher: Teacher[] = XLSX.utils.sheet_to_json(sheet);
+
+				for (const item of sheetDataTeacher) {
+					console.log(item);
+
+					// if id is present, update
+					if (validateTeacher(item)) {
+						if (item.id && item.id > 0) {
+							// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
+
+							// read record
+							// if not found, error
+							const fetchTeacher = async (id: number) => {
+								try {
+									const response = await axios.get(
+										`http://localhost:5000/teachers/${id}`
+									);
+
+									return response.data;
+								} catch (error) {
+									// Handle other errors
+									console.error("Error:", error.message);
+
+									return false;
+								}
+							};
+
+							const fetchCourseResponse = await fetchTeacher(item.id);
+							if (fetchCourseResponse) {
+								updateTeacher(item.id, item);
+							} else {
+								errors.push(`Error: Course with id ${item.id} not found`);
+							}
+						} else {
+							// if id not present, create
+							createTeacher(item);
 						}
 					}
 				}
@@ -157,6 +291,60 @@ export default function ImportExport() {
 		}
 	};
 
+	const createCourse = async (courseData: Course) => {
+		try {
+			const response = await fetch("http://localhost:5000/courses", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(courseData),
+			});
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			const data = await response.json();
+
+			if (data.error) {
+				setErrorMessage(data.error);
+			}
+
+			return data; // Return the newly created course ID or object
+		} catch (error) {
+			console.error("Error adding course:", error);
+			throw error; // Rethrow the error for handling in the caller
+		}
+	};
+
+	const createTeacher = async (teacherData: Teacher) => {
+		try {
+			const response = await fetch("http://localhost:5000/teachers", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(teacherData),
+			});
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			const data = await response.json();
+
+			if (data.error) {
+				setErrorMessage(data.error);
+			}
+
+			return data; // Return the newly created course ID or object
+		} catch (error) {
+			console.error("Error adding course:", error);
+			throw error; // Rethrow the error for handling in the caller
+		}
+	};
+
 	const updateStudent = async (id: number, updatedData: Student) => {
 		try {
 			const response = await axios.put(
@@ -165,6 +353,28 @@ export default function ImportExport() {
 			);
 		} catch (error) {
 			console.error("Error updating student:", error);
+		}
+	};
+
+	const updateCourse = async (id: number, updatedData: Course) => {
+		try {
+			const response = await axios.put(
+				`http://localhost:5000/courses/${id}`,
+				updatedData
+			);
+		} catch (error) {
+			console.error("Error updating course:", error);
+		}
+	};
+
+	const updateTeacher = async (id: number, updatedData: Teacher) => {
+		try {
+			const response = await axios.put(
+				`http://localhost:5000/teachers/${id}`,
+				updatedData
+			);
+		} catch (error) {
+			console.error("Error updating teacher:", error);
 		}
 	};
 

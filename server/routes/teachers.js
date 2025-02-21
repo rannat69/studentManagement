@@ -16,6 +16,18 @@ router.get("/", (req, res) => {
 	});
 });
 
+
+router.get("/:id", (req, res) => {
+	const teacherId = req.params.id; // Get the ID from the request parameters
+	db.all("SELECT * FROM teacher WHERE id = ?", [teacherId], (err, row) => {
+		if (err) {
+			res.status(500).json({ error: err.message });
+		} else {
+			res.json(row);
+		}
+	});
+});
+
 // API to add a student
 router.post("/", (req, res) => {
 	const { l_name, f_names, unoff_name, field } = req.body;
