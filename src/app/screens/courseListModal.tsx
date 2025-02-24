@@ -173,13 +173,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 	const deleteCourse = async (id: number) => {
 		try {
-			const response = await fetch(`http://localhost:5000/courses/${id}`, {
+			let response = await fetch(`http://localhost:5000/courses/${id}`, {
 				method: "DELETE",
 			});
 
 			if (!response.ok) {
 				throw new Error("Network response was not ok");
 			}
+
+			// Delete all areas for course first
+			response = await fetch(`http://localhost:5000/coursearea/${id}`, {
+				method: "DELETE",
+			});
 
 			const data = await response.json();
 			console.log("Course deleted:", data);
@@ -391,18 +396,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 								</option>
 							))}
 						</select>
-						<div onClick={() => addArea()}>+ </div>
+						<div className={styles.add} onClick={() => addArea()}>+ </div>
 						{areas && areas.length > 0 && (
 							<div>
 								{areas.map((area) => (
 									<div key={area}>
 										{area}
-										<div
+										<div className={styles.remove}
 											onClick={() => {
 												setAreas(areas.filter((a) => a !== area));
-												formData.keywords = areas
-													.filter((a) => a !== area)
-													.join(", ");
+												areas.filter((a) => a !== area);
 											}}>
 											x
 										</div>

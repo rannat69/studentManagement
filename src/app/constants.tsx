@@ -27,3 +27,11 @@ export const AREAS = [
 	"Urban Design",
 	"Design",
 ];
+
+export const QUALIFICATIONS = [
+	"Fluent in english",
+	"Forklift certified",
+	"Black belt in ninjutsu",
+	"Completed Dark Souls 2 all bosses no hit",
+	"Knows the difference between a crocodile and an alligator",
+];

@@ -1,10 +1,11 @@
 export function createTables(db, bcrypt) {
 	db.serialize(() => {
-		//db.run(`DROP TABLE student`);
-		//db.run(`DROP TABLE course`);
-		//db.run(`DROP TABLE student_course`);
+		//db.run(`DROP TABLE IF EXISTS student`);
+		//db.run(`DROP TABLE IF EXISTS course`);
+		//db.run(`DROP TABLE IF EXISTS student_course`);
 		//db.run(`DELETE FROM student_course`);
 		//db.run(`DELETE FROM request`);
+		//db.run(`DROP TABLE IF EXISTS user`);
 	});
 
 	// Create the student table
@@ -74,12 +75,18 @@ FOREIGN KEY (course_id) REFERENCES course(id)
             FOREIGN KEY (course_id) REFERENCES course(id)
         )`);
 
-		db.run(`DROP TABLE IF EXISTS user`);
 		db.run(`CREATE TABLE IF NOT EXISTS user (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             login TEXT,
             password TEXT,
             type TEXT
+        )`);
+
+		db.run(`CREATE TABLE IF NOT EXISTS qualification (
+            student_id INTEGER,
+            qualification TEXT,
+            FOREIGN KEY (student_id) REFERENCES student(id)
+
         )`);
 
 		/*const user = "admin";

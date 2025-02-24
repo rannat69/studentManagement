@@ -8,6 +8,7 @@ const studentCourseRoutes = require("./routes/studentCourse");
 const requestsRoutes = require("./routes/requests");
 const courseAreaRoutes = require("./routes/courseArea");
 const userRoutes = require("./routes/users");
+const qualificationRoutes = require("./routes/qualifications");
 
 const { createTables } = require("./createTables");
 
@@ -23,7 +24,6 @@ const path = require("path");
 const { exec } = require("child_process");
 const bcrypt = require("bcrypt");
 
-
 app.use(cors());
 app.use(express.json());
 
@@ -36,6 +36,7 @@ app.use("/studentcourse", studentCourseRoutes);
 app.use("/teachers", teachersRoutes);
 app.use("/requests", requestsRoutes);
 app.use("/coursearea", courseAreaRoutes);
+app.use("/qualifications", qualificationRoutes);
 
 app.use("/user", userRoutes);
 

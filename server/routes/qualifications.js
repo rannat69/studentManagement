@@ -5,9 +5,9 @@ const sqlite3 = require("sqlite3").verbose();
 // Create or open the SQLite database
 const db = new sqlite3.Database("sql.db");
 
-// API to get all courses and areas
+// API to get all qualification
 router.get("/", (req, res) => {
-	db.all("SELECT * FROM course_area", [], (err, rows) => {
+	db.all("SELECT * FROM qualification", [], (err, rows) => {
 		if (err) {
 			res.status(500).json({ error: err.message });
 		} else {
@@ -17,10 +17,10 @@ router.get("/", (req, res) => {
 });
 
 router.get("/:id", (req, res) => {
-	const courseId = req.params.id; // Get the ID from the request parameters
+	const studentId = req.params.id; // Get the ID from the request parameters
 	db.all(
-		"SELECT * FROM course_area WHERE course_id = ?",
-		[courseId],
+		"SELECT * FROM qualification WHERE student_id = ?",
+		[studentId],
 		(err, row) => {
 			if (err) {
 				res.status(500).json({ error: err.message });
@@ -31,14 +31,14 @@ router.get("/:id", (req, res) => {
 	);
 });
 
-// API to assign an area to a course
+// API to assign a qualification to a student
 router.post("/", (req, res) => {
-	const { area, course_id } = req.body;
+	const { studentId, qualification } = req.body;
 
 	db.run(
-		`INSERT INTO course_area
-		(area , course_id ) VALUES (?, ?)`,
-		[area, course_id],
+		`INSERT INTO qualification
+		(student_id , qualification ) VALUES (?, ?)`,
+		[studentId, qualification],
 		function (err) {
 			if (err) {
 				res.status(500).json({ error: err.message });
@@ -49,16 +49,20 @@ router.post("/", (req, res) => {
 	);
 });
 
-// API to delete all areas of a student
+// API to delete all qualifications of a student
 router.delete("/:id", (req, res) => {
 	const { id } = req.params;
-	db.run(`DELETE FROM course_area WHERE course_id = ?`, [id], function (err) {
-		if (err) {
-			res.status(500).json({ error: err.message });
-		} else {
-			res.json({ id });
+	db.run(
+		`DELETE FROM qualification WHERE student_id = ?`,
+		[id],
+		function (err) {
+			if (err) {
+				res.status(500).json({ error: err.message });
+			} else {
+				res.json({ id });
+			}
 		}
-	});
+	);
 });
 
 module.exports = router;

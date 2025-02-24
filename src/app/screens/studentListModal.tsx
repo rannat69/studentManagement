@@ -8,6 +8,7 @@ import {
 	MODE_DELETE,
 	MODE_EDITION,
 	PROGRAMS,
+	QUALIFICATIONS,
 } from "../constants";
 
 interface ModalProps {
@@ -22,10 +23,36 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 	const [mode, setMode] = useState<string>("");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
+	const [qualifications, setQualifications] = useState<string[]>();
+	const [selectedQualif, setSelectedQualif] = useState<string>("");
+
 	useEffect(() => {
 		if (student) {
 			setMode(MODE_EDITION);
 			setFormData(student);
+
+			const fetchQualifs = async () => {
+				try {
+					const response = await axios.get(
+						`http://localhost:5000/qualifications/${student.id}`
+					);
+
+					console.log(response.data);
+
+					for (let i = 0; i < response.data.length; i++) {
+						response.data[i] = response.data[i].qualification;
+					}
+
+					setQualifications(response.data);
+					return response.data;
+				} catch (error) {
+					// Handle other errors
+					console.error("Error:", error.message);
+
+					return false;
+				}
+			};
+			fetchQualifs();
 		} else {
 			// We are in creation mode
 
@@ -44,6 +71,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				dropZone: 0,
 				multiCourses: false,
 			});
+			setQualifications([]);
 			setMode(MODE_CREATION);
 		}
 	}, [student]); // Add student to the dependency array
@@ -53,9 +81,34 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 		setFormData({ ...formData, [name]: value });
 	};
 
+	function addQualif(): void {
+		// get the currently selected area and add it to the areas array
+		//in the formData
+
+		setErrorMessage("");
+
+		// the currently selected area is in the select whose idea is "area"
+
+		console.log(selectedQualif);
+		if (selectedQualif === "") {
+			setErrorMessage("Please select a qualification");
+			return;
+		}
+		if (qualifications && qualifications.includes(selectedQualif)) {
+			setErrorMessage("Qualification already added");
+			return;
+		}
+
+		if (qualifications) {
+			setQualifications([...qualifications, selectedQualif]);
+		} else {
+			setQualifications([selectedQualif]);
+		}
+	}
+
 	const createStudent = async (studentData: Student) => {
 		try {
-			const response = await fetch("http://localhost:5000/students", {
+			let response = await fetch("http://localhost:5000/students", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -69,6 +122,39 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 			const data = await response.json();
 
+			// Delete all areas for course first
+			response = await fetch(
+				`http://localhost:5000/qualifications/${studentData.id}`,
+				{
+					method: "DELETE",
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			// Add areas
+			if (qualifications && qualifications.length > 0) {
+				qualifications.forEach(async (qualif) => {
+					const studentQualif = {
+						studentId: data.id,
+						qualification: qualif,
+					};
+					response = await fetch("http://localhost:5000/qualifications", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(studentQualif),
+					});
+				});
+			}
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
 			return data; // Return the newly created student ID or object
 		} catch (error) {
 			console.error("Error adding student:", error);
@@ -78,10 +164,37 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 	const updateStudent = async (id: number, updatedData: Student) => {
 		try {
-			const response = await axios.put(
+			let response = await axios.put(
 				`http://localhost:5000/students/${id}`,
 				updatedData
 			);
+
+			// Delete all qualifs for student first
+			let responseCourse = await fetch(
+				`http://localhost:5000/qualifications/${id}`,
+				{
+					method: "DELETE",
+				}
+			);
+
+			console.log(id);
+
+			// Add qualifs
+			if (qualifications && qualifications.length > 0) {
+				qualifications.forEach(async (qualif) => {
+					const qualifStudent = {
+						studentId: id,
+						qualification: qualif,
+					};
+					responseCourse = await fetch("http://localhost:5000/qualifications", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(qualifStudent),
+					});
+				});
+			}
 		} catch (error) {
 			console.error("Error updating student:", error);
 		}
@@ -89,7 +202,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 	const deleteStudent = async (id: number) => {
 		try {
-			const response = await fetch(`http://localhost:5000/students/${id}`, {
+			let response = await fetch(`http://localhost:5000/students/${id}`, {
+				method: "DELETE",
+			});
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			// Delete all qualifs for student first
+			response = await fetch(`http://localhost:5000/qualifications/${id}`, {
 				method: "DELETE",
 			});
 
@@ -274,6 +396,41 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						onChange={handleChange}
 						placeholder='Number of T.A. available'
 					/>
+					Qualifications
+					<div>
+						<select
+							id='areas'
+							onChange={(e) => setSelectedQualif(e.target.value)}>
+							<option key='' value=''>
+								-- Choose an area --
+							</option>
+
+							{QUALIFICATIONS.map((qualif) => (
+								<option key={qualif} value={qualif}>
+									{qualif}
+								</option>
+							))}
+						</select>
+						<div onClick={() => addQualif()} className={styles.add}>+ </div>
+						{qualifications && qualifications.length > 0 && (
+							<div>
+								{qualifications.map((qualif) => (
+									<div key={qualif}>
+										{qualif}
+										<div className={styles.remove}
+											onClick={() => {
+												setQualifications(
+													qualifications.filter((a) => a !== qualif)
+												);
+												qualifications.filter((a) => a !== qualif);
+											}}>
+											x
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
 					{/* Add more fields as needed */}
 					<button type='submit'>Save</button>
 					{errorMessage.length > 0 && (

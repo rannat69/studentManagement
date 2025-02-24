@@ -1,23 +1,23 @@
 .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .modalContent {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
+	background: white;
+	padding: 20px;
+	border-radius: 8px;
+	width: 400px;
+	position: relative;
+	display: flex;
+	flex-direction: column;
 }
 
 .error {
@@ -29,8 +29,36 @@
 }
 
 .close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	cursor: pointer;
+}
+
+.add {
+	border: 1px solid #aaa;
+	height: 1.5rem; /* Minimum height for the drop area */
+	width: 1.5rem;
+	text-align: center;
+    background-color: rgb(39, 194, 39);
+}
+
+.add:hover {
+	background-color: rgb(170, 255, 189); /* Change to your desired hover background color */
+	border-color: #0a0186; /* Change to your desired hover border color */
+	color: #1a1a1a;
+}
+
+.remove {
+	border: 1px solid #aaa;
+	height: 1.5rem; /* Minimum height for the drop area */
+	width: 1.5rem;
+	text-align: center;
+    background-color: rgb(223, 80, 80);
+}
+
+.remove:hover {
+	background-color: rgb(255, 148, 148); /* Change to your desired hover background color */
+	border-color: #0a0186; /* Change to your desired hover border color */
+	color: #1a1a1a;
 }
