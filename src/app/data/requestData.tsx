@@ -8,4 +8,7 @@ export interface Request {
 	request_from: string;
 	want: boolean;
 	deleted: boolean;
+	student_name?: string;
+	teacher_name?: string;
+	course_name?: string;
 }

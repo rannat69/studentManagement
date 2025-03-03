@@ -86,6 +86,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 
 	const createRequest = async (requestData: Request) => {
 		try {
+			console.log(requestData);
+
 			const response = await fetch("http://localhost:5000/requests", {
 				method: "POST",
 				headers: {

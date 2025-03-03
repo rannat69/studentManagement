@@ -11,6 +11,7 @@ import { Course } from "../data/courseListData";
 import { Student } from "../data/studentListData";
 import { Teacher } from "../data/teacherListData";
 
+
 export default function MakeRequest() {
 	const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,9 +21,14 @@ export default function MakeRequest() {
 	const [teachers, setTeachers] = useState<Teacher[]>([]);
 
 	useEffect(() => {
+		let coursesTemp: Course[] = [];
+		let studentsTemp: Student[] = [];
+		let teachersTemp: Teacher[] = [];
+
 		const fetchCourses = async () => {
 			try {
 				const response = await axios.get("http://localhost:5000/courses");
+				coursesTemp = response.data;
 				setCourses(response.data);
 			} catch (error) {
 				console.error("Error fetching courses:", error);
@@ -34,6 +40,7 @@ export default function MakeRequest() {
 		const fetchStudents = async () => {
 			try {
 				const response = await axios.get("http://localhost:5000/students");
+				studentsTemp = response.data;
 				setStudents(response.data);
 			} catch (error) {
 				console.error("Error fetching students:", error);
@@ -45,6 +52,7 @@ export default function MakeRequest() {
 		const fetchTeachers = async () => {
 			try {
 				const response = await axios.get("http://localhost:5000/teachers");
+				teachersTemp = response.data;
 				setTeachers(response.data);
 			} catch (error) {
 				console.error("Error fetching teachers:", error);
@@ -52,6 +60,45 @@ export default function MakeRequest() {
 		};
 
 		fetchTeachers();
+
+		// fetch requests
+		const fetchRequests = async () => {
+			const response = await axios.get("http://localhost:5000/requests");
+
+			for (const request of response.data) {
+				request.want = request.want === 1 ? true : false;
+			}
+
+			for (const request of response.data) {
+				const student = studentsTemp.find(
+					(student) => student.id === request.student_id
+				);
+
+				if (student) {
+					request.student_name = student.l_name + " " + student.f_names;
+				}
+
+				const teacher = teachersTemp.find(
+					(teacher) => teacher.id === request.teacher_id
+				);
+
+				if (teacher) {
+					request.teacher_name = teacher.l_name + " " + teacher.f_names;
+				}
+
+				const course = coursesTemp.find(
+					(course) => course.id === request.course_id
+				);
+
+				if (course) {
+					request.course_name = course.name;
+				}
+			}
+
+			setRequestListState(response.data);
+		};
+
+		fetchRequests();
 	}, []);
 
 	// Function to get course name by ID
@@ -62,6 +109,7 @@ export default function MakeRequest() {
 
 	// Function to get student name by ID
 	const getStudentNameById = (id: number) => {
+
 		const student = students.find((student) => student.id === id);
 		return student
 			? student.l_name + " " + student.f_names
@@ -71,20 +119,15 @@ export default function MakeRequest() {
 	// Function to get teacher name by ID
 	const getTeacherNameById = (id: number) => {
 		const teacher = teachers.find((teacher) => teacher.id === id);
+
+		
+
 		return teacher
 			? teacher.l_name + " " + teacher.f_names
 			: "<Unknown Teacher>"; // Fallback if not found
 	};
 
-	useEffect(() => {
-		const fetchRequests = async () => {
-			const response = await axios.get("http://localhost:5000/requests");
-
-			setRequestListState(response.data);
-		};
-
-		fetchRequests();
-	}, []);
+	useEffect(() => {}, []);
 
 	const handleClickRequest = (request: Request): void => {
 		setSelectedRequest(request);
@@ -96,19 +139,9 @@ export default function MakeRequest() {
 		setIsModalOpen(true);
 	};
 
-	function getCourse(id: number) {
-		const fetchCourseId = async () => {
-			const response = await axios.get(
-				`http://localhost:5000/courses/?id=${id}`
-			);
-			return response.data;
-		};
-		const test = fetchCourseId();
-		console.log("test", test);
-		return fetchCourseId();
-	}
-
 	const handleSaveRequest = (updatedRequest: Request) => {
+		
+
 		// Update the request list with the new data
 		if (!requestListState) {
 			return;
@@ -135,6 +168,13 @@ export default function MakeRequest() {
 				: [...requestListState, updatedRequest];
 		}
 
+		// add in the updatedList the name of the student and the teacher
+		for (const request of updatedList) {
+			request.student_name = getStudentNameById(Number(request.student_id));
+			request.teacher_name = getTeacherNameById(Number(request.teacher_id));
+			request.course_name = getCourseNameById(Number(request.course_id));
+		}
+
 		// Update the state with the new request list
 		setRequestListState(updatedList);
 	};
@@ -153,15 +193,15 @@ export default function MakeRequest() {
 
 							<p>
 								{request.request_from === "Teacher"
-									? getTeacherNameById(request.teacher_id)
-									: getStudentNameById(request.student_id)}
+									? request.teacher_name
+									: request.student_name}
 								{request.want === true ? " wants" : " does not want"}{" "}
 								{request.request_from === "Teacher"
 									? "this student " +
-									  getStudentNameById(request.student_id) +
+									  request.student_name +
 									  " in this course : " +
-									  getCourseNameById(request.course_id)
-									: " to be in this course : " + getCourseNameById(request.course_id)}
+									  request.course_name
+									: " to be in this course : " + request.course_name}
 							</p>
 						</div>
 					))}

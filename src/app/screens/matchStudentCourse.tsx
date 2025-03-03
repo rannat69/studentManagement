@@ -6,6 +6,8 @@ import { Course } from "../data/courseListData";
 
 import axios from "axios";
 import { Student } from "../data/studentListData";
+import { Qualification } from "../data/qualificationData";
+import StudentBlock from "./studentBlock";
 
 export default function MatchStudentCourse() {
 	// List students that have TA available
@@ -19,6 +21,12 @@ export default function MatchStudentCourse() {
 
 	const [errorMessage, setErrorMessage] = useState<String>("");
 	const [warningMessage, setWarningMessage] = useState<String>("");
+
+	const [hoveredStudent, setHoveredStudent] = useState<number>(0);
+
+	const [studentQualification, setStudentQualification] = useState<
+		Qualification[]
+	>([]);
 
 	useEffect(() => {
 		// list of students with at least 1 T.A.
@@ -64,6 +72,11 @@ export default function MatchStudentCourse() {
 			for (const item of studentListAssignedTemp) {
 				item.multiCourses = idCount[item.id] > 1;
 			}
+
+			// list of qualifications per student
+			response = await axios.get("http://localhost:5000/qualifications");
+			console.log("qualif", response.data);
+			setStudentQualification(response.data);
 
 			setStudentListAvail(studentListTemp);
 			setStudentListAssigned(studentListAssignedTemp);
@@ -238,7 +251,7 @@ export default function MatchStudentCourse() {
 
 			for (const item of studentListAssigned) {
 				if (item.id === studentTemp.id) {
-					item.ta_available ++;
+					item.ta_available++;
 					item.multiCourses = studentMultiCourses;
 				}
 			}
@@ -369,6 +382,13 @@ export default function MatchStudentCourse() {
 					if (index > -1) {
 						studentListAvail.splice(index, 1);
 					}
+
+					// Check all records in studentListAssigned for this student, and ta_available - 1
+					studentListAssigned.forEach((student) => {
+						if (student.id === studentTemp.id) {
+							student.ta_available -= 1;
+						}
+					});
 				} else {
 					// if still available, -1 from ta_available in the available list
 					const index = studentListAvail.findIndex(
@@ -481,8 +501,10 @@ export default function MatchStudentCourse() {
 		}
 	};
 
+	// Module that create a student react object
+
 	return (
-		<div className={styles.page}>
+		<div className={styles.pageHoriz}>
 			<div className={styles.columns}>
 				{/* Column for available students */}
 				<div
@@ -492,71 +514,49 @@ export default function MatchStudentCourse() {
 					<h2>Students Available</h2>
 					<div className={styles.dropArea}>
 						{studentListAvail.map((student) => (
-							<div
-								draggable='true'
+							<StudentBlock
 								key={student.id.toString()}
-								className={styles.element}
-								onDragStart={(event) => handleDragStart(event, student)}>
-								<h2>
-									{student.l_name} {student.f_names}
-								</h2>
-								<h4>{student.unoff_name}</h4>
-								<p>
-									{"Y. " +
-										student.expected_grad_year +
-										" S. " +
-										student.expected_grad_semester}
-								</p>
-								<p>{"T.A. available: " + student.ta_available}</p>
-							</div>
+								student={student}
+								studentQualification={studentQualification}
+								onDragStart={handleDragStart}
+								hoveredStudent={hoveredStudent}
+								setHoveredStudent={setHoveredStudent}
+							/>
 						))}
 					</div>
 				</div>
 
 				{/* Columns for drop areas */}
 
-				{courseListNeeded.map((course) => (
-					<div key={course.id} className={styles.dropAreas}>
-						<h2>{course.hkust_identifier}</h2>
-						<h2>{course.name}</h2>
-						<h3>T.A. needed : {course.ta_needed}</h3>
-						<div className={styles.dropArea}>
-							<h3></h3>
-							<div
-								onDrop={(event) => dropHandler(event, course.id)}
-								onDragOver={handleDragOver}
-								className={styles.innerDropArea}>
-								{studentListAssigned
-									.filter((student) => student.dropZone === course.id)
-									.map((student) => (
-										<div
-											draggable='true'
-											key={student.id.toString()}
-											className={styles.element}
-											onDragStart={(event) => handleDragStart(event, student)}>
-											{student.multiCourses ? (
-												<h2 className={styles.yellow}>
-													{student.l_name} {student.f_names}
-												</h2>
-											) : (
-												<h2>
-													{student.l_name} {student.f_names}
-												</h2>
-											)}
-											<h4>{student.unoff_name}</h4>
-											<p>
-												{"Y. " +
-													student.expected_grad_year +
-													" S. " +
-													student.expected_grad_semester}
-											</p>
-											<p>{"T.A. available: " + student.ta_available}</p>
-										</div>
-									))}
+				<div className={styles.dropAreas}>
+					{courseListNeeded.map((course) => (
+						<div key={course.id}>
+							<h2>{course.hkust_identifier}</h2>
+							<h2>{course.name}</h2>
+							<h3>T.A. needed : {course.ta_needed}</h3>
+							<div className={styles.dropArea}>
+								<h3></h3>
+								<div
+									onDrop={(event) => dropHandler(event, course.id)}
+									onDragOver={handleDragOver}
+									className={styles.innerDropArea}>
+									{studentListAssigned
+										.filter((student) => student.dropZone === course.id)
+										.map((student) => (
+											<StudentBlock
+												key={student.id.toString()}
+												student={student}
+												studentQualification={studentQualification}
+												onDragStart={handleDragStart}
+												hoveredStudent={hoveredStudent}
+												setHoveredStudent={setHoveredStudent}
+											/>
+										))}
+								</div>
 							</div>
 						</div>
-					</div>
-				))}
+					))}
+				</div>
 			</div>
 
 			{errorMessage.length > 0 && (
