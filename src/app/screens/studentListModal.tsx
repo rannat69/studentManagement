@@ -65,7 +65,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				program: "",
 				date_joined: new Date(),
 				expected_grad_year: 0,
-				expected_grad_semester: 0,
+				expected_grad_semester: "Spring",
 				ta_available: 0,
 				deleted: false,
 				dropZone: 0,
@@ -78,6 +78,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;
+
+		if (name === "date_joined") {
+			//convert value to date format
+			const date = new Date(value);
+
+			formData.expected_grad_year = date.getFullYear() + 3;
+		}
+
 		setFormData({ ...formData, [name]: value });
 	};
 
@@ -296,13 +304,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			program: "",
 			date_joined: new Date(),
 			expected_grad_year: 0,
-			expected_grad_semester: 0,
+			expected_grad_semester: "Spring",
 			ta_available: 0,
 			deleted: false,
 			dropZone: 0,
 			multiCourses: false,
 		});
-
+		setQualifications([]);
 		onClose();
 	};
 
@@ -325,6 +333,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						value={formData ? formData.student_number : 0}
 						onChange={handleChange}
 						placeholder='Student number'
+						type='number'
 					/>
 					Surname
 					<input
@@ -411,13 +420,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 								</option>
 							))}
 						</select>
-						<div onClick={() => addQualif()} className={styles.add}>+ </div>
+						<div onClick={() => addQualif()} className={styles.add}>
+							+{" "}
+						</div>
 						{qualifications && qualifications.length > 0 && (
 							<div>
 								{qualifications.map((qualif) => (
 									<div key={qualif}>
 										{qualif}
-										<div className={styles.remove}
+										<div
+											className={styles.remove}
 											onClick={() => {
 												setQualifications(
 													qualifications.filter((a) => a !== qualif)

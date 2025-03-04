@@ -7,7 +7,7 @@ export interface Student {
 	program: string;
 	date_joined: Date;
 	expected_grad_year: number;
-	expected_grad_semester: number;
+	expected_grad_semester: string;
 	ta_available: number;
 	deleted: boolean;
 	dropZone: number;
