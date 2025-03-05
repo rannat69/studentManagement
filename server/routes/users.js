@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcrypt");
+
+
+
 // Create or open the SQLite database
 const db = new sqlite3.Database("sql.db");
 
@@ -20,10 +23,7 @@ router.get("/", (req, res) => {
 router.post("/login", (req, res) => {
 	const { login, password } = req.body; // Get the ID and password from the request body
 
-
-
 	db.all("SELECT * FROM user WHERE login = ?", [login], (err, rows) => {
-
 		if (err) {
 			return res.status(500).json({ error: err.message });
 		}

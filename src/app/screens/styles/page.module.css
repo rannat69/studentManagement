@@ -118,12 +118,13 @@
 }
 
 .element {
-	padding: 1rem;
+	padding: 0.5rem;
 	border: 0.3rem solid;
 	border-radius: 2rem;
 	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
-
-	width: 17rem;
+	font-size: x-small;
+	width: 7rem;
+	margin: 0.1rem;
 }
 
 .element:hover {
@@ -183,7 +184,6 @@
 	border: 1px solid #aaa;
 	min-height: 100px; /* Minimum height for the drop area */
 	padding: 10px;
-
 }
 
 .ctas {

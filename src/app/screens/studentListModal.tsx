@@ -83,7 +83,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			//convert value to date format
 			const date = new Date(value);
 
-			formData.expected_grad_year = date.getFullYear() + 3;
+			formData.expected_grad_year = date.getFullYear() + 4;
 		}
 
 		setFormData({ ...formData, [name]: value });
