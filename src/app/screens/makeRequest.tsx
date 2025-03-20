@@ -209,7 +209,7 @@ export default function MakeRequest() {
 			<div className={styles.add} onClick={() => handleClickRequestNew()}>
 				Make request
 			</div>
-			<footer className={styles.footer}>Le Footer</footer>
+			<footer className={styles.footer}></footer>
 			<Modal
 				isOpen={isModalOpen}
 				request={selectedRequest}

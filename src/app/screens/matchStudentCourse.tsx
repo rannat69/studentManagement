@@ -28,6 +28,9 @@ export default function MatchStudentCourse() {
 		Qualification[]
 	>([]);
 
+	const [semester, setSemester] = useState<String>("String");
+	const [year, setYear] = useState<number>(0);
+
 	useEffect(() => {
 		// list of students with at least 1 T.A.
 		const fetchStudents = async () => {
@@ -56,10 +59,8 @@ export default function MatchStudentCourse() {
 			});
 
 			studentListTemp = studentListTemp.filter(
-				(student: Student) => student.ta_available !== 0
+				(student: Student) => student.ta_available !== 0 && student.available
 			);
-
-			console.log("studentListAssignedTemp", studentListAssignedTemp);
 
 			const idCount: number[] = [];
 
@@ -74,8 +75,10 @@ export default function MatchStudentCourse() {
 			}
 
 			// list of qualifications per student
-			response = await axios.get("http://localhost:5000/qualifications");
-			console.log("qualif", response.data);
+			response = await axios.get(
+				"http://localhost:5000/student_qualifications"
+			);
+
 			setStudentQualification(response.data);
 
 			setStudentListAvail(studentListTemp);
@@ -93,6 +96,29 @@ export default function MatchStudentCourse() {
 		};
 
 		fetchCourses();
+
+		// get current year
+		const currentYear = new Date().getFullYear();
+		setYear(currentYear);
+
+		// get current semester + 1
+		// if between february and august, it is spring
+
+		console.log(new Date().getMonth());
+
+		if (new Date().getMonth() >= 1 && new Date().getMonth() <= 7) {
+			// current semester is spring, assign students for fall
+
+			setSemester("Fall");
+		} else if (new Date().getMonth() >= 8 && new Date().getMonth() <= 10) {
+			// current semester is fall, assign students for winter
+
+			setSemester("Winter");
+		} else {
+			// current semester is winter, assign students for spring of next year
+			setSemester("Spring");
+			setYear(currentYear + 1);
+		}
 	}, []);
 
 	const handleDragStart = (
@@ -147,6 +173,8 @@ export default function MatchStudentCourse() {
 				body: JSON.stringify({
 					student_id: updatedStudent.id,
 					course_id: updatedCourse.id,
+					year: year,
+					semester: semester,
 				}),
 			});
 
@@ -502,70 +530,124 @@ export default function MatchStudentCourse() {
 	};
 
 	// Module that create a student react object
+	const handleChangeSemester = (
+		event: React.ChangeEvent<HTMLSelectElement>
+	) => {
+		setSemester(event.target.value);
+	};
+
+	const handleChangeYear = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setYear(parseInt(event.target.value));
+	};
+
+	const handleAutoMatch = () => {
+		// find all students with ta_available > 0 and no dropZone
+		const students = studentListAvail.filter(
+			(student) => student.ta_available > 0 && !student.dropZone
+		);
+
+		// for each student, find a course with ta_needed > 0 and no dropZone
+		students.forEach((student) => {
+			const courses = courseListNeeded.filter(
+				(course) => course.ta_needed > 0
+			);
+
+			// if a course is found, add the student to the course
+			if (courses.length > 0) {
+				const course = courses[0];
+				dropHandler(
+					{
+						dataTransfer: {
+							getData: (key: string) => JSON.stringify(student),
+						},
+					} as React.DragEvent<HTMLDivElement>,
+					course.id
+				);
+			}
+		});
+	
+	}
 
 	return (
-		<div className={styles.pageHoriz}>
-			<div className={styles.columns}>
-				{/* Column for available students */}
-				<div
-					className={styles.availableColumn}
-					onDrop={(event) => dropHandler(event, 0)}
-					onDragOver={handleDragOver}>
-					<h2>Students Available</h2>
-					<div className={styles.dropArea}>
-						{studentListAvail.map((student) => (
-							<StudentBlock
-								key={student.id.toString()}
-								student={student}
-								studentQualification={studentQualification}
-								onDragStart={handleDragStart}
-								hoveredStudent={hoveredStudent}
-								setHoveredStudent={setHoveredStudent}
-							/>
+		<div className={styles.pageTitle}>
+			<b>Year :</b>{" "}
+			<input type='number' onChange={handleChangeYear} value={year} />
+			<b>Semester :</b>
+			<select
+				name='semester'
+				onChange={handleChangeSemester}
+				value={semester ? semester : "Spring"}>
+				<option value={"Spring"}>Spring</option>
+				<option value={"Fall"}>Fall</option>
+				<option value={"Winter"}>Winter</option>
+			</select>
+			<div className={styles.pageHoriz}>
+				<div className={styles.columns}>
+					{/* Column for available students */}
+					<div
+						className={styles.availableColumn}
+						onDrop={(event) => dropHandler(event, 0)}
+						onDragOver={handleDragOver}>
+						<h2>Students Available</h2>
+						<div className={styles.dropArea}>
+							{studentListAvail.map((student) => (
+								<StudentBlock
+									key={student.id.toString()}
+									student={student}
+									studentQualification={studentQualification}
+									onDragStart={handleDragStart}
+									hoveredStudent={hoveredStudent}
+									setHoveredStudent={setHoveredStudent}
+								/>
+							))}
+						</div>
+					</div>
+
+					{/* Columns for drop areas */}
+
+					<div className={styles.dropAreas}>
+						{courseListNeeded.map((course) => (
+							<div key={course.id}>
+								<h2>{course.hkust_identifier}</h2>
+								<h2>{course.name}</h2>
+								<h3>T.A. needed : {course.ta_needed}</h3>
+								<div className={styles.dropArea}>
+									<h3></h3>
+									<div
+										onDrop={(event) => dropHandler(event, course.id)}
+										onDragOver={handleDragOver}
+										className={styles.innerDropArea}>
+										{studentListAssigned
+											.filter((student) => student.dropZone === course.id)
+											.map((student) => (
+												<StudentBlock
+													key={student.id.toString()}
+													student={student}
+													studentQualification={studentQualification}
+													onDragStart={handleDragStart}
+													hoveredStudent={hoveredStudent}
+													setHoveredStudent={setHoveredStudent}
+												/>
+											))}
+									</div>
+								</div>
+							</div>
 						))}
 					</div>
 				</div>
 
-				{/* Columns for drop areas */}
-
-				<div className={styles.dropAreas}>
-					{courseListNeeded.map((course) => (
-						<div key={course.id}>
-							<h2>{course.hkust_identifier}</h2>
-							<h2>{course.name}</h2>
-							<h3>T.A. needed : {course.ta_needed}</h3>
-							<div className={styles.dropArea}>
-								<h3></h3>
-								<div
-									onDrop={(event) => dropHandler(event, course.id)}
-									onDragOver={handleDragOver}
-									className={styles.innerDropArea}>
-									{studentListAssigned
-										.filter((student) => student.dropZone === course.id)
-										.map((student) => (
-											<StudentBlock
-												key={student.id.toString()}
-												student={student}
-												studentQualification={studentQualification}
-												onDragStart={handleDragStart}
-												hoveredStudent={hoveredStudent}
-												setHoveredStudent={setHoveredStudent}
-											/>
-										))}
-								</div>
-							</div>
-						</div>
-					))}
+				<div className={styles.button} onClick={() => handleAutoMatch()}>
+					Auto match
 				</div>
+
+				{errorMessage.length > 0 && (
+					<div className={styles.error}>{errorMessage}</div>
+				)}
+
+				{warningMessage.length > 0 && (
+					<div className={styles.warning}>{warningMessage}</div>
+				)}
 			</div>
-
-			{errorMessage.length > 0 && (
-				<div className={styles.error}>{errorMessage}</div>
-			)}
-
-			{warningMessage.length > 0 && (
-				<div className={styles.warning}>{warningMessage}</div>
-			)}
 		</div>
 	);
 }

@@ -86,7 +86,7 @@ export default function TeacherList() {
 			<div className={styles.add} onClick={() => handleClickTeacherNew()}>
 				Add teacher
 			</div>
-			<footer className={styles.footer}>Le Footer</footer>
+			<footer className={styles.footer}></footer>
 			<Modal
 				isOpen={isModalOpen}
 				teacher={selectedTeacher}

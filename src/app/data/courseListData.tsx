@@ -5,9 +5,8 @@ export interface Course {
 	description: string;
 	semester: number;
 	year: number;
-	field: string;
-	keywords: string;
 	ta_needed: number;
 	ta_assigned: number;
 	deleted: boolean;
+	
 }

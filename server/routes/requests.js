@@ -28,8 +28,6 @@ router.post("/", (req, res) => {
 		want,
 	} = req.body;
 
-	console.log("want", want);
-
 	db.run(
 		`INSERT INTO request (student_id, teacher_id, course_id,message,status, request_from ,want) VALUES (?,?, ?,?,?,?,?)`,
 		[student_id, teacher_id, course_id, message, status, request_from, want],

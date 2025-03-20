@@ -9,6 +9,7 @@ import {
 	MODE_DELETE,
 	MODE_EDITION,
 	PROGRAMS,
+	QUALIFICATIONS,
 } from "../constants";
 
 interface ModalProps {
@@ -24,8 +25,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
 	const [areas, setAreas] = useState<string[]>();
+	const [qualifications, setQualifications] = useState<string[]>();
 	const [selectedArea, setSelectedArea] = useState<string>("");
-
+	const [selectedQualification, setSelectedQualification] =
+		useState<string>("");
 	useEffect(() => {
 		if (course) {
 			setMode(MODE_EDITION);
@@ -34,7 +37,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			const fetchAreas = async () => {
 				try {
 					const response = await axios.get(
-						`http://localhost:5000/coursearea/${course.id}`
+						`http://localhost:5000/course_areas/${course.id}`
 					);
 
 					console.log(response.data);
@@ -54,6 +57,30 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			};
 
 			fetchAreas();
+
+			const fetchQualifications = async () => {
+				try {
+					const response = await axios.get(
+						`http://localhost:5000/course_qualifications/${course.id}`
+					);
+
+					console.log(response.data);
+
+					for (let i = 0; i < response.data.length; i++) {
+						response.data[i] = response.data[i].qualification;
+					}
+
+					setQualifications(response.data);
+					return response.data;
+				} catch (error) {
+					// Handle other errors
+					console.error("Error:", error.message);
+
+					return false;
+				}
+			};
+
+			fetchQualifications();
 		} else {
 			// We are in creation mode
 			setFormData({
@@ -61,15 +88,17 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 				hkust_identifier: "",
 				name: "",
 				description: "",
-				field: "",
-				keywords: "",
+
 				semester: 0,
 				year: 0,
 				ta_needed: 0,
 				ta_assigned: 0,
+				areas: [],
+				qualifications: [],
 				deleted: false,
 			});
 			setAreas([]);
+			setQualifications([]);
 			setMode(MODE_CREATION);
 		}
 	}, [course]); // Add course to the dependency array
@@ -99,7 +128,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			console.log("Course added:", data);
 
 			// Delete all areas for course first
-			response = await fetch(`http://localhost:5000/coursearea/${data.id}`, {
+			response = await fetch(`http://localhost:5000/course_areas/${data.id}`, {
 				method: "DELETE",
 			});
 
@@ -114,13 +143,33 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						course_id: data.id,
 						area: area,
 					};
-					response = await fetch("http://localhost:5000/coursearea", {
+					response = await fetch("http://localhost:5000/course_areas", {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
 						},
 						body: JSON.stringify(courseArea),
 					});
+				});
+			}
+
+			// Add qualifs
+			if (qualifications && qualifications.length > 0) {
+				qualifications.forEach(async (qualification) => {
+					const courseQualification = {
+						courseId: data.id,
+						qualification: qualification,
+					};
+					response = await fetch(
+						"http://localhost:5000/course_qualifications",
+						{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify(courseQualification),
+						}
+					);
 				});
 			}
 
@@ -144,11 +193,27 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 			// Delete all areas for course first
 			let responseCourse = await fetch(
-				`http://localhost:5000/coursearea/${id}`,
+				`http://localhost:5000/course_areas/${id}`,
 				{
 					method: "DELETE",
 				}
 			);
+
+			if (!responseCourse.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			// Delete all qualifs for course first
+			responseCourse = await fetch(
+				`http://localhost:5000/course_qualifications/${id}`,
+				{
+					method: "DELETE",
+				}
+			);
+
+			if (!responseCourse.ok) {
+				throw new Error("Network response was not ok");
+			}
 
 			// Add areas
 			if (areas && areas.length > 0) {
@@ -157,13 +222,33 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						course_id: id,
 						area: area,
 					};
-					responseCourse = await fetch("http://localhost:5000/coursearea", {
+					responseCourse = await fetch("http://localhost:5000/course_areas", {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
 						},
 						body: JSON.stringify(courseArea),
 					});
+				});
+			}
+
+			// Add qualifs
+			if (qualifications && qualifications.length > 0) {
+				qualifications.forEach(async (qualification) => {
+					const courseArea = {
+						courseId: id,
+						qualification: qualification,
+					};
+					responseCourse = await fetch(
+						"http://localhost:5000/course_qualifications",
+						{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify(courseArea),
+						}
+					);
 				});
 			}
 		} catch (error) {
@@ -182,9 +267,25 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			}
 
 			// Delete all areas for course first
-			response = await fetch(`http://localhost:5000/coursearea/${id}`, {
+			response = await fetch(`http://localhost:5000/course_areas/${id}`, {
 				method: "DELETE",
 			});
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			// Delete all qualifs for course first
+			response = await fetch(
+				`http://localhost:5000/course_qualifications/${id}`,
+				{
+					method: "DELETE",
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
 
 			const data = await response.json();
 			console.log("Course deleted:", data);
@@ -274,7 +375,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			ta_assigned: 0,
 			deleted: false,
 		});
-
+		course = null;
 		onClose();
 	};
 
@@ -304,6 +405,33 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 		} else {
 			setAreas([selectedArea]);
 			formData.keywords = selectedArea;
+		}
+	}
+
+	function addQualification(): void {
+		// get the currently selected area and add it to the areas array
+		//in the formData
+
+		setErrorMessage("");
+
+		// the currently selected area is in the select whose idea is "area"
+
+		console.log(selectedQualification);
+		if (selectedQualification === "") {
+			setErrorMessage("Please select a qualification");
+			return;
+		}
+		if (qualifications && qualifications.includes(selectedQualification)) {
+			setErrorMessage("Qualification already added");
+			return;
+		}
+
+		if (qualifications) {
+			setQualifications([...qualifications, selectedQualification]);
+			formData.keywords = qualifications.join(",");
+		} else {
+			setQualifications([selectedQualification]);
+			formData.keywords = selectedQualification;
 		}
 	}
 
@@ -338,20 +466,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						value={formData ? formData.description : ""}
 						onChange={handleChange}
 						placeholder='Description'
-					/>
-					Field
-					<input
-						name='field'
-						value={formData ? formData.field : ""}
-						onChange={handleChange}
-						placeholder='Field'
-					/>
-					Keywords
-					<input
-						name='keywords'
-						value={formData ? formData.keywords : ""}
-						onChange={handleChange}
-						placeholder='Keywords'
 					/>
 					Year
 					<input
@@ -396,13 +510,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 								</option>
 							))}
 						</select>
-						<div className={styles.add} onClick={() => addArea()}>+ </div>
+						<div className={styles.add} onClick={() => addArea()}>
+							+{" "}
+						</div>
 						{areas && areas.length > 0 && (
 							<div>
 								{areas.map((area) => (
 									<div key={area}>
-										{area}
-										<div className={styles.remove}
+										<div className={styles.smalltext}>{area}</div>
+										<div
+											className={styles.remove}
 											onClick={() => {
 												setAreas(areas.filter((a) => a !== area));
 												areas.filter((a) => a !== area);
@@ -414,7 +531,44 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 							</div>
 						)}
 					</div>
-					{/* Add more fields as needed */}
+					Qualifications
+					<div>
+						<select
+							id='qualifications'
+							onChange={(e) => setSelectedQualification(e.target.value)}>
+							<option key='' value=''>
+								-- Choose a qualification --
+							</option>
+
+							{QUALIFICATIONS.map((qualification) => (
+								<option key={qualification} value={qualification}>
+									{qualification}
+								</option>
+							))}
+						</select>
+						<div className={styles.add} onClick={() => addQualification()}>
+							+{" "}
+						</div>
+						{qualifications && qualifications.length > 0 && (
+							<div>
+								{qualifications.map((qualification) => (
+									<div key={qualification}>
+										<div className={styles.smalltext}>{qualification}</div>
+										<div
+											className={styles.remove}
+											onClick={() => {
+												setQualifications(
+													qualifications.filter((a) => a !== qualification)
+												);
+												qualifications.filter((a) => a !== qualification);
+											}}>
+											x
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
 					<button type='submit'>Save</button>
 					{errorMessage.length > 0 && (
 						<div className={styles.error}>{errorMessage}</div>

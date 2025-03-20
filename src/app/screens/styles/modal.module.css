@@ -40,11 +40,15 @@
 	height: 1.5rem; /* Minimum height for the drop area */
 	width: 1.5rem;
 	text-align: center;
-    background-color: rgb(39, 194, 39);
+	background-color: rgb(39, 194, 39);
 }
 
 .add:hover {
-	background-color: rgb(170, 255, 189); /* Change to your desired hover background color */
+	background-color: rgb(
+		170,
+		255,
+		189
+	); /* Change to your desired hover background color */
 	border-color: #0a0186; /* Change to your desired hover border color */
 	color: #1a1a1a;
 }
@@ -54,11 +58,19 @@
 	height: 1.5rem; /* Minimum height for the drop area */
 	width: 1.5rem;
 	text-align: center;
-    background-color: rgb(223, 80, 80);
+	background-color: rgb(223, 80, 80);
 }
 
 .remove:hover {
-	background-color: rgb(255, 148, 148); /* Change to your desired hover background color */
+	background-color: rgb(
+		255,
+		148,
+		148
+	); /* Change to your desired hover background color */
 	border-color: #0a0186; /* Change to your desired hover border color */
 	color: #1a1a1a;
+}
+
+.smalltext {
+	font-size: small;
 }

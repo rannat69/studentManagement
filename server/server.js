@@ -7,8 +7,10 @@ const teachersRoutes = require("./routes/teachers");
 const studentCourseRoutes = require("./routes/studentCourse");
 const requestsRoutes = require("./routes/requests");
 const courseAreaRoutes = require("./routes/courseArea");
+const studentAreaRoutes = require("./routes/studentArea");
 const userRoutes = require("./routes/users");
-const qualificationRoutes = require("./routes/qualifications");
+const studentQualificationRoutes = require("./routes/studentQualification");
+const courseQualificationRoutes = require("./routes/courseQualification");
 
 const { createTables } = require("./createTables");
 
@@ -35,9 +37,10 @@ app.use("/courses", coursesRoutes);
 app.use("/studentcourse", studentCourseRoutes);
 app.use("/teachers", teachersRoutes);
 app.use("/requests", requestsRoutes);
-app.use("/coursearea", courseAreaRoutes);
-app.use("/qualifications", qualificationRoutes);
-
+app.use("/course_areas", courseAreaRoutes);
+app.use("/student_areas", studentAreaRoutes);
+app.use("/student_qualifications", studentQualificationRoutes);
+app.use("/course_qualifications", courseQualificationRoutes);
 app.use("/user", userRoutes);
 
 // cronjob that copies and renames sql.db every day at 23:50

@@ -61,10 +61,11 @@ router.post("/", (req, res) => {
 		expected_grad_year,
 		expected_grad_semester,
 		ta_available,
+		available,
 	} = req.body;
 
 	db.run(
-		`INSERT INTO student (student_number, l_name, f_names, unoff_name, program, date_joined, expected_grad_year, expected_grad_semester, ta_available) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO student (student_number, l_name, f_names, unoff_name, program, date_joined, expected_grad_year, expected_grad_semester, ta_available, available) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?)`,
 		[
 			student_number,
 			l_name,
@@ -75,6 +76,7 @@ router.post("/", (req, res) => {
 			expected_grad_year,
 			expected_grad_semester,
 			ta_available,
+			available,
 		],
 		function (err) {
 			if (err) {
@@ -99,9 +101,10 @@ router.put("/:id", (req, res) => {
 		expected_grad_year,
 		expected_grad_semester,
 		ta_available,
+		available,
 	} = req.body;
 	db.run(
-		`UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ? WHERE id = ?`,
+		`UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ?, available = ? WHERE id = ?`,
 		[
 			student_number,
 			l_name,
@@ -112,6 +115,7 @@ router.put("/:id", (req, res) => {
 			expected_grad_year,
 			expected_grad_semester,
 			ta_available,
+			available,
 			id,
 		],
 		function (err) {

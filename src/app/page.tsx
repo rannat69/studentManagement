@@ -19,8 +19,6 @@ import TeacherList from "./screens/teacherList";
 import MakeRequest from "./screens/makeRequest";
 import ImportExport from "./screens/importExport";
 
-import axios from "axios";
-
 export default function Home() {
 	const [activeTab, setActiveTab] = useState<string | null>(STUDENT_LIST);
 
@@ -38,16 +36,6 @@ export default function Home() {
 		if (storedUserLoggedIn) {
 			setUserLoggedIn(storedUserLoggedIn);
 		}
-
-		function getCookie(name) {
-			const value = `; ${document.cookie}`;
-			const parts = value.split(`; ${name}=`);
-			if (parts.length === 2) return parts.pop().split(';').shift();
-		}
-		
-		const token = getCookie("token");
-		const isLoggedIn = !!token; // Check if the token exists
-
 	}, []);
 
 	async function handleLogin(): Promise<void> {
@@ -77,8 +65,6 @@ export default function Home() {
 
 		const data = await response.json();
 
-		console.log(data);
-
 		if (data.error) {
 			setErrorMessage(data.error);
 			return;
@@ -87,13 +73,6 @@ export default function Home() {
 		console.log("Login successful:", data);
 		setUserLoggedIn(login);
 		localStorage.setItem("userLoggedIn", login);
-
-		const jwtToken = data.token;
-
-		
-
-		document.cookie = "token=" + jwtToken + "; path=/; secure; HttpOnly; expires=" + expirationDate.toUTCString();
-
 	}
 
 	return (

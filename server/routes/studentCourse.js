@@ -18,12 +18,12 @@ router.get("/", (req, res) => {
 
 // API to assign a student to a course
 router.post("/", (req, res) => {
-	const { student_id, course_id } = req.body;
+	const { student_id, course_id, year, semester } = req.body;
 
 	db.run(
 		`INSERT INTO student_course
-		(student_id , course_id ) VALUES (?, ?)`,
-		[student_id, course_id],
+		(student_id , course_id, year, semester ) VALUES (?, ?,?,?)`,
+		[student_id, course_id, year, semester],
 		function (err) {
 			if (err) {
 				res.status(500).json({ error: err.message });

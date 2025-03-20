@@ -452,7 +452,6 @@ export default function ImportExport() {
 				</div>
 			</div>
 			<footer className={styles.footer}>
-				Le Footer
 				{errorMessage && errorMessage.length > 0 && (
 					<div className={styles.error}>{errorMessage} </div>
 				)}

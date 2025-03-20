@@ -84,7 +84,7 @@ export default function CourseList() {
 			<div className={styles.add} onClick={() => handleClickCourseNew()}>
 				Add course
 			</div>
-			<footer className={styles.footer}>Le Footer</footer>
+			<footer className={styles.footer}></footer>
 			<Modal
 				isOpen={isModalOpen}
 				course={selectedCourse}

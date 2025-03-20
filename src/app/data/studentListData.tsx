@@ -9,6 +9,7 @@ export interface Student {
 	expected_grad_year: number;
 	expected_grad_semester: string;
 	ta_available: number;
+	available: boolean;
 	deleted: boolean;
 	dropZone: number;
 	multiCourses: boolean;

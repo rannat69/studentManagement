@@ -1,8 +1,11 @@
 export function createTables(db, bcrypt) {
 	db.serialize(() => {
 		//db.run(`DROP TABLE IF EXISTS student`);
-		//db.run(`DROP TABLE IF EXISTS course`);
+		//db.run(`DROP TABLE IF EXISTS request`);
 		//db.run(`DROP TABLE IF EXISTS student_course`);
+	//	db.run(`DROP TABLE IF EXISTS qualification`);
+
+		//db.run(`DROP TABLE IF EXISTS course`);
 		//db.run(`DELETE FROM student_course`);
 		//db.run(`DELETE FROM request`);
 		//db.run(`DROP TABLE IF EXISTS user`);
@@ -20,7 +23,9 @@ export function createTables(db, bcrypt) {
             date_joined DATE, 
         expected_grad_year INTEGER,
         expected_grad_semester TEXT,
-        ta_available INTEGER
+        ta_available INTEGER, 
+        available BOOLEAN
+            
     )`);
 
 		// course
@@ -41,6 +46,8 @@ export function createTables(db, bcrypt) {
 		db.run(`CREATE TABLE IF NOT EXISTS student_course (
             student_id INTEGER,
             course_id INTEGER,
+            year INTEGER,
+            semester TEXT,
             FOREIGN KEY (student_id) REFERENCES student(id),
             FOREIGN KEY (course_id) REFERENCES course(id)
         )`);
@@ -75,6 +82,12 @@ FOREIGN KEY (course_id) REFERENCES course(id)
             FOREIGN KEY (course_id) REFERENCES course(id)
         )`);
 
+        db.run(`CREATE TABLE IF NOT EXISTS course_qualification (
+            qualification TEXT,
+            course_id INTEGER,           
+            FOREIGN KEY (course_id) REFERENCES course(id)
+        )`);
+
 		db.run(`CREATE TABLE IF NOT EXISTS user (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             login TEXT,
@@ -82,7 +95,14 @@ FOREIGN KEY (course_id) REFERENCES course(id)
             type TEXT
         )`);
 
-		db.run(`CREATE TABLE IF NOT EXISTS qualification (
+        db.run(`CREATE TABLE IF NOT EXISTS student_area (
+            student_id INTEGER,
+            area TEXT,
+            FOREIGN KEY (student_id) REFERENCES student(id)
+
+        )`);
+
+		db.run(`CREATE TABLE IF NOT EXISTS student_qualification (
             student_id INTEGER,
             qualification TEXT,
             FOREIGN KEY (student_id) REFERENCES student(id)

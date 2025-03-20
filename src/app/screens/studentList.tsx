@@ -17,6 +17,10 @@ export default function StudentList() {
 		const fetchStudents = async () => {
 			const response = await axios.get("http://localhost:5000/students");
 
+			for (let i = 0; i < response.data.length; i++) {
+				response.data[i].available = response.data[i].available === 1;
+			}
+
 			setStudentListState(response.data);
 		};
 
@@ -91,7 +95,7 @@ export default function StudentList() {
 			<div className={styles.add} onClick={() => handleClickStudentNew()}>
 				Add student
 			</div>
-			<footer className={styles.footer}>Le Footer</footer>
+			<footer className={styles.footer}></footer>
 			<Modal
 				isOpen={isModalOpen}
 				student={selectedStudent}
