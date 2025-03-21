@@ -5,7 +5,7 @@ const sqlite3 = require("sqlite3").verbose();
 // Create or open the SQLite database
 const db = new sqlite3.Database("sql.db");
 
-// API to get all teacher
+// API to get all requests
 router.get("/", (req, res) => {
 	db.all("SELECT * FROM request", [], (err, rows) => {
 		if (err) {
@@ -16,6 +16,21 @@ router.get("/", (req, res) => {
 	});
 });
 
+// Get specific requests according to parameters
+router.get("/:requestFrom/:want/:studentId/:courseId", (req, res) => {
+	const { requestFrom, want, studentId, courseId } = req.params;
+	db.get(
+		"SELECT * FROM request WHERE want = ? AND request_from = ? AND student_id = ? AND course_id = ?",
+		[want, requestFrom, studentId, courseId],
+		(err, rows) => {
+			if (err) {
+				res.status(500).json({ error: err.message });
+			} else {
+				res.json(rows);
+			}
+		}
+	);
+});
 // API to add a student
 router.post("/", (req, res) => {
 	const {

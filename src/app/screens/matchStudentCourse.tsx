@@ -104,8 +104,6 @@ export default function MatchStudentCourse() {
 		// get current semester + 1
 		// if between february and august, it is spring
 
-		console.log(new Date().getMonth());
-
 		if (new Date().getMonth() >= 1 && new Date().getMonth() <= 7) {
 			// current semester is spring, assign students for fall
 
@@ -540,33 +538,110 @@ export default function MatchStudentCourse() {
 		setYear(parseInt(event.target.value));
 	};
 
-	const handleAutoMatch = () => {
+	const handleAutoMatch = async () => {
 		// find all students with ta_available > 0 and no dropZone
-		const students = studentListAvail.filter(
-			(student) => student.ta_available > 0 && !student.dropZone
+		let students = studentListAvail.filter(
+			(student) => student.ta_available > 0
 		);
 
+		// Filter the students array to remove students already in studentListAssigned
+		const filteredStudents = students.filter((student) => {
+			return studentListAssigned.findIndex((s) => s.id === student.id) === -1;
+		});
+
+		// Update the `students` array to the filtered result
+		students = filteredStudents;
+
+		const studentCourseToAddList: { studentId: number; courseId: number }[] =
+			[];
+
 		// for each student, find a course with ta_needed > 0 and no dropZone
-		students.forEach((student) => {
-			const courses = courseListNeeded.filter(
-				(course) => course.ta_needed > 0
-			);
+		for (const student of students) {
+			const courses = courseListNeeded.filter((course) => course.ta_needed > 0);
 
 			// if a course is found, add the student to the course
 			if (courses.length > 0) {
-				const course = courses[0];
-				dropHandler(
-					{
-						dataTransfer: {
-							getData: (key: string) => JSON.stringify(student),
-						},
-					} as React.DragEvent<HTMLDivElement>,
-					course.id
-				);
+				// Check for requests
+				// See if there is a request from a teacher to have this student in a course
+
+				for (const course of courses) {
+					const response = await axios.get(
+						"http://localhost:5000/requests/Teacher/1/" +
+							student.id +
+							"/" +
+							course.id
+					);
+
+					if (response.data) {
+						// if a request is found, add the student to the course
+						// addStudentCourse(student, course);
+						// remove the request
+						// deleteRequest(response.data[0]);
+
+						// request for this student and course by a teacher found
+
+						const studentCourseToAdd = {
+							studentId: student.id,
+							courseId: course.id,
+						};
+
+						studentCourseToAddList.push(studentCourseToAdd);
+					}
+				}
+			} else {
+				// if no course is found, display a message
+				console.log("No course available for this student", student);
 			}
-		});
-	
-	}
+		}
+
+		// list of students / courses to match
+
+		for (const studentCourseToAdd of studentCourseToAddList) {
+			// find the student and course in the lists
+			const student = studentListAvail.find(
+				(s) => s.id === studentCourseToAdd.studentId
+			);
+			console.log("studentCourseToAdd", studentCourseToAdd);
+
+			if (student) {
+				// add student to course
+				student.dropZone = studentCourseToAdd.courseId;
+
+				studentListAssigned.push(student);
+
+				console.log("student", student);
+
+				// -1 to his T.A. available
+				student.ta_available -= 1;
+
+				// if TA = 0, remove from list
+				if (student.ta_available === 0) {
+					const index = studentListAvail.findIndex((s) => s.id === student.id);
+					if (index > -1) {
+						studentListAvail.splice(index, 1);
+					}
+				}
+
+				updateStudent(student);
+
+				// get course and update it
+
+				const response = await axios.get(
+					"http://localhost:5000/courses/" + studentCourseToAdd.courseId
+				);
+				if (response) {
+					response.data.ta_available = response.data.ta_available - 1;
+
+					updateCourse(response.data);
+
+					addStudentCourse(student, response.data);
+				}
+			}
+		}
+
+		setStudentListAssigned([...studentListAssigned]);
+		setStudentListAvail([...studentListAvail]);
+	};
 
 	return (
 		<div className={styles.pageTitle}>
