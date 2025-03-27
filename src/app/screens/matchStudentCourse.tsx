@@ -34,55 +34,32 @@ export default function MatchStudentCourse() {
 	useEffect(() => {
 		// list of students with at least 1 T.A.
 		const fetchStudents = async () => {
-			let response = await axios.get("http://localhost:5000/students");
-
-			let studentListTemp = response.data;
-			const studentListAssignedTemp: Student[] = [];
 			// Check students already assigned to courses
 
-			response = await axios.get("http://localhost:5000/studentcourse");
+			// get current year
+			const currentYear = new Date().getFullYear();
+			setYear(currentYear);
 
-			const studentCourseList = response.data;
-			studentListTemp.forEach((student: Student) => {
-				studentCourseList.forEach((studentCourse: any) => {
-					if (student.id === studentCourse.student_id) {
-						// remove record from studentListTemp
-
-						// temporary student to not get same value twice
-						var studentTemp = JSON.parse(JSON.stringify(student));
-
-						studentTemp.dropZone = studentCourse.course_id;
-
-						studentListAssignedTemp.push(studentTemp);
-					}
-				});
-			});
-
-			studentListTemp = studentListTemp.filter(
-				(student: Student) => student.ta_available !== 0 && student.available
-			);
-
-			const idCount: number[] = [];
-
-			// Count occurrences of each id
-			for (const item of studentListAssignedTemp) {
-				idCount[item.id] = (idCount[item.id] || 0) + 1;
+			// get current semester + 1
+			// if between february and august, it is spring
+			let semester = "";
+			if (new Date().getMonth() >= 1 && new Date().getMonth() <= 7) {
+				// current semester is spring, assign students for fall
+				semester = "Fall";
+				setSemester("Fall");
+			} else if (new Date().getMonth() >= 8 && new Date().getMonth() <= 10) {
+				// current semester is fall, assign students for winter
+				semester = "Winter";
+				setSemester("Winter");
+			} else {
+				// current semester is winter, assign students for spring of next year
+				semester = "Spring";
+				setSemester("Spring");
+				setYear(currentYear + 1);
 			}
 
-			// Update multiCourses property based on the count
-			for (const item of studentListAssignedTemp) {
-				item.multiCourses = idCount[item.id] > 1;
-			}
-
-			// list of qualifications per student
-			response = await axios.get(
-				"http://localhost:5000/student_qualifications"
-			);
-
-			setStudentQualification(response.data);
-
-			setStudentListAvail(studentListTemp);
-			setStudentListAssigned(studentListAssignedTemp);
+			// get students and courses assignment for current semester and year
+			fetchStudentCourseForSemester(currentYear, semester);
 		};
 
 		fetchStudents();
@@ -96,28 +73,69 @@ export default function MatchStudentCourse() {
 		};
 
 		fetchCourses();
-
-		// get current year
-		const currentYear = new Date().getFullYear();
-		setYear(currentYear);
-
-		// get current semester + 1
-		// if between february and august, it is spring
-
-		if (new Date().getMonth() >= 1 && new Date().getMonth() <= 7) {
-			// current semester is spring, assign students for fall
-
-			setSemester("Fall");
-		} else if (new Date().getMonth() >= 8 && new Date().getMonth() <= 10) {
-			// current semester is fall, assign students for winter
-
-			setSemester("Winter");
-		} else {
-			// current semester is winter, assign students for spring of next year
-			setSemester("Spring");
-			setYear(currentYear + 1);
-		}
 	}, []);
+
+	const fetchStudentCourseForSemester = async (
+		year: number,
+		semester: String
+	) => {
+		let response = await axios.get("http://localhost:5000/students");
+
+		let studentListTemp = response.data;
+		const studentListAssignedTemp: Student[] = [];
+
+		console.log(year, semester);
+
+		response = await axios.get("http://localhost:5000/studentcourse");
+		console.log("response.data", response.data);
+		let studentCourseList = response.data;
+
+		// filter elements of studentCourseList : only take those with year and semester
+		studentCourseList = studentCourseList.filter((studentCourse: any) => {
+			return studentCourse.year === year && studentCourse.semester === semester;
+		});
+
+		console.log("studentCourseList", studentCourseList);
+
+		studentListTemp.forEach((student: Student) => {
+			studentCourseList.forEach((studentCourse: any) => {
+				if (student.id === studentCourse.student_id) {
+					// remove record from studentListTemp
+
+					// temporary student to not get same value twice
+					var studentTemp = JSON.parse(JSON.stringify(student));
+
+					studentTemp.dropZone = studentCourse.course_id;
+
+					studentListAssignedTemp.push(studentTemp);
+				}
+			});
+		});
+
+		studentListTemp = studentListTemp.filter(
+			(student: Student) => student.ta_available !== 0 && student.available
+		);
+
+		const idCount: number[] = [];
+
+		// Count occurrences of each id
+		for (const item of studentListAssignedTemp) {
+			idCount[item.id] = (idCount[item.id] || 0) + 1;
+		}
+
+		// Update multiCourses property based on the count
+		for (const item of studentListAssignedTemp) {
+			item.multiCourses = idCount[item.id] > 1;
+		}
+
+		// list of qualifications per student
+		response = await axios.get("http://localhost:5000/student_qualifications");
+
+		setStudentQualification(response.data);
+
+		setStudentListAvail(studentListTemp);
+		setStudentListAssigned(studentListAssignedTemp);
+	};
 
 	const handleDragStart = (
 		event: React.DragEvent<HTMLDivElement>,
@@ -438,6 +456,7 @@ export default function MatchStudentCourse() {
 				// check if student present multiple times in studentAssigned. If yes, display warning.
 				let count = 0;
 				let studentPresent = false;
+
 				for (const item of studentListAssigned) {
 					if (item.id === studentTemp.id) {
 						count++;
@@ -532,10 +551,14 @@ export default function MatchStudentCourse() {
 		event: React.ChangeEvent<HTMLSelectElement>
 	) => {
 		setSemester(event.target.value);
+
+		fetchStudentCourseForSemester(year, event.target.value);
 	};
 
 	const handleChangeYear = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setYear(parseInt(event.target.value));
+
+		fetchStudentCourseForSemester(parseInt(event.target.value), semester);
 	};
 
 	const handleAutoMatch = async () => {
@@ -573,11 +596,6 @@ export default function MatchStudentCourse() {
 					);
 
 					if (response.data) {
-						// if a request is found, add the student to the course
-						// addStudentCourse(student, course);
-						// remove the request
-						// deleteRequest(response.data[0]);
-
 						// request for this student and course by a teacher found
 
 						const studentCourseToAdd = {
@@ -601,18 +619,18 @@ export default function MatchStudentCourse() {
 			const student = studentListAvail.find(
 				(s) => s.id === studentCourseToAdd.studentId
 			);
-			console.log("studentCourseToAdd", studentCourseToAdd);
 
 			if (student) {
-				// add student to course
-				student.dropZone = studentCourseToAdd.courseId;
-
-				studentListAssigned.push(student);
-
-				console.log("student", student);
-
 				// -1 to his T.A. available
 				student.ta_available -= 1;
+
+				// trick to not modify the one in studentListAvail
+				const studentClone = JSON.parse(JSON.stringify(student));
+
+				// add student to course
+				studentClone.dropZone = studentCourseToAdd.courseId;
+
+				studentListAssigned.push(studentClone);
 
 				// if TA = 0, remove from list
 				if (student.ta_available === 0) {
@@ -622,7 +640,7 @@ export default function MatchStudentCourse() {
 					}
 				}
 
-				updateStudent(student);
+				updateStudent(studentClone);
 
 				// get course and update it
 
