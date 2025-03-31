@@ -562,6 +562,12 @@ export default function MatchStudentCourse() {
 	};
 
 	const handleAutoMatch = async () => {
+		// Being requested by a teacher : 10 000 pts
+		// Having the right qualifications 1000 pts per qualif
+		// Already been TA for same course before 100 pts
+		// Having matching area 10pts each
+		// Student who graduates the soonest 1pt
+
 		// find all students with ta_available > 0 and no dropZone
 		let students = studentListAvail.filter(
 			(student) => student.ta_available > 0
@@ -575,8 +581,11 @@ export default function MatchStudentCourse() {
 		// Update the `students` array to the filtered result
 		students = filteredStudents;
 
-		const studentCourseToAddList: { studentId: number; courseId: number }[] =
-			[];
+		const studentCourseToAddList: {
+			studentId: number;
+			courseId: number;
+			score: number;
+		}[] = [];
 
 		// for each student, find a course with ta_needed > 0 and no dropZone
 		for (const student of students) {
@@ -588,7 +597,13 @@ export default function MatchStudentCourse() {
 				// See if there is a request from a teacher to have this student in a course
 
 				for (const course of courses) {
-					const response = await axios.get(
+					const studentCourseToAdd = {
+						studentId: student.id,
+						courseId: course.id,
+						score: 0,
+					};
+
+					let response = await axios.get(
 						"http://localhost:5000/requests/Teacher/1/" +
 							student.id +
 							"/" +
@@ -598,13 +613,59 @@ export default function MatchStudentCourse() {
 					if (response.data) {
 						// request for this student and course by a teacher found
 
-						const studentCourseToAdd = {
-							studentId: student.id,
-							courseId: course.id,
-						};
-
-						studentCourseToAddList.push(studentCourseToAdd);
+						studentCourseToAdd.score += 10000;
 					}
+
+					// Check student and course qualifs
+					let courseQualif = [];
+					const responseCourseQualif = await axios.get(
+						"http://localhost:5000/course_qualifications/" + course.id
+					);
+
+					if (responseCourseQualif.data) {
+						// course qualifs found
+						courseQualif = responseCourseQualif.data;
+					}
+
+					// get student's qualifs
+					let studentQualif = [];
+					const responseStudentQualif = await axios.get(
+						"http://localhost:5000/student_qualifications/" + student.id
+					);
+
+					if (responseStudentQualif.data) {
+						// course qualifs found
+						studentQualif = responseStudentQualif.data;
+					}
+
+					// Check how many common qualifications in studentQualif and courseQualif
+
+					for (const studentQualifElement of studentQualif) {
+						for (const courseQualifElement of courseQualif) {
+
+
+							if (
+								studentQualifElement.qualification ===
+								courseQualifElement.qualification
+							) {
+							
+
+								// common qualif found
+								studentCourseToAdd.score += 1000;
+							}
+						}
+					}
+
+					console.log(
+						"common qualifs between student and course",
+						student.l_name,
+						course.name,
+						studentCourseToAdd.score
+					);
+
+					// 1000pts per qualifs in common
+
+					studentCourseToAddList.push(studentCourseToAdd);
 				}
 			} else {
 				// if no course is found, display a message
@@ -614,7 +675,7 @@ export default function MatchStudentCourse() {
 
 		// list of students / courses to match
 
-		for (const studentCourseToAdd of studentCourseToAddList) {
+		/*for (const studentCourseToAdd of studentCourseToAddList) {
 			// find the student and course in the lists
 			const student = studentListAvail.find(
 				(s) => s.id === studentCourseToAdd.studentId
@@ -648,17 +709,26 @@ export default function MatchStudentCourse() {
 					"http://localhost:5000/courses/" + studentCourseToAdd.courseId
 				);
 				if (response) {
-					response.data.ta_available = response.data.ta_available - 1;
-
+					response.data.ta_needed = response.data.ta_needed - 1;
+					response.data.ta_assigned = response.data.ta_assigned + 1;
 					updateCourse(response.data);
 
 					addStudentCourse(student, response.data);
+
+					// also update same course in list courseListNeeded
+					const courseIndex = courseListNeeded.findIndex(
+						(course) => course.id === studentCourseToAdd.courseId
+					);
+					if (courseIndex > -1) {
+						courseListNeeded[courseIndex].ta_needed -= 1;
+						courseListNeeded[courseIndex].ta_assigned += 1;
+					}
 				}
 			}
 		}
 
 		setStudentListAssigned([...studentListAssigned]);
-		setStudentListAvail([...studentListAvail]);
+		setStudentListAvail([...studentListAvail]);*/
 	};
 
 	return (
