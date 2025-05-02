@@ -400,7 +400,7 @@ export default function ImportExport() {
 		};
 
 		const fetchStudentCourses = async () => {
-			const response = await axios.get("http://localhost:5000/studentcourse");
+			const response = await axios.get("http://localhost:5000/student_course");
 
 			return response.data;
 		};

@@ -166,42 +166,50 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 				<button onClick={() => handleCancel()}>Cancel</button>
 
 				<form onSubmit={handleSubmit} className={styles.modalContent}>
-					{mode === MODE_EDITION ? <h2>Edit Teacher</h2> : <h2>Add Teacher</h2>}
-					Surname
-					<input
-						name='l_name'
-						value={formData ? formData.l_name : ""}
-						onChange={handleChange}
-						placeholder='Surname'
-					/>
-					Other names{" "}
-					<input
-						name='f_names'
-						value={formData ? formData.f_names : ""}
-						onChange={handleChange}
-						placeholder='Other names'
-					/>
-					Unofficial name
-					<input
-						name='unoff_name'
-						value={formData ? formData.unoff_name : ""}
-						onChange={handleChange}
-						placeholder='Unofficial name'
-					/>
-					Field
-					<input
-						name='field'
-						value={formData ? formData.field : ""}
-						onChange={handleChange}
-						placeholder='field'
-					/>
-					{/* Add more fields as needed */}
-					<button type='submit'>Save</button>
-					{errorMessage.length > 0 && (
-						<div className={styles.error}>{errorMessage}</div>
-					)}
+					<div className={styles.modalContentColumn}>
+						{mode === MODE_EDITION ? (
+							<h2>Edit Teacher</h2>
+						) : (
+							<h2>Add Teacher</h2>
+						)}
+						Surname
+						<input
+							name='l_name'
+							value={formData ? formData.l_name : ""}
+							onChange={handleChange}
+							placeholder='Surname'
+						/>
+						Other names{" "}
+						<input
+							name='f_names'
+							value={formData ? formData.f_names : ""}
+							onChange={handleChange}
+							placeholder='Other names'
+						/>
+						Unofficial name
+						<input
+							name='unoff_name'
+							value={formData ? formData.unoff_name : ""}
+							onChange={handleChange}
+							placeholder='Unofficial name'
+						/>
+						Field
+						<input
+							name='field'
+							value={formData ? formData.field : ""}
+							onChange={handleChange}
+							placeholder='field'
+						/>
+						{/* Add more fields as needed */}
+						<button type='submit'>Save</button>
+						{errorMessage.length > 0 && (
+							<div className={styles.error}>{errorMessage}</div>
+						)}
+					</div>
 				</form>
-				{mode === MODE_EDITION && (<button onClick={() => handleDelete()}>Delete</button>)}
+				{mode === MODE_EDITION && (
+					<button onClick={() => handleDelete()}>Delete</button>
+				)}
 			</div>
 		</div>
 	);

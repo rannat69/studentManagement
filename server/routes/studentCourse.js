@@ -16,6 +16,22 @@ router.get("/", (req, res) => {
 	});
 });
 
+router.get("/:student_id/:course_id", (req, res) => {
+	const studentId = req.params.student_id; // Get the ID from the request parameters
+	const courseId = req.params.course_id; // Get the ID from the request parameters
+	db.all(
+		"SELECT * FROM student_course WHERE student_id = ? AND course_id = ?",
+		[studentId, courseId],
+		(err, row) => {
+			if (err) {
+				res.status(500).json({ error: err.message });
+			} else {
+				res.json(row);
+			}
+		}
+	);
+});
+
 // API to assign a student to a course
 router.post("/", (req, res) => {
 	const { student_id, course_id, year, semester } = req.body;

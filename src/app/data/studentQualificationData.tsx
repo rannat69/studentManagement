@@ -1,4 +1,4 @@
-export interface Qualification {
+export interface StudentQualification {
 	student_id: number;
 	qualification: string;
 }

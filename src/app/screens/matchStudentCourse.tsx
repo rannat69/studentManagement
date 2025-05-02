@@ -4,10 +4,17 @@ import styles from "./styles/page.module.css";
 
 import { Course } from "../data/courseListData";
 
+import "bootstrap/dist/css/bootstrap.min.css";
+import Spinner from "react-bootstrap/Spinner";
+
 import axios from "axios";
 import { Student } from "../data/studentListData";
-import { Qualification } from "../data/qualificationData";
+import { StudentQualification } from "../data/studentQualificationData";
 import StudentBlock from "./studentBlock";
+import { StudentArea } from "../data/studentAreaData";
+import CourseBlock from "./courseBlock";
+import { CourseArea } from "../data/courseAreaData";
+import { CourseQualification } from "../data/courseQualificationData";
 
 export default function MatchStudentCourse() {
 	// List students that have TA available
@@ -23,13 +30,24 @@ export default function MatchStudentCourse() {
 	const [warningMessage, setWarningMessage] = useState<String>("");
 
 	const [hoveredStudent, setHoveredStudent] = useState<number>(0);
+	const [hoveredCourse, setHoveredCourse] = useState<number>(0);
 
-	const [studentQualification, setStudentQualification] = useState<
-		Qualification[]
+	const [courseQualification, setCourseQualification] = useState<
+		CourseQualification[]
 	>([]);
 
-	const [semester, setSemester] = useState<String>("String");
+	const [courseArea, setCourseArea] = useState<CourseArea[]>([]);
+
+	const [studentQualification, setStudentQualification] = useState<
+		StudentQualification[]
+	>([]);
+
+	const [studentArea, setStudentArea] = useState<StudentArea[]>([]);
+
+	const [semester, setSemester] = useState<string>("String");
 	const [year, setYear] = useState<number>(0);
+
+	const [autoMatchRunning, setAutoMatchRunning] = useState<boolean>(false);
 
 	useEffect(() => {
 		// list of students with at least 1 T.A.
@@ -84,18 +102,14 @@ export default function MatchStudentCourse() {
 		let studentListTemp = response.data;
 		const studentListAssignedTemp: Student[] = [];
 
-		console.log(year, semester);
+		response = await axios.get("http://localhost:5000/student_course");
 
-		response = await axios.get("http://localhost:5000/studentcourse");
-		console.log("response.data", response.data);
 		let studentCourseList = response.data;
 
 		// filter elements of studentCourseList : only take those with year and semester
 		studentCourseList = studentCourseList.filter((studentCourse: any) => {
 			return studentCourse.year === year && studentCourse.semester === semester;
 		});
-
-		console.log("studentCourseList", studentCourseList);
 
 		studentListTemp.forEach((student: Student) => {
 			studentCourseList.forEach((studentCourse: any) => {
@@ -132,6 +146,21 @@ export default function MatchStudentCourse() {
 		response = await axios.get("http://localhost:5000/student_qualifications");
 
 		setStudentQualification(response.data);
+
+		// list of areas per student
+		response = await axios.get("http://localhost:5000/student_areas");
+
+		setStudentArea(response.data);
+
+		// list of qualifications per course
+		response = await axios.get("http://localhost:5000/course_qualifications");
+
+		setCourseQualification(response.data);
+
+		// list of areas per course
+		response = await axios.get("http://localhost:5000/course_areas");
+
+		setCourseArea(response.data);
 
 		setStudentListAvail(studentListTemp);
 		setStudentListAssigned(studentListAssignedTemp);
@@ -180,7 +209,7 @@ export default function MatchStudentCourse() {
 		updatedCourse: Course
 	) => {
 		try {
-			const response = await fetch("http://localhost:5000/studentcourse/", {
+			const response = await fetch("http://localhost:5000/student_course/", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -214,7 +243,7 @@ export default function MatchStudentCourse() {
 	) => {
 		try {
 			const response = await fetch(
-				"http://localhost:5000/studentcourse/delete",
+				"http://localhost:5000/student_course/delete",
 				{
 					method: "POST",
 					headers: {
@@ -562,6 +591,8 @@ export default function MatchStudentCourse() {
 	};
 
 	const handleAutoMatch = async () => {
+		setAutoMatchRunning(true);
+
 		// Being requested by a teacher : 10 000 pts
 		// Having the right qualifications 1000 pts per qualif
 		// Already been TA for same course before 100 pts
@@ -581,11 +612,53 @@ export default function MatchStudentCourse() {
 		// Update the `students` array to the filtered result
 		students = filteredStudents;
 
-		const studentCourseToAddList: {
+		let studentCourseToAddList: {
 			studentId: number;
 			courseId: number;
 			score: number;
 		}[] = [];
+
+		// get minimal expected grad year from students
+		const minYear = Math.min(
+			...students.map((student) => student.expected_grad_year)
+		);
+
+		const minSemesterNum = Math.min(
+			...students
+				.filter((student) => student.expected_grad_year === minYear)
+				.map((student) => {
+					switch (student.expected_grad_semester) {
+						case "Spring":
+							return 1;
+						case "Summer":
+							return 2;
+						case "Fall":
+							return 3;
+						case "Winter":
+							return 4;
+						default:
+							return Infinity; // Use Infinity so it won't affect Math.min
+					}
+				})
+		);
+
+		let minSemester = "";
+		switch (minSemesterNum) {
+			case 1:
+				minSemester = "Spring";
+				break;
+			case 2:
+				minSemester = "Summer";
+				break;
+			case 3:
+				minSemester = "Fall";
+				break;
+			case 4:
+				minSemester = "Winter";
+				break;
+			default:
+				minSemester = "Winter";
+		}
 
 		// for each student, find a course with ta_needed > 0 and no dropZone
 		for (const student of students) {
@@ -639,31 +712,94 @@ export default function MatchStudentCourse() {
 					}
 
 					// Check how many common qualifications in studentQualif and courseQualif
+					// 1000pts per qualifs in common
 
 					for (const studentQualifElement of studentQualif) {
 						for (const courseQualifElement of courseQualif) {
-
-
 							if (
 								studentQualifElement.qualification ===
 								courseQualifElement.qualification
 							) {
-							
-
 								// common qualif found
 								studentCourseToAdd.score += 1000;
 							}
 						}
 					}
 
-					console.log(
-						"common qualifs between student and course",
-						student.l_name,
-						course.name,
-						studentCourseToAdd.score
+					// Check if student previously assigned to same course
+					let responseStudentCourse = await axios.get(
+						"http://localhost:5000/student_course/" +
+							student.id +
+							"/" +
+							course.id
 					);
 
-					// 1000pts per qualifs in common
+					if (responseStudentCourse.data) {
+						const studentCourses = responseStudentCourse.data;
+
+						// Take previous assignments, which are the ones with previous year
+
+						const previousSemesters = {
+							Winter: ["Fall", "Spring"],
+							Fall: ["Spring"],
+						};
+
+						for (const studentCourse of studentCourses) {
+							const shouldAddScore =
+								studentCourse.year < year ||
+								(previousSemesters[semester] &&
+									previousSemesters[semester].includes(studentCourse.semester));
+
+							if (shouldAddScore) {
+								studentCourseToAdd.score += 100;
+							}
+						}
+					}
+
+					// Check if course and student have common area
+
+					// Check student and course areas
+					let courseArea = [];
+					const responseCourseArea = await axios.get(
+						"http://localhost:5000/course_areas/" + course.id
+					);
+
+					if (responseCourseArea.data) {
+						// course areas found
+						courseArea = responseCourseArea.data;
+					}
+
+					// get student's areas
+					let studentArea = [];
+					const responseStudentAreas = await axios.get(
+						"http://localhost:5000/student_areas/" + student.id
+					);
+
+					if (responseStudentAreas.data) {
+						// course areas found
+						studentArea = responseStudentAreas.data;
+					}
+
+					// Check how many common areas in studentArea and courseArea
+					// 10pts per areas in common
+
+					for (const studentAreaElement of studentArea) {
+						for (const courseAreaElement of courseArea) {
+							if (studentAreaElement.area === courseAreaElement.area) {
+								// common qualif found
+								studentCourseToAdd.score += 10;
+							}
+						}
+					}
+
+					// Check which student will graduate sooner
+
+					if (
+						student.expected_grad_semester === minSemester &&
+						student.expected_grad_year === minYear
+					) {
+						studentCourseToAdd.score += 1;
+					}
 
 					studentCourseToAddList.push(studentCourseToAdd);
 				}
@@ -675,60 +811,90 @@ export default function MatchStudentCourse() {
 
 		// list of students / courses to match
 
-		/*for (const studentCourseToAdd of studentCourseToAddList) {
+		// order studentCourseToAddList by score
+		studentCourseToAddList = studentCourseToAddList.sort(
+			(a, b) => b.score - a.score
+		);
+
+		console.log("studentcoursetoaddlist", studentCourseToAddList);
+
+		for (const studentCourseToAdd of studentCourseToAddList) {
 			// find the student and course in the lists
 			const student = studentListAvail.find(
 				(s) => s.id === studentCourseToAdd.studentId
 			);
 
 			if (student) {
-				// -1 to his T.A. available
-				student.ta_available -= 1;
+				// check if course has T.A. needed
 
-				// trick to not modify the one in studentListAvail
-				const studentClone = JSON.parse(JSON.stringify(student));
-
-				// add student to course
-				studentClone.dropZone = studentCourseToAdd.courseId;
-
-				studentListAssigned.push(studentClone);
-
-				// if TA = 0, remove from list
-				if (student.ta_available === 0) {
-					const index = studentListAvail.findIndex((s) => s.id === student.id);
-					if (index > -1) {
-						studentListAvail.splice(index, 1);
-					}
-				}
-
-				updateStudent(studentClone);
-
-				// get course and update it
-
-				const response = await axios.get(
-					"http://localhost:5000/courses/" + studentCourseToAdd.courseId
+				const course = courseListNeeded.find(
+					(c) => c.id === studentCourseToAdd.courseId
 				);
-				if (response) {
-					response.data.ta_needed = response.data.ta_needed - 1;
-					response.data.ta_assigned = response.data.ta_assigned + 1;
-					updateCourse(response.data);
 
-					addStudentCourse(student, response.data);
+				if (course && course?.ta_needed > 0) {
+					// -1 to his T.A. available
+					student.ta_available -= 1;
 
-					// also update same course in list courseListNeeded
-					const courseIndex = courseListNeeded.findIndex(
-						(course) => course.id === studentCourseToAdd.courseId
+					// trick to not modify the one in studentListAvail
+					const studentClone = JSON.parse(JSON.stringify(student));
+
+					// add student to course
+					studentClone.dropZone = studentCourseToAdd.courseId;
+
+					// get all students with same id in studentListAssigned and give them TA available -1
+					const studentListAssignedClone = studentListAssigned.filter(
+						(s) => s.id === student.id
 					);
-					if (courseIndex > -1) {
-						courseListNeeded[courseIndex].ta_needed -= 1;
-						courseListNeeded[courseIndex].ta_assigned += 1;
+					if (studentListAssignedClone.length > 0) {
+						studentListAssignedClone.forEach((s) => {
+							s.ta_available -= 1;
+						});
+					}
+
+					studentListAssigned.push(studentClone);
+
+					// if TA = 0, remove from list
+					if (student.ta_available === 0) {
+						const index = studentListAvail.findIndex(
+							(s) => s.id === student.id
+						);
+						if (index > -1) {
+							studentListAvail.splice(index, 1);
+						}
+					}
+
+					updateStudent(studentClone);
+
+					// get course and update it
+
+					const response = await axios.get(
+						"http://localhost:5000/courses/" + studentCourseToAdd.courseId
+					);
+
+					if (response) {
+						response.data.ta_needed = response.data.ta_needed - 1;
+						response.data.ta_assigned = response.data.ta_assigned + 1;
+						updateCourse(response.data);
+
+						addStudentCourse(student, response.data);
+
+						// also update same course in list courseListNeeded
+						const courseIndex = courseListNeeded.findIndex(
+							(course) => course.id === studentCourseToAdd.courseId
+						);
+						if (courseIndex > -1) {
+							courseListNeeded[courseIndex].ta_needed -= 1;
+							courseListNeeded[courseIndex].ta_assigned += 1;
+						}
 					}
 				}
 			}
 		}
 
 		setStudentListAssigned([...studentListAssigned]);
-		setStudentListAvail([...studentListAvail]);*/
+		setStudentListAvail([...studentListAvail]);
+
+		setAutoMatchRunning(false);
 	};
 
 	return (
@@ -758,6 +924,7 @@ export default function MatchStudentCourse() {
 									key={student.id.toString()}
 									student={student}
 									studentQualification={studentQualification}
+									studentArea={studentArea}
 									onDragStart={handleDragStart}
 									hoveredStudent={hoveredStudent}
 									setHoveredStudent={setHoveredStudent}
@@ -771,9 +938,15 @@ export default function MatchStudentCourse() {
 					<div className={styles.dropAreas}>
 						{courseListNeeded.map((course) => (
 							<div key={course.id}>
-								<h2>{course.hkust_identifier}</h2>
-								<h2>{course.name}</h2>
-								<h3>T.A. needed : {course.ta_needed}</h3>
+								<CourseBlock
+									key={course.id.toString()}
+									course={course}
+									courseQualification={courseQualification}
+									courseArea={courseArea}
+									hoveredCourse={hoveredCourse}
+									setHoveredCourse={setHoveredCourse}
+								/>
+
 								<div className={styles.dropArea}>
 									<h3></h3>
 									<div
@@ -787,6 +960,7 @@ export default function MatchStudentCourse() {
 													key={student.id.toString()}
 													student={student}
 													studentQualification={studentQualification}
+													studentArea={studentArea}
 													onDragStart={handleDragStart}
 													hoveredStudent={hoveredStudent}
 													setHoveredStudent={setHoveredStudent}
@@ -799,9 +973,13 @@ export default function MatchStudentCourse() {
 					</div>
 				</div>
 
-				<div className={styles.button} onClick={() => handleAutoMatch()}>
-					Auto match
-				</div>
+				{autoMatchRunning ? (
+					<Spinner />
+				) : (
+					<div className={styles.button} onClick={() => handleAutoMatch()}>
+						Auto match
+					</div>
+				)}
 
 				{errorMessage.length > 0 && (
 					<div className={styles.error}>{errorMessage}</div>

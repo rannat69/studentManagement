@@ -204,75 +204,77 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 				<button onClick={() => handleCancel()}>Cancel</button>
 
 				<form onSubmit={handleSubmit} className={styles.modalContent}>
-					{mode === MODE_EDITION ? (
-						<h2>Edit Request</h2>
-					) : (
-						<h2>Create Request</h2>
-					)}
-					Request made by{" "}
-					<select
-						name='request_from'
-						onChange={handleChange}
-						value={formData ? formData.request_from : ""}>
-						<option value={""}>-- Who made the request ? --</option>
-						<option value={"Teacher"}>Teacher</option>
-						<option value={"Student"}>Student</option>
-					</select>
-					<select
-						name='want'
-						onChange={handleChange}
-						value={formData ? formData.want : "true"}>
-						<option value={"true"}>Want</option>
-						<option value={"false"}>Do not want</option>
-					</select>
-					Student list
-					<select
-						name='student_id'
-						onChange={handleChange}
-						value={formData ? formData.student_id : 0}>
-						<option value={0}>-- Which student ? --</option>
-						{studentsListState.map((student) => (
-							<option key={student.id} value={student.id}>
-								{student.l_name + " " + student.f_names}
-							</option>
-						))}
-					</select>
-					Teacher list
-					<select
-						name='teacher_id'
-						onChange={handleChange}
-						value={formData ? formData.teacher_id : 0}>
-						<option value={0}>-- Which teacher ? --</option>
-						{teachersListState.map((teacher) => (
-							<option key={teacher.id} value={teacher.id}>
-								{teacher.l_name}
-							</option>
-						))}
-					</select>
-					Course list
-					<select
-						name='course_id'
-						onChange={handleChange}
-						value={formData ? formData.course_id : 0}>
-						<option value={0}>-- Which course ? --</option>
-						{coursesListState.map((course) => (
-							<option key={course.id} value={course.id}>
-								{course.name}
-							</option>
-						))}
-					</select>
-					Message
-					<input
-						name='message'
-						value={formData ? formData.message : ""}
-						onChange={handleChange}
-						placeholder='Message'
-					/>
-					{/* Add more fields as needed */}
-					<button type='submit'>Save</button>
-					{errorMessage.length > 0 && (
-						<div className={styles.error}>{errorMessage}</div>
-					)}
+					<div className={styles.modalContentColumn}>
+						{mode === MODE_EDITION ? (
+							<h2>Edit Request</h2>
+						) : (
+							<h2>Create Request</h2>
+						)}
+						Request made by{" "}
+						<select
+							name='request_from'
+							onChange={handleChange}
+							value={formData ? formData.request_from : ""}>
+							<option value={""}>-- Who made the request ? --</option>
+							<option value={"Teacher"}>Teacher</option>
+							<option value={"Student"}>Student</option>
+						</select>
+						<select
+							name='want'
+							onChange={handleChange}
+							value={formData ? formData.want : "true"}>
+							<option value={"true"}>Want</option>
+							<option value={"false"}>Do not want</option>
+						</select>
+						Student list
+						<select
+							name='student_id'
+							onChange={handleChange}
+							value={formData ? formData.student_id : 0}>
+							<option value={0}>-- Which student ? --</option>
+							{studentsListState.map((student) => (
+								<option key={student.id} value={student.id}>
+									{student.l_name + " " + student.f_names}
+								</option>
+							))}
+						</select>
+						Teacher list
+						<select
+							name='teacher_id'
+							onChange={handleChange}
+							value={formData ? formData.teacher_id : 0}>
+							<option value={0}>-- Which teacher ? --</option>
+							{teachersListState.map((teacher) => (
+								<option key={teacher.id} value={teacher.id}>
+									{teacher.l_name}
+								</option>
+							))}
+						</select>
+						Course list
+						<select
+							name='course_id'
+							onChange={handleChange}
+							value={formData ? formData.course_id : 0}>
+							<option value={0}>-- Which course ? --</option>
+							{coursesListState.map((course) => (
+								<option key={course.id} value={course.id}>
+									{course.name}
+								</option>
+							))}
+						</select>
+						Message
+						<input
+							name='message'
+							value={formData ? formData.message : ""}
+							onChange={handleChange}
+							placeholder='Message'
+						/>
+						{/* Add more fields as needed */}
+						<button type='submit'>Save</button>
+						{errorMessage.length > 0 && (
+							<div className={styles.error}>{errorMessage}</div>
+						)}
+					</div>
 				</form>
 				{mode === MODE_EDITION && (
 					<button onClick={() => handleDelete()}>Delete</button>

@@ -1,12 +1,14 @@
 // StudentBlock.tsx
 import React from "react";
 import { Student } from "../data/studentListData";
-import { Qualification } from "../data/qualificationData";
+import { StudentQualification } from "../data/studentQualificationData";
 import styles from "./styles/page.module.css";
+import { StudentArea } from "../data/studentAreaData";
 
 interface StudentBlockProps {
 	student: Student;
-	studentQualification: Qualification[];
+	studentQualification: StudentQualification[];
+	studentArea: StudentArea[];
 	onDragStart: (
 		event: React.DragEvent<HTMLDivElement>,
 		student: Student
@@ -18,6 +20,7 @@ interface StudentBlockProps {
 const StudentBlock: React.FC<StudentBlockProps> = ({
 	student,
 	studentQualification,
+	studentArea,
 	onDragStart,
 	hoveredStudent,
 	setHoveredStudent,
@@ -35,17 +38,42 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 			</h2>
 
 			<div className={styles.popup}>
-				<div>Program: {student.program}</div>
-				<div>
-					Qualifications:{" "}
-					{studentQualification
-						.filter((qualification) => qualification.student_id === student.id)
-						.map((qualification) => (
-							<div key={qualification.qualification}>
-								<h4>- {qualification.qualification}</h4>
-							</div>
-						))}
-				</div>
+				{student.program && (
+					<div>
+						<h2>Program: {student.program}</h2>
+					</div>
+				)}
+
+				{studentQualification.filter(
+					(qualification) => qualification.student_id === student.id
+				).length > 0 && (
+					<div>
+						<h2>Qualifications: </h2>
+						{studentQualification
+							.filter(
+								(qualification) => qualification.student_id === student.id
+							)
+							.map((qualification) => (
+								<div key={qualification.qualification}>
+									<h4>- {qualification.qualification}</h4>
+								</div>
+							))}
+					</div>
+				)}
+
+				{studentArea.filter((area) => area.student_id === student.id).length >
+					0 && (
+					<div>
+						<h2>Areas: </h2>
+						{studentArea
+							.filter((area) => area.student_id === student.id)
+							.map((area) => (
+								<div key={area.area}>
+									<h4>- {area.area}</h4>
+								</div>
+							))}
+					</div>
+				)}
 			</div>
 
 			<h4>{student.unoff_name}</h4>

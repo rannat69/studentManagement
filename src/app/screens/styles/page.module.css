@@ -119,18 +119,30 @@
 }
 
 .element {
-	padding: 0.5rem;
+	padding: 0.2rem;
 	border: 0.3rem solid;
 	border-radius: 2rem;
 	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
 	font-size: x-small;
-	width: 7rem;
+	width: 20vh;
 	margin: 0.1rem;
 }
 
 .element:hover {
 	background-color: #dddddd; /* Change to your desired hover background color */
 	border-color: #0a0186; /* Change to your desired hover border color */
+}
+
+.element h2 {
+	font-size: 1.2rem;
+}
+
+.element h4 {
+	font-size: 0.9rem;
+}
+
+.element p {
+	margin-bottom: 0.5rem;
 }
 
 .add {
@@ -280,6 +292,11 @@ a.secondary {
 	visibility: visible;
 }
 
+.courseBlock:hover .popup {
+	opacity: 0.9; /* Start hidden */
+	visibility: visible;
+}
+
 .button {
 	padding: 0.5rem;
 	border: 0.3rem solid;
@@ -293,7 +310,11 @@ a.secondary {
 }
 
 .button:hover {
-	background-color: rgb(27, 192, 27); /* Change to your desired hover background color */
+	background-color: rgb(
+		27,
+		192,
+		27
+	); /* Change to your desired hover background color */
 	border-color: #0a0186; /* Change to your desired hover border color */
 }
 

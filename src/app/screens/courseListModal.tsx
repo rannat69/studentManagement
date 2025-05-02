@@ -445,135 +445,138 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 				<button onClick={() => handleCancel()}>Cancel</button>
 
 				<form onSubmit={handleSubmit} className={styles.modalContent}>
-					{mode === MODE_EDITION ? <h2>Edit Course</h2> : <h2>Add Course</h2>}
-					Identifier
-					<input
-						name='hkust_identifier'
-						value={formData ? formData.hkust_identifier : ""}
-						onChange={handleChange}
-						placeholder='Identifier'
-					/>
-					Name
-					<input
-						name='name'
-						value={formData ? formData.name : ""}
-						onChange={handleChange}
-						placeholder='Name'
-					/>
-					Description
-					<input
-						name='description'
-						value={formData ? formData.description : ""}
-						onChange={handleChange}
-						placeholder='Description'
-					/>
-					Year
-					<input
-						name='year'
-						value={formData ? formData.year : ""}
-						onChange={handleChange}
-						placeholder='Year'
-						type='number'
-					/>
-					Semester
-					<select
-						name='semester'
-						onChange={handleChange}
-						value={formData ? formData.semester : "Spring"}>
-						<option value='Spring'>Spring</option>
-
-						<option value='Summer'>Summer</option>
-
-						<option value='Fall'>Fall</option>
-						<option value='Winter'>Winter</option>
-					</select>
-					T.A. needed
-					<input
-						name='ta_needed'
-						value={formData ? formData.ta_needed : ""}
-						onChange={handleChange}
-						placeholder='Number of T.A. needed'
-						type='number'
-					/>
-					Areas
-					<div>
+					<div className={styles.modalContentColumn}>
+						{mode === MODE_EDITION ? <h2>Edit Course</h2> : <h2>Add Course</h2>}
+						Identifier
+						<input
+							name='hkust_identifier'
+							value={formData ? formData.hkust_identifier : ""}
+							onChange={handleChange}
+							placeholder='Identifier'
+						/>
+						Name
+						<input
+							name='name'
+							value={formData ? formData.name : ""}
+							onChange={handleChange}
+							placeholder='Name'
+						/>
+						Description
+						<input
+							name='description'
+							value={formData ? formData.description : ""}
+							onChange={handleChange}
+							placeholder='Description'
+						/>
+						Year
+						<input
+							name='year'
+							value={formData ? formData.year : ""}
+							onChange={handleChange}
+							placeholder='Year'
+							type='number'
+						/>
+						Semester
 						<select
-							id='areas'
-							onChange={(e) => setSelectedArea(e.target.value)}>
-							<option key='' value=''>
-								-- Choose an area --
-							</option>
+							name='semester'
+							onChange={handleChange}
+							value={formData ? formData.semester : "Spring"}>
+							<option value='Spring'>Spring</option>
 
-							{AREAS.map((area) => (
-								<option key={area} value={area}>
-									{area}
-								</option>
-							))}
+							<option value='Summer'>Summer</option>
+
+							<option value='Fall'>Fall</option>
+							<option value='Winter'>Winter</option>
 						</select>
-						<div className={styles.add} onClick={() => addArea()}>
-							+{" "}
-						</div>
-						{areas && areas.length > 0 && (
-							<div>
-								{areas.map((area) => (
-									<div key={area}>
-										<div className={styles.smalltext}>{area}</div>
-										<div
-											className={styles.remove}
-											onClick={() => {
-												setAreas(areas.filter((a) => a !== area));
-												areas.filter((a) => a !== area);
-											}}>
-											x
-										</div>
-									</div>
+						T.A. needed
+						<input
+							name='ta_needed'
+							value={formData ? formData.ta_needed : ""}
+							onChange={handleChange}
+							placeholder='Number of T.A. needed'
+							type='number'
+						/>
+						Areas
+						<div>
+							<select
+								id='areas'
+								onChange={(e) => setSelectedArea(e.target.value)}>
+								<option key='' value=''>
+									-- Choose an area --
+								</option>
+
+								{AREAS.map((area) => (
+									<option key={area} value={area}>
+										{area}
+									</option>
 								))}
+							</select>
+							<div className={styles.add} onClick={() => addArea()}>
+								+{" "}
 							</div>
+							{areas && areas.length > 0 && (
+								<div>
+									{areas.map((area) => (
+										<div key={area}>
+											<div className={styles.smalltext}>{area}</div>
+											<div
+												className={styles.remove}
+												onClick={() => {
+													setAreas(areas.filter((a) => a !== area));
+													areas.filter((a) => a !== area);
+												}}>
+												x
+											</div>
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+						Qualifications
+						<div>
+							<select
+								id='qualifications'
+								onChange={(e) => setSelectedQualification(e.target.value)}>
+								<option key='' value=''>
+									-- Choose a qualification --
+								</option>
+
+								{QUALIFICATIONS.map((qualification) => (
+									<option key={qualification} value={qualification}>
+										{qualification}
+									</option>
+								))}
+							</select>
+							<div className={styles.add} onClick={() => addQualification()}>
+								+{" "}
+							</div>
+							{qualifications && qualifications.length > 0 && (
+								<div>
+									{qualifications.map((qualification) => (
+										<div key={qualification}>
+											<div className={styles.smalltext}>{qualification}</div>
+											<div
+												className={styles.remove}
+												onClick={() => {
+													setQualifications(
+														qualifications.filter((a) => a !== qualification)
+													);
+													qualifications.filter((a) => a !== qualification);
+												}}>
+												x
+											</div>
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+						<button type='submit'>Save</button>
+						{errorMessage.length > 0 && (
+							<div className={styles.error}>{errorMessage}</div>
 						)}
 					</div>
-					Qualifications
-					<div>
-						<select
-							id='qualifications'
-							onChange={(e) => setSelectedQualification(e.target.value)}>
-							<option key='' value=''>
-								-- Choose a qualification --
-							</option>
-
-							{QUALIFICATIONS.map((qualification) => (
-								<option key={qualification} value={qualification}>
-									{qualification}
-								</option>
-							))}
-						</select>
-						<div className={styles.add} onClick={() => addQualification()}>
-							+{" "}
-						</div>
-						{qualifications && qualifications.length > 0 && (
-							<div>
-								{qualifications.map((qualification) => (
-									<div key={qualification}>
-										<div className={styles.smalltext}>{qualification}</div>
-										<div
-											className={styles.remove}
-											onClick={() => {
-												setQualifications(
-													qualifications.filter((a) => a !== qualification)
-												);
-												qualifications.filter((a) => a !== qualification);
-											}}>
-											x
-										</div>
-									</div>
-								))}
-							</div>
-						)}
-					</div>
-					<button type='submit'>Save</button>
-					{errorMessage.length > 0 && (
-						<div className={styles.error}>{errorMessage}</div>
-					)}
 				</form>
+
 				{mode === MODE_EDITION && (
 					<button onClick={() => handleDelete()}>Delete</button>
 				)}

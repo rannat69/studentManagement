@@ -34,7 +34,7 @@ createTables(db, bcrypt);
 // Use the student routes
 app.use("/students", studentRoutes);
 app.use("/courses", coursesRoutes);
-app.use("/studentcourse", studentCourseRoutes);
+app.use("/student_course", studentCourseRoutes);
 app.use("/teachers", teachersRoutes);
 app.use("/requests", requestsRoutes);
 app.use("/course_areas", courseAreaRoutes);

@@ -87,7 +87,6 @@ router.post("/", (req, res) => {
 		}
 	);
 });
-
 // Modify student
 router.put("/:id", (req, res) => {
 	const { id } = req.params;
@@ -103,31 +102,58 @@ router.put("/:id", (req, res) => {
 		ta_available,
 		available,
 	} = req.body;
-	db.run(
-		`UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ?, available = ? WHERE id = ?`,
-		[
-			student_number,
-			l_name,
-			f_names,
-			unoff_name,
-			program,
-			date_joined,
-			expected_grad_year,
-			expected_grad_semester,
-			ta_available,
-			available,
-			id,
-		],
-		function (err) {
-			if (err) {
-				res.status(500).json({ error: err.message });
 
-				console.log(err);
-			} else {
-				res.json({ id });
+	const maxRetries = 20; // Maximum number of retry attempts
+	let retryCount = 0;
+	let delay = 100; // Initial delay in milliseconds
+
+	const updateStudent = () => {
+		console.log("updateStudent called", l_name);
+
+		db.run(
+			`UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ?, available = ? WHERE id = ?`,
+			[
+				student_number,
+				l_name,
+				f_names,
+				unoff_name,
+				program,
+				date_joined,
+				expected_grad_year,
+				expected_grad_semester,
+				ta_available,
+				available,
+				id,
+			],
+			function (err) {
+				if (err) {
+					//console.log("err", err);
+					console.log("updatestudent errno", err.errno);
+					console.log("updatestudent code", err.code);
+
+					if (err.code === "SQLITE_BUSY" && retryCount < maxRetries) {
+						retryCount++;
+						console.log(
+							`Database busy, retrying in ${delay}ms... (attempt ${retryCount}/${maxRetries})`
+						);
+						setTimeout(updateStudent, delay);
+						delay *= 2; // Exponential backoff: double the delay for the next retry
+					} else {
+						// If max retries exceeded or other error, return a 500 error
+						console.error(
+							"Failed to update student after multiple retries or due to a non-busy error:",
+							err
+						); // Log the error
+						res.status(500).json({ error: err.message });
+					}
+				} else {
+					res.json({ id });
+				}
 			}
-		}
-	);
+		);
+	};
+
+	updateStudent(); // Initial call to updateStudent
 });
 
 // Delete a student

@@ -42,29 +42,54 @@ router.post("/", (req, res) => {
 		ta_assigned,
 	} = req.body;
 
-	db.run(
-		`INSERT INTO course (hkust_identifier, name, description, semester, year, field, keywords, ta_needed, ta_assigned) VALUES (?, ?, ?,?, ?,?,?,?,?)`,
-		[
-			hkust_identifier,
-			name,
-			description,
-			semester,
-			year,
-			field,
-			keywords,
-			ta_needed,
-			ta_assigned,
-		],
-		function (err) {
-			if (err) {
-				console.log(err);
+	const maxRetries = 5; // Maximum number of retry attempts
+	let retryCount = 0;
+	let delay = 100; // Initial delay in milliseconds
 
-				res.status(500).json({ error: err.message });
-			} else {
-				res.json({ id: this.lastID });
+	const createCourse = () => {
+		db.run(
+			`INSERT INTO course (hkust_identifier, name, description, semester, year, field, keywords, ta_needed, ta_assigned) VALUES (?, ?, ?,?, ?,?,?,?,?)`,
+			[
+				hkust_identifier,
+				name,
+				description,
+				semester,
+				year,
+				field,
+				keywords,
+				ta_needed,
+				ta_assigned,
+			],
+
+			function (err) {
+				if (err) {
+				
+					console.log("createcoure errno", err.errno);
+					console.log("createcoure code", err.code);
+
+					if (err.code === "SQLITE_BUSY" && retryCount < maxRetries) {
+						retryCount++;
+						console.log(
+							`Database busy, retrying in ${delay}ms... (attempt ${retryCount}/${maxRetries})`
+						);
+						setTimeout(createCourse, delay);
+						delay *= 2; // Exponential backoff: double the delay for the next retry
+					} else {
+						// If max retries exceeded or other error, return a 500 error
+						console.error(
+							"Failed to update student after multiple retries or due to a non-busy error:",
+							err
+						); // Log the error
+						res.status(500).json({ error: err.message });
+					}
+				} else {
+					res.json({ id });
+				}
 			}
-		}
-	);
+		);
+	};
+
+	createCourse(); // Initial call to createCourse
 });
 
 // Modify course
@@ -81,28 +106,55 @@ router.put("/:id", (req, res) => {
 		ta_needed,
 		ta_assigned,
 	} = req.body;
-	db.run(
-		`UPDATE course SET hkust_identifier = ?,  name = ?, description = ?, semester = ?, year = ?, field = ?, keywords = ?, ta_needed = ?, ta_assigned = ? WHERE id = ?`,
-		[
-			hkust_identifier,
-			name,
-			description,
-			semester,
-			year,
-			field,
-			keywords,
-			ta_needed,
-			ta_assigned,
-			id,
-		],
-		function (err) {
-			if (err) {
-				res.status(500).json({ error: err.message });
-			} else {
-				res.json({ id });
+
+	const maxRetries = 20; // Maximum number of retry attempts
+	let retryCount = 0;
+	let delay = 100; // Initial delay in milliseconds
+
+	const updateCourse = () => {
+		db.run(
+			`UPDATE course SET hkust_identifier = ?,  name = ?, description = ?, semester = ?, year = ?, field = ?, keywords = ?, ta_needed = ?, ta_assigned = ? WHERE id = ?`,
+			[
+				hkust_identifier,
+				name,
+				description,
+				semester,
+				year,
+				field,
+				keywords,
+				ta_needed,
+				ta_assigned,
+				id,
+			],
+			function (err) {
+				if (err) {
+			
+					console.log("updatecourse errno", err.errno);
+					console.log("updatecourse code", err.code);
+
+					if (err.code === "SQLITE_BUSY" && retryCount < maxRetries) {
+						retryCount++;
+						console.log(
+							`Database busy, retrying in ${delay}ms... (attempt ${retryCount}/${maxRetries})`
+						);
+						setTimeout(updateCourse, delay);
+						delay *= 2; // Exponential backoff: double the delay for the next retry
+					} else {
+						// If max retries exceeded or other error, return a 500 error
+						console.error(
+							"Failed to update student after multiple retries or due to a non-busy error:",
+							err
+						); // Log the error
+						res.status(500).json({ error: err.message });
+					}
+				} else {
+					res.json({ id });
+				}
 			}
-		}
-	);
+		);
+	};
+
+	updateCourse();
 });
 
 // Delete a course
