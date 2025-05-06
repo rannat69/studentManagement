@@ -44,54 +44,62 @@ export default function MatchStudentCourse() {
 
 	const [studentArea, setStudentArea] = useState<StudentArea[]>([]);
 
-	const [semester, setSemester] = useState<string>("String");
+	const [semester, setSemester] = useState<string>("Spring");
 	const [year, setYear] = useState<number>(0);
 
 	const [autoMatchRunning, setAutoMatchRunning] = useState<boolean>(false);
 
 	useEffect(() => {
-		// list of students with at least 1 T.A.
-		const fetchStudents = async () => {
-			// Check students already assigned to courses
+		// get current year
+		let currentYear = new Date().getFullYear();
+		setYear(currentYear);
 
-			// get current year
-			const currentYear = new Date().getFullYear();
+		// get current semester + 1
+		// if between february and august, it is spring
+		let semester = "";
+		if (new Date().getMonth() >= 1 && new Date().getMonth() <= 7) {
+			// current semester is spring, assign students for fall
+			semester = "Fall";
+			setSemester("Fall");
+		} else if (new Date().getMonth() >= 8 && new Date().getMonth() <= 10) {
+			// current semester is fall, assign students for winter
+			semester = "Winter";
+			setSemester("Winter");
+		} else {
+			// current semester is winter, assign students for spring of next year
+			semester = "Spring";
+			currentYear++;
+			setSemester("Spring");
 			setYear(currentYear);
+		}
 
-			// get current semester + 1
-			// if between february and august, it is spring
-			let semester = "";
-			if (new Date().getMonth() >= 1 && new Date().getMonth() <= 7) {
-				// current semester is spring, assign students for fall
-				semester = "Fall";
-				setSemester("Fall");
-			} else if (new Date().getMonth() >= 8 && new Date().getMonth() <= 10) {
-				// current semester is fall, assign students for winter
-				semester = "Winter";
-				setSemester("Winter");
-			} else {
-				// current semester is winter, assign students for spring of next year
-				semester = "Spring";
-				setSemester("Spring");
-				setYear(currentYear + 1);
-			}
-
-			// get students and courses assignment for current semester and year
-			fetchStudentCourseForSemester(currentYear, semester);
-		};
-
-		fetchStudents();
+		fetchStudents(currentYear, semester);
 
 		// list of courses with at least one TA needed
 
-		const fetchCourses = async () => {
-			const response = await axios.get("http://localhost:5000/courses");
-
-			setCourseListNeeded(response.data);
-		};
-
-		fetchCourses();
+		fetchCourses(currentYear, semester);
 	}, []);
+
+	// list of students with at least 1 T.A.
+	const fetchStudents = async (year: number, semester: string) => {
+		// Check students already assigned to courses
+
+		// get students and courses assignment for current semester and year
+		fetchStudentCourseForSemester(year, semester);
+	};
+
+	const fetchCourses = async (year: number, semester: string) => {
+		const response = await axios.get("http://localhost:5000/courses");
+
+		let courseList = response.data;
+
+		// filter elements of studentCourseList : only take those with year and semester
+		courseList = courseList.filter((course: any) => {
+			return course.year === year && course.semester === semester;
+		});
+
+		setCourseListNeeded(courseList);
+	};
 
 	const fetchStudentCourseForSemester = async (
 		year: number,
@@ -581,12 +589,14 @@ export default function MatchStudentCourse() {
 	) => {
 		setSemester(event.target.value);
 
+		fetchCourses(year, event.target.value);
 		fetchStudentCourseForSemester(year, event.target.value);
 	};
 
 	const handleChangeYear = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setYear(parseInt(event.target.value));
 
+		fetchCourses(parseInt(event.target.value), semester);
 		fetchStudentCourseForSemester(parseInt(event.target.value), semester);
 	};
 
