@@ -63,7 +63,6 @@ router.post("/", (req, res) => {
 
 			function (err) {
 				if (err) {
-				
 					console.log("createcoure errno", err.errno);
 					console.log("createcoure code", err.code);
 
@@ -83,7 +82,7 @@ router.post("/", (req, res) => {
 						res.status(500).json({ error: err.message });
 					}
 				} else {
-					res.json({ id });
+					res.json({ id: this.lastID });
 				}
 			}
 		);
@@ -128,7 +127,6 @@ router.put("/:id", (req, res) => {
 			],
 			function (err) {
 				if (err) {
-			
 					console.log("updatecourse errno", err.errno);
 					console.log("updatecourse code", err.code);
 

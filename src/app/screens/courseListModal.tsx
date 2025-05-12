@@ -29,6 +29,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 	const [selectedArea, setSelectedArea] = useState<string>("");
 	const [selectedQualification, setSelectedQualification] =
 		useState<string>("");
+
 	useEffect(() => {
 		if (course) {
 			setMode(MODE_EDITION);
@@ -83,14 +84,34 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			fetchQualifications();
 		} else {
 			// We are in creation mode
+
+			// get current year
+			let currentYear = new Date().getFullYear();
+
+			// get current semester + 1
+			// if between february and august, it is spring
+			let semester = 0;
+			if (new Date().getMonth() >= 1 && new Date().getMonth() <= 7) {
+				// current semester is spring, assign students for fall
+				semester = 2;
+			} else if (new Date().getMonth() >= 8 && new Date().getMonth() <= 10) {
+				// current semester is fall, assign students for winter
+				semester = 3;
+			} else {
+				// current semester is winter, assign students for spring of next year
+				semester = 0;
+
+				currentYear++;
+			}
+
 			setFormData({
 				id: 0,
 				hkust_identifier: "",
 				name: "",
 				description: "",
 
-				semester: 0,
-				year: 0,
+				semester: semester,
+				year: currentYear,
 				ta_needed: 0,
 				ta_assigned: 0,
 				areas: [],
@@ -340,6 +361,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 		}
 
 		if (formData.year <= 0) {
+			console.log(formData.year);
+
 			setErrorMessage("Year must be a positive number");
 			return;
 		}
@@ -471,7 +494,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						Year
 						<input
 							name='year'
-							value={formData ? formData.year : ""}
+							value={formData?.year ? formData.year : 0}
 							onChange={handleChange}
 							placeholder='Year'
 							type='number'
@@ -480,7 +503,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 						<select
 							name='semester'
 							onChange={handleChange}
-							value={formData ? formData.semester : "Spring"}>
+							value={formData?.semester ? formData.semester : "Spring"}>
 							<option value='Spring'>Spring</option>
 
 							<option value='Summer'>Summer</option>

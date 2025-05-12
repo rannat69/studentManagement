@@ -26,6 +26,9 @@ export const AREAS = [
 	"Architecture",
 	"Urban Design",
 	"Design",
+	"Engineering",
+	"Computing",
+	"Electronics",
 ];
 
 export const QUALIFICATIONS = [
