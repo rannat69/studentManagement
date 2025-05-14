@@ -3,10 +3,13 @@ export interface Course {
 	hkust_identifier: string;
 	name: string;
 	description: string;
-	semester: number;
+	semester: string;
 	year: number;
 	ta_needed: number;
 	ta_assigned: number;
 	deleted: boolean;
-	
+	areas: string[];
+	qualifications: string[];
+	field: string;
+	keywords: string;
 }

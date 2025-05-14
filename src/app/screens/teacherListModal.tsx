@@ -7,13 +7,20 @@ import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "../constants";
 
 interface ModalProps {
 	isOpen: boolean;
-	teacher: any;
+	teacher: Teacher | null;
 	onClose: () => void;
-	onSave: (updatedTeacher: any) => void;
+	onSave: (updatedTeacher: Teacher) => void;
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
-	const [formData, setFormData] = useState<Teacher>(teacher);
+	const [formData, setFormData] = useState<Teacher>({
+		id: 0, // ou une autre valeur par défaut
+		l_name: '',
+		f_names: '',
+		unoff_name: '',
+		field: '',
+		deleted: false,
+	});
 	const [mode, setMode] = useState<string>("");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -38,7 +45,22 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
-		setFormData({ ...formData, [name]: value });
+
+		setFormData(prevFormData => {
+			const updatedData = {
+				...prevFormData,
+				[name]: value,
+			};
+	
+			// Assurez-vous que id est défini
+			if (updatedData.id === undefined) {
+				updatedData.id = 0; // ou une autre valeur par défaut
+			}
+	
+			return updatedData;
+		});
+
+	
 	};
 
 	const createTeacher = async (teacherData: Teacher) => {
@@ -66,10 +88,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 
 	const updateTeacher = async (id: number, updatedData: Teacher) => {
 		try {
-			const response = await axios.put(
-				`http://localhost:5000/teachers/${id}`,
-				updatedData
-			);
+			await axios.put(`http://localhost:5000/teachers/${id}`, updatedData);
 		} catch (error) {
 			console.error("Error updating teacher:", error);
 		}
@@ -100,58 +119,62 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 	};
 
 	const handleDelete = () => {
-		setMode(MODE_DELETE);
+		if (teacher) {
+			setMode(MODE_DELETE);
 
-		setErrorMessage("");
-		onClose();
-		deleteTeacher(teacher.id);
+			setErrorMessage("");
+			onClose();
+			deleteTeacher(teacher.id);
 
-		teacher.deleted = true;
+			teacher.deleted = true;
 
-		onSave(teacher);
+			onSave(teacher);
+		}
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		setErrorMessage("");
 
-		e.preventDefault();
+		if (formData) {
+			e.preventDefault();
 
-		if (!formData.l_name || formData.l_name.length === 0) {
-			setErrorMessage("Please enter a surname");
-			return;
-		}
-
-		if (!formData.field || formData.field.length === 0) {
-			setErrorMessage("Please enter a field");
-			return;
-		}
-
-		if (mode === MODE_CREATION) {
-			createTeacher(formData).then((newTeacher) => {
-				// Update the state with the new teacher
-				formData.id = newTeacher.id;
-
-				onSave(formData);
-			});
-		} else {
-			if (mode === MODE_DELETE) {
-				formData.deleted = true;
-			} else {
-				updateTeacher(formData.id, formData);
+			if (!formData.l_name || formData.l_name.length === 0) {
+				setErrorMessage("Please enter a surname");
+				return;
 			}
-			onSave(formData);
+
+			if (!formData.field || formData.field.length === 0) {
+				setErrorMessage("Please enter a field");
+				return;
+			}
+
+			if (mode === MODE_CREATION) {
+				createTeacher(formData).then((newTeacher) => {
+					// Update the state with the new teacher
+					formData.id = newTeacher.id;
+
+					onSave(formData);
+				});
+			} else {
+				if (mode === MODE_DELETE) {
+					formData.deleted = true;
+				} else {
+					updateTeacher(formData.id, formData);
+				}
+				onSave(formData);
+			}
+
+			setFormData({
+				id: 0,
+				l_name: "",
+				f_names: "",
+				unoff_name: "",
+				field: "",
+				deleted: false,
+			});
+
+			onClose();
 		}
-
-		setFormData({
-			id: 0,
-			l_name: "",
-			f_names: "",
-			unoff_name: "",
-			field: "",
-			deleted: false,
-		});
-
-		onClose();
 	};
 
 	if (!isOpen) return null;

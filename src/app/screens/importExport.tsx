@@ -1,10 +1,9 @@
 // This component is used to import and export dtatabase elements to/from excel files
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import styles from "./styles/page.module.css";
-import Modal from "./studentListModal"; // Adjust the import path as necessary
 import { Student } from "../data/studentListData";
 import * as XLSX from "xlsx";
 
@@ -16,17 +15,22 @@ export default function ImportExport() {
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [successMessage, setSuccessMessage] = useState<string>("");
 
-	const handleImport = (e: any) => {
+	const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSuccessMessage("");
 		setErrorMessage("");
 		// Open file from local drive.
 
-		const file = e.target.files[0];
+		const file = e.target.files?.[0];
+
+		if (!file) {
+			throw new Error("No file detected."); 
+		}
+
 		const reader = new FileReader();
 
 		const errors: string[] = [];
 
-		const validateStudent = (item: any): boolean => {
+		const validateStudent = (item: Student): boolean => {
 			const validKeys = [
 				"id",
 				"student_number",
@@ -66,7 +70,7 @@ export default function ImportExport() {
 			return true;
 		};
 
-		const validateCourse = (item: any): boolean => {
+		const validateCourse = (item: Course): boolean => {
 			const validKeys = [
 				"id",
 				"hkust_identifier",
@@ -100,7 +104,7 @@ export default function ImportExport() {
 			return true;
 		};
 
-		const validateTeacher = (item: any): boolean => {
+		const validateTeacher = (item: Teacher): boolean => {
 			const validKeys = ["id", "l_name", "f_names", "unoff_name", "field"];
 
 			// Check for missing required fields
@@ -130,7 +134,7 @@ export default function ImportExport() {
 				// Student import
 				let sheetName = workbook.SheetNames[0];
 				let sheet = workbook.Sheets[sheetName];
-				let sheetDataStudent: Student[] = XLSX.utils.sheet_to_json(sheet);
+				const sheetDataStudent: Student[] = XLSX.utils.sheet_to_json(sheet);
 
 				for (const item of sheetDataStudent) {
 					// if id is present, update
@@ -147,9 +151,14 @@ export default function ImportExport() {
 									);
 
 									return response.data;
-								} catch (error) {
-									// Handle other errors
-									console.error("Error:", error.message);
+								} catch (error: unknown) {
+									if (axios.isAxiosError(error)) {
+										// Gérer les erreurs d'axios
+										console.error("Axios Error:", error.message);
+									} else {
+										// Gérer les autres erreurs
+										console.error("Error:", error);
+									}
 
 									return false;
 								}
@@ -171,7 +180,7 @@ export default function ImportExport() {
 				// Course import
 				sheetName = workbook.SheetNames[1];
 				sheet = workbook.Sheets[sheetName];
-				let sheetDataCourse: Course[] = XLSX.utils.sheet_to_json(sheet);
+				const sheetDataCourse: Course[] = XLSX.utils.sheet_to_json(sheet);
 
 				for (const item of sheetDataCourse) {
 					console.log(item);
@@ -190,9 +199,14 @@ export default function ImportExport() {
 									);
 
 									return response.data;
-								} catch (error) {
-									// Handle other errors
-									console.error("Error:", error.message);
+								} catch (error: unknown) {
+									if (axios.isAxiosError(error)) {
+										// Gérer les erreurs d'axios
+										console.error("Axios Error:", error.message);
+									} else {
+										// Gérer les autres erreurs
+										console.error("Error:", error);
+									}
 
 									return false;
 								}
@@ -214,7 +228,7 @@ export default function ImportExport() {
 				// Teacher import
 				sheetName = workbook.SheetNames[2];
 				sheet = workbook.Sheets[sheetName];
-				let sheetDataTeacher: Teacher[] = XLSX.utils.sheet_to_json(sheet);
+				const sheetDataTeacher: Teacher[] = XLSX.utils.sheet_to_json(sheet);
 
 				for (const item of sheetDataTeacher) {
 					console.log(item);
@@ -233,9 +247,14 @@ export default function ImportExport() {
 									);
 
 									return response.data;
-								} catch (error) {
-									// Handle other errors
-									console.error("Error:", error.message);
+								} catch (error: unknown) {
+									if (axios.isAxiosError(error)) {
+										// Gérer les erreurs d'axios
+										console.error("Axios Error:", error.message);
+									} else {
+										// Gérer les autres erreurs
+										console.error("Error:", error);
+									}
 
 									return false;
 								}
@@ -351,6 +370,10 @@ export default function ImportExport() {
 				`http://localhost:5000/students/${id}`,
 				updatedData
 			);
+
+			if (response.statusText != "OK") {
+				throw new Error("Network response was not ok");
+			}
 		} catch (error) {
 			console.error("Error updating student:", error);
 		}
@@ -362,6 +385,10 @@ export default function ImportExport() {
 				`http://localhost:5000/courses/${id}`,
 				updatedData
 			);
+
+			if (response.statusText != "OK") {
+				throw new Error("Network response was not ok");
+			}
 		} catch (error) {
 			console.error("Error updating course:", error);
 		}
@@ -373,6 +400,9 @@ export default function ImportExport() {
 				`http://localhost:5000/teachers/${id}`,
 				updatedData
 			);
+			if (response.statusText != "OK") {
+				throw new Error("Network response was not ok");
+			}
 		} catch (error) {
 			console.error("Error updating teacher:", error);
 		}

@@ -10,35 +10,18 @@ interface CourseBlockProps {
 	course: Course;
 	courseQualification: CourseQualification[];
 	courseArea: CourseArea[];
-
-	hoveredCourse: number;
-	setHoveredCourse: (id: number) => void;
 }
 
 const CourseBlock: React.FC<CourseBlockProps> = ({
 	course,
 	courseQualification,
 	courseArea,
-
-	hoveredCourse,
-	setHoveredCourse,
 }) => {
 	return (
-		<div className={styles.courseBlock}
-			draggable='true'
-		
-			onMouseLeave={() => setHoveredCourse(0)}>
-			<h2
-				className={styles.matchStudentName}
-				onMouseEnter={() => setHoveredCourse(course.id)}>
-				{course.hkust_identifier}
-			</h2>
+		<div className={styles.courseBlock} draggable='true'>
+			<h2 className={styles.matchStudentName}>{course.hkust_identifier}</h2>
 
-			<h2
-				className={styles.matchStudentName}
-				onMouseEnter={() => setHoveredCourse(course.id)}>
-				{course.name}
-			</h2>
+			<h2 className={styles.matchStudentName}>{course.name}</h2>
 
 			<div className={styles.popup}>
 				{courseQualification.filter(

@@ -14,13 +14,13 @@ import {
 
 interface ModalProps {
 	isOpen: boolean;
-	student: any;
+	student: Student | null;
 	onClose: () => void;
-	onSave: (updatedStudent: any) => void;
+	onSave: (updatedStudent: Student) => void;
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
-	const [formData, setFormData] = useState<Student>(student);
+	const [formData, setFormData] = useState<Student | null>(student);
 	const [mode, setMode] = useState<string>("");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -31,25 +31,39 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 	const [selectedArea, setSelectedArea] = useState<string>("");
 
 	useEffect(() => {
+		console.log("useEffect", student);
+
 		if (student) {
+			setQualifications([]);
+			setAreas([]);
+
 			setMode(MODE_EDITION);
 			setFormData(student);
 
 			const fetchQualifs = async () => {
 				try {
-					const response = await axios.get(
-						`http://localhost:5000/student_qualifications/${student.id}`
-					);
+					if (student != null) {
+						const response = await axios.get(
+							`http://localhost:5000/student_qualifications/${student.id}`
+						);
 
-					for (let i = 0; i < response.data.length; i++) {
-						response.data[i] = response.data[i].qualification;
+						for (let i = 0; i < response.data.length; i++) {
+							response.data[i] = response.data[i].qualification;
+						}
+
+						setQualifications(response.data);
+						return response.data;
+					} else {
+						return null;
 					}
-
-					setQualifications(response.data);
-					return response.data;
-				} catch (error) {
-					// Handle other errors
-					console.error("Error:", error.message);
+				} catch (error: unknown) {
+					if (axios.isAxiosError(error)) {
+						// Gérer les erreurs d'axios
+						console.error("Axios Error:", error.message);
+					} else {
+						// Gérer les autres erreurs
+						console.error("Error:", error);
+					}
 
 					return false;
 				}
@@ -58,19 +72,30 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 			const fetchAreas = async () => {
 				try {
-					const response = await axios.get(
-						`http://localhost:5000/student_areas/${student.id}`
-					);
+					if (student != null) {
+						const response = await axios.get(
+							`http://localhost:5000/student_areas/${student.id}`
+						);
 
-					for (let i = 0; i < response.data.length; i++) {
-						response.data[i] = response.data[i].area;
+						console.log("student areas", response.data);
+
+						for (let i = 0; i < response.data.length; i++) {
+							response.data[i] = response.data[i].area;
+						}
+
+						setAreas(response.data);
+						return response.data;
+					} else {
+						return null;
 					}
-
-					setAreas(response.data);
-					return response.data;
-				} catch (error) {
-					// Handle other errors
-					console.error("Error:", error.message);
+				} catch (error: unknown) {
+					if (axios.isAxiosError(error)) {
+						// Gérer les erreurs d'axios
+						console.error("Axios Error:", error.message);
+					} else {
+						// Gérer les autres erreurs
+						console.error("Error:", error);
+					}
 
 					return false;
 				}
@@ -101,28 +126,25 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 		}
 	}, [student]); // Add student to the dependency array
 
-	const handleChange = (e: any) => {
-		const { name, value, checked } = e.target;
+	const handleChange = (
+		e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
+	) => {
+		const { name, type, value } = e.target;
+		let newValue;
 
-		if (name === "date_joined") {
-			//convert value to date format
-			const date = new Date(value);
-
-			formData.expected_grad_year = date.getFullYear() + 4;
+		if (type === "checkbox") {
+			// Utiliser une assertion de type pour accéder à checked
+			newValue = (e.target as HTMLInputElement).checked;
+		} else {
+			newValue = value;
 		}
 
-		if (name === "available") {
-			if (checked) {
-				formData.available = true;
-			} else {
-				formData.available = false;
-			}
+		if (formData) {
+			setFormData({
+				...formData,
+				[name]: newValue,
+			});
 		}
-
-		setFormData({
-			...formData,
-			[name]: name === "available" ? checked : value,
-		});
 	};
 
 	function addQualif(): void {
@@ -267,26 +289,17 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 		console.log("Updating student with ID:", id);
 
 		try {
-			let response = await axios.put(
-				`http://localhost:5000/students/${id}`,
-				updatedData
-			);
+			await axios.put(`http://localhost:5000/students/${id}`, updatedData);
 
 			// Delete all qualifs for student first
-			let responseCourse = await fetch(
-				`http://localhost:5000/student_qualifications/${id}`,
-				{
-					method: "DELETE",
-				}
-			);
+			await fetch(`http://localhost:5000/student_qualifications/${id}`, {
+				method: "DELETE",
+			});
 
 			// Delete all areas for student first
-			responseCourse = await fetch(
-				`http://localhost:5000/student_areas/${id}`,
-				{
-					method: "DELETE",
-				}
-			);
+			await fetch(`http://localhost:5000/student_areas/${id}`, {
+				method: "DELETE",
+			});
 
 			// Add qualifs
 			if (qualifications && qualifications.length > 0) {
@@ -295,16 +308,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						studentId: id,
 						qualification: qualif,
 					};
-					responseCourse = await fetch(
-						"http://localhost:5000/student_qualifications",
-						{
-							method: "POST",
-							headers: {
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify(qualifStudent),
-						}
-					);
+					await fetch("http://localhost:5000/student_qualifications", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(qualifStudent),
+					});
 				});
 			}
 
@@ -315,7 +325,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						studentId: id,
 						area: area,
 					};
-					responseCourse = await fetch("http://localhost:5000/student_areas", {
+
+					await fetch("http://localhost:5000/student_areas", {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
@@ -375,83 +386,80 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 	};
 
 	const handleDelete = () => {
-		setMode(MODE_DELETE);
+		if (student) {
+			setMode(MODE_DELETE);
 
-		setErrorMessage("");
-		onClose();
-		deleteStudent(student.id);
+			setErrorMessage("");
+			onClose();
+			deleteStudent(student.id);
 
-		student.deleted = true;
+			student.deleted = true;
 
-		student = null;
+			student = {
+				id: 0,
+				student_number: 0,
+				l_name: "",
+				f_names: "",
+				unoff_name: "",
+				program: "",
+				date_joined: new Date(),
+				expected_grad_year: 0,
+				expected_grad_semester: "Spring",
+				ta_available: 0,
+				available: false,
+				deleted: false,
+				dropZone: 0,
+				multiCourses: false,
+			};
 
-		onSave(student);
+			onSave(student);
+		}
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		setErrorMessage("");
 
 		e.preventDefault();
-
-		if (!formData.l_name || formData.l_name.length === 0) {
-			setErrorMessage("Please enter a surname");
-			return;
-		}
-
-		// check if ta_available is number
-		if (isNaN(Number(formData.ta_available))) {
-			setErrorMessage("T.A. available must be a number");
-			return;
-		}
-
-		if (formData.ta_available < 0) {
-			setErrorMessage("T.A. available must be a positive number");
-			return;
-		}
-
-		if (formData.expected_grad_year <= 0) {
-			setErrorMessage("Year must be a positive number");
-			return;
-		}
-
-		if (mode === MODE_CREATION) {
-			createStudent(formData).then((newStudent) => {
-				// Update the state with the new student
-				formData.id = newStudent.id;
-
-				onSave(formData);
-			});
-		} else {
-			if (mode === MODE_DELETE) {
-				formData.deleted = true;
-			} else {
-				updateStudent(formData.id, formData);
+		if (formData) {
+			if (!formData.l_name || formData.l_name.length === 0) {
+				setErrorMessage("Please enter a surname");
+				return;
 			}
-			onSave(formData);
+
+			// check if ta_available is number
+			if (isNaN(Number(formData.ta_available))) {
+				setErrorMessage("T.A. available must be a number");
+				return;
+			}
+
+			if (formData.ta_available < 0) {
+				setErrorMessage("T.A. available must be a positive number");
+				return;
+			}
+
+			if (formData.expected_grad_year <= 0) {
+				setErrorMessage("Year must be a positive number");
+				return;
+			}
+
+			if (mode === MODE_CREATION) {
+				createStudent(formData).then((newStudent) => {
+					// Update the state with the new student
+					formData.id = newStudent.id;
+
+					onSave(formData);
+				});
+			} else {
+				if (mode === MODE_DELETE) {
+					formData.deleted = true;
+				} else {
+					updateStudent(formData.id, formData);
+				}
+				onSave(formData);
+			}
+
+			onClose();
 		}
-
-		setFormData({
-			id: 0,
-			student_number: 0,
-			l_name: "",
-			f_names: "",
-			unoff_name: "",
-			program: "",
-			date_joined: new Date(),
-			expected_grad_year: 0,
-			expected_grad_semester: "Spring",
-			ta_available: 0,
-			available: false,
-			deleted: false,
-			dropZone: 0,
-			multiCourses: false,
-		});
-
-		student = null;
-
-		setQualifications([]);
-		setAreas([]);
-		onClose();
 	};
 
 	if (!isOpen) return null;
@@ -519,7 +527,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						<input
 							name='date_joined'
 							type='date'
-							value={formData ? formData.date_joined : ""}
+							value={
+								formData
+									? formData.date_joined instanceof Date
+										? formData.date_joined.toISOString().split("T")[0]
+										: formData.date_joined
+									: ""
+							}
 							onChange={handleChange}
 						/>
 						Expected graduation date

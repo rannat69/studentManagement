@@ -22,18 +22,13 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 	studentQualification,
 	studentArea,
 	onDragStart,
-	hoveredStudent,
-	setHoveredStudent,
 }) => {
 	return (
 		<div
 			draggable='true'
 			className={styles.element}
-			onDragStart={(event) => onDragStart(event, student)}
-			onMouseLeave={() => setHoveredStudent(0)}>
-			<h2
-				className={styles.matchStudentName}
-				onMouseEnter={() => setHoveredStudent(student.id)}>
+			onDragStart={(event) => onDragStart(event, student)}>
+			<h2 className={styles.matchStudentName}>
 				{student.l_name} {student.f_names}
 			</h2>
 

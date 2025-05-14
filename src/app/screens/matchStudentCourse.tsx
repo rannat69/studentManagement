@@ -18,19 +18,16 @@ import { CourseQualification } from "../data/courseQualificationData";
 
 export default function MatchStudentCourse() {
 	// List students that have TA available
-	const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const [studentListAvail, setStudentListAvail] = useState<Student[]>([]);
 	const [studentListAssigned, setStudentListAssigned] = useState<Student[]>([]);
 
 	const [courseListNeeded, setCourseListNeeded] = useState<Course[]>([]);
 
-	const [errorMessage, setErrorMessage] = useState<String>("");
-	const [warningMessage, setWarningMessage] = useState<String>("");
+	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [warningMessage, setWarningMessage] = useState<string>("");
 
 	const [hoveredStudent, setHoveredStudent] = useState<number>(0);
-	const [hoveredCourse, setHoveredCourse] = useState<number>(0);
 
 	const [courseQualification, setCourseQualification] = useState<
 		CourseQualification[]
@@ -94,7 +91,7 @@ export default function MatchStudentCourse() {
 		let courseList = response.data;
 
 		// filter elements of studentCourseList : only take those with year and semester
-		courseList = courseList.filter((course: any) => {
+		courseList = courseList.filter((course: Course) => {
 			return course.year === year && course.semester === semester;
 		});
 
@@ -103,7 +100,7 @@ export default function MatchStudentCourse() {
 
 	const fetchStudentCourseForSemester = async (
 		year: number,
-		semester: String
+		semester: string
 	) => {
 		let response = await axios.get("http://localhost:5000/students");
 
@@ -115,17 +112,17 @@ export default function MatchStudentCourse() {
 		let studentCourseList = response.data;
 
 		// filter elements of studentCourseList : only take those with year and semester
-		studentCourseList = studentCourseList.filter((studentCourse: any) => {
+		studentCourseList = studentCourseList.filter((studentCourse: { year: number; semester: string; }) => {
 			return studentCourse.year === year && studentCourse.semester === semester;
 		});
 
 		studentListTemp.forEach((student: Student) => {
-			studentCourseList.forEach((studentCourse: any) => {
+			studentCourseList.forEach((studentCourse: { student_id: number; course_id: number; }) => {
 				if (student.id === studentCourse.student_id) {
 					// remove record from studentListTemp
 
 					// temporary student to not get same value twice
-					var studentTemp = JSON.parse(JSON.stringify(student));
+					const studentTemp = JSON.parse(JSON.stringify(student));
 
 					studentTemp.dropZone = studentCourse.course_id;
 
@@ -194,6 +191,10 @@ export default function MatchStudentCourse() {
 				`http://localhost:5000/students/${updatedStudent.id}`,
 				updatedStudent
 			);
+
+			if (response.statusText != "OK") {
+				throw new Error("Network response was not ok");
+			}
 		} catch (error) {
 			console.error("Error updating student:", error);
 		}
@@ -206,6 +207,10 @@ export default function MatchStudentCourse() {
 				`http://localhost:5000/courses/${updatedCourse.id}`,
 				updatedCourse
 			);
+
+			if (response.statusText != "OK") {
+				throw new Error("Network response was not ok");
+			}
 		} catch (error) {
 			console.error("Error updating course:", error);
 		}
@@ -288,26 +293,28 @@ export default function MatchStudentCourse() {
 		event.preventDefault();
 		const student = event.dataTransfer.getData("student");
 
-		var courseTemp: Course = {
+		let courseTemp: Course = {
 			id: 0,
 			hkust_identifier: "",
 			name: "",
 			description: "",
 			field: "",
 			keywords: "",
-			semester: 0,
+			semester: "Spring",
 			year: 0,
 			ta_needed: 0,
 			ta_assigned: 0,
 			deleted: false,
+			areas: [],
+			qualifications: [],
 		};
 
 		// if destination is Students Available, remove record from its drop area and add it back to Students available
 		if (dropZone === 0) {
-			var studentTemp = JSON.parse(student);
+			let studentTemp = JSON.parse(student);
 
 			// find the student in the list and remove it
-			let index = studentListAssigned.findIndex(
+			const index = studentListAssigned.findIndex(
 				(s) => s.id === studentTemp.id && s.dropZone === studentTemp.dropZone
 			);
 
@@ -407,7 +414,23 @@ export default function MatchStudentCourse() {
 
 			// check if course has at least T.A. needed. If not, cancel.
 
-			var studentTemp = JSON.parse(student);
+			const studentTemp = JSON.parse(student);
+
+			let courseTemp: Course = {
+				id: 0,
+				hkust_identifier: "",
+				name: "",
+				description: "",
+				field: "",
+				keywords: "",
+				semester: "Spring",
+				year: 0,
+				ta_needed: 0,
+				ta_assigned: 0,
+				deleted: false,
+				areas: [],
+				qualifications: [],
+			};
 
 			let courseIndex = courseListNeeded.findIndex(
 				(course) => course.id === dropZone
@@ -423,7 +446,7 @@ export default function MatchStudentCourse() {
 
 			// check if course already has this student. If not, cancel.
 
-			let studentIndex = studentListAssigned.findIndex(
+			const studentIndex = studentListAssigned.findIndex(
 				(student) =>
 					student.id === studentTemp.id && student.dropZone === dropZone
 			);
@@ -431,20 +454,6 @@ export default function MatchStudentCourse() {
 				setErrorMessage("This student is already in this course");
 				return;
 			}
-
-			var courseTemp: Course = {
-				id: 0,
-				hkust_identifier: "",
-				name: "",
-				description: "",
-				field: "",
-				keywords: "",
-				semester: 0,
-				year: 0,
-				ta_needed: 0,
-				ta_assigned: 0,
-				deleted: false,
-			};
 
 			if (
 				!studentTemp.dropZone ||
@@ -492,13 +501,11 @@ export default function MatchStudentCourse() {
 
 				// check if student present multiple times in studentAssigned. If yes, display warning.
 				let count = 0;
-				let studentPresent = false;
 
 				for (const item of studentListAssigned) {
 					if (item.id === studentTemp.id) {
 						count++;
 						if (count > 0) {
-							studentPresent = true; // Found a duplicate
 							studentTemp.multiCourses = true;
 							item.multiCourses = true;
 							setWarningMessage(
@@ -686,7 +693,7 @@ export default function MatchStudentCourse() {
 						score: 0,
 					};
 
-					let response = await axios.get(
+					const response = await axios.get(
 						"http://localhost:5000/requests/Teacher/1/" +
 							student.id +
 							"/" +
@@ -737,7 +744,7 @@ export default function MatchStudentCourse() {
 					}
 
 					// Check if student previously assigned to same course
-					let responseStudentCourse = await axios.get(
+					const responseStudentCourse = await axios.get(
 						"http://localhost:5000/student_course/" +
 							student.id +
 							"/" +
@@ -749,7 +756,7 @@ export default function MatchStudentCourse() {
 
 						// Take previous assignments, which are the ones with previous year
 
-						const previousSemesters = {
+						const previousSemesters: Record<string, string[]> = {
 							Winter: ["Fall", "Spring"],
 							Fall: ["Spring"],
 						};
@@ -953,8 +960,6 @@ export default function MatchStudentCourse() {
 									course={course}
 									courseQualification={courseQualification}
 									courseArea={courseArea}
-									hoveredCourse={hoveredCourse}
-									setHoveredCourse={setHoveredCourse}
 								/>
 
 								<div className={styles.dropArea}>

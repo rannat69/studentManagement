@@ -1,5 +1,5 @@
 // Modal.tsx
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import styles from "./styles/modal.module.css";
 import { Course } from "../data/courseListData";
 import axios from "axios";
@@ -8,15 +8,14 @@ import {
 	MODE_CREATION,
 	MODE_DELETE,
 	MODE_EDITION,
-	PROGRAMS,
 	QUALIFICATIONS,
 } from "../constants";
 
 interface ModalProps {
 	isOpen: boolean;
-	course: any;
+	course: Course;
 	onClose: () => void;
-	onSave: (updatedCourse: any) => void;
+	onSave: (updatedCourse: Course) => void;
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
@@ -49,11 +48,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 					setAreas(response.data);
 					return response.data;
-				} catch (error) {
-					// Handle other errors
-					console.error("Error:", error.message);
-
-					return false;
+				} catch (error: unknown) {
+					if (axios.isAxiosError(error)) {
+						// Gérer les erreurs d'axios
+						console.error("Axios Error:", error.message);
+					} else {
+						// Gérer les autres erreurs
+						console.error("Error:", error);
+					}
 				}
 			};
 
@@ -73,9 +75,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 					setQualifications(response.data);
 					return response.data;
-				} catch (error) {
-					// Handle other errors
-					console.error("Error:", error.message);
+				} catch (error: unknown) {
+					if (axios.isAxiosError(error)) {
+						// Gérer les erreurs d'axios
+						console.error("Axios Error:", error.message);
+					} else {
+						// Gérer les autres erreurs
+						console.error("Error:", error);
+					}
 
 					return false;
 				}
@@ -90,16 +97,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 			// get current semester + 1
 			// if between february and august, it is spring
-			let semester = 0;
+			let semester = "Spring";
 			if (new Date().getMonth() >= 1 && new Date().getMonth() <= 7) {
 				// current semester is spring, assign students for fall
-				semester = 2;
+				semester = "Fall";
 			} else if (new Date().getMonth() >= 8 && new Date().getMonth() <= 10) {
 				// current semester is fall, assign students for winter
-				semester = 3;
+				semester = "Winter";
 			} else {
 				// current semester is winter, assign students for spring of next year
-				semester = 0;
+				semester = "Spring";
 
 				currentYear++;
 			}
@@ -117,6 +124,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 				areas: [],
 				qualifications: [],
 				deleted: false,
+				field: "",
+				keywords: "",
 			});
 			setAreas([]);
 			setQualifications([]);
@@ -124,7 +133,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 		}
 	}, [course]); // Add course to the dependency array
 
-	const handleChange = (e: any) => {
+	const handleChange = (
+		e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
+	) => {
 		const { name, value } = e.target;
 		setFormData({ ...formData, [name]: value });
 	};
@@ -207,10 +218,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 	const updateCourse = async (id: number, updatedData: Course) => {
 		try {
-			let response = await axios.put(
-				`http://localhost:5000/courses/${id}`,
-				updatedData
-			);
+			await axios.put(`http://localhost:5000/courses/${id}`, updatedData);
 
 			// Delete all areas for course first
 			let responseCourse = await fetch(
@@ -392,13 +400,29 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			description: "",
 			field: "",
 			keywords: "",
-			semester: 0,
+			semester: "Spring",
 			year: 0,
 			ta_needed: 0,
 			ta_assigned: 0,
 			deleted: false,
+			areas: [],
+			qualifications: [],
 		});
-		course = null;
+		course = {
+			id: 0,
+			hkust_identifier: "",
+			name: "",
+			description: "",
+			field: "",
+			keywords: "",
+			semester: "Spring",
+			year: 0,
+			ta_needed: 0,
+			ta_assigned: 0,
+			deleted: false,
+			areas: [],
+			qualifications: [],
+		};
 		onClose();
 	};
 

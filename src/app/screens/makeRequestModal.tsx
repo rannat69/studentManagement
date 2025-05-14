@@ -10,13 +10,13 @@ import { Course } from "../data/courseListData";
 
 interface ModalProps {
 	isOpen: boolean;
-	request: any;
+	request: Request | null;
 	onClose: () => void;
-	onSave: (updatedRequest: any) => void;
+	onSave: (updatedRequest: Request) => void;
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
-	const [formData, setFormData] = useState<Request>(request);
+	const [formData, setFormData] = useState<Request | null>(request);
 	const [mode, setMode] = useState<string>("");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -75,16 +75,29 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 		}
 	}, [request]); // Add request to the dependency array
 
-	const handleChange = (e: any) => {
-		const { name, value } = e.target;
+	const handleChange = (
+		e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
+	) => {
+		const { name, type, value } = e.target;
+		let newValue;
 
-		setFormData({
-			...formData,
-			[name]: name === "want" ? value === "true" : value, // Convert to boolean if  });
-		});
+		if (type === "select-one") {
+			newValue = value;
+		} else if (name === "want") {
+			newValue = value === "true";
+		} else {
+			newValue = value;
+		}
+
+		if (formData) {
+			setFormData({
+				...formData,
+				[name]: newValue,
+			});
+		}
 	};
 
-	const createRequest = async (requestData: Request) => {
+	const createRequest = async (requestData: Request | null) => {
 		try {
 			console.log(requestData);
 
@@ -115,6 +128,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 				`http://localhost:5000/requests/${id}`,
 				updatedData
 			);
+
+			if (response.statusText != "OK") {
+				throw new Error("Network response was not ok");
+			}
 		} catch (error) {
 			console.error("Error updating request:", error);
 		}
@@ -145,51 +162,54 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 	};
 
 	const handleDelete = () => {
-		setMode(MODE_DELETE);
+		if (request) {
+			setMode(MODE_DELETE);
 
-		setErrorMessage("");
-		onClose();
-		deleteRequest(request.id);
+			setErrorMessage("");
+			onClose();
+			deleteRequest(request.id);
 
-		request.deleted = true;
+			request.deleted = true;
 
-		onSave(request);
+			onSave(request);
+		}
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		setErrorMessage("");
 
 		e.preventDefault();
+		if (formData) {
+			if (mode === MODE_CREATION) {
+				createRequest(formData).then((newRequest) => {
+					// Update the state with the new request
+					formData.id = newRequest.id;
 
-		if (mode === MODE_CREATION) {
-			createRequest(formData).then((newRequest) => {
-				// Update the state with the new request
-				formData.id = newRequest.id;
-
-				onSave(formData);
-			});
-		} else {
-			if (mode === MODE_DELETE) {
-				formData.deleted = true;
+					onSave(formData);
+				});
 			} else {
-				updateRequest(formData.id, formData);
+				if (mode === MODE_DELETE) {
+					formData.deleted = true;
+				} else {
+					updateRequest(formData.id, formData);
+				}
+				onSave(formData);
 			}
-			onSave(formData);
+
+			setFormData({
+				id: 0,
+				student_id: 0,
+				teacher_id: 0,
+				course_id: 0,
+				message: "",
+				status: "",
+				request_from: "",
+				want: true,
+				deleted: false,
+			});
+
+			onClose();
 		}
-
-		setFormData({
-			id: 0,
-			student_id: 0,
-			teacher_id: 0,
-			course_id: 0,
-			message: "",
-			status: "",
-			request_from: "",
-			want: true,
-			deleted: false,
-		});
-
-		onClose();
 	};
 
 	if (!isOpen) return null;
@@ -222,7 +242,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 						<select
 							name='want'
 							onChange={handleChange}
-							value={formData ? formData.want : "true"}>
+							value={formData ? String(formData.want) : "true"}>
 							<option value={"true"}>Want</option>
 							<option value={"false"}>Do not want</option>
 						</select>

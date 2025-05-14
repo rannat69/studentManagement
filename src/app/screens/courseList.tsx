@@ -88,15 +88,17 @@ export default function CourseList() {
 		setCourseListState(updatedList);
 	};
 
-	const fetchCourseForSemester = async (year: number, semester: String) => {
-		let response = await axios.get("http://localhost:5000/courses");
+	const fetchCourseForSemester = async (year: number, semester: string) => {
+		const response = await axios.get("http://localhost:5000/courses");
 
 		let courseList = response.data;
 
 		// filter elements of studentCourseList : only take those with year and semester
-		courseList = courseList.filter((course: any) => {
-			return course.year === year && course.semester === semester;
-		});
+		courseList = courseList.filter(
+			(course: { year: number; semester: string }) => {
+				return course.year === year && course.semester === semester;
+			}
+		);
 
 		setCourseListState(courseList);
 	};
@@ -158,12 +160,14 @@ export default function CourseList() {
 				Add course
 			</div>
 			<footer className={styles.footer}></footer>
-			<Modal
-				isOpen={isModalOpen}
-				course={selectedCourse}
-				onClose={() => setIsModalOpen(false)}
-				onSave={handleSaveCourse}
-			/>
+			{selectedCourse && (
+				<Modal
+					isOpen={isModalOpen}
+					course={selectedCourse}
+					onClose={() => setIsModalOpen(false)}
+					onSave={handleSaveCourse}
+				/>
+			)}
 		</div>
 	);
 }
