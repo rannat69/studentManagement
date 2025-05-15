@@ -279,17 +279,12 @@ a.secondary {
 	border-radius: 5px; /* Rounded corners */
 	padding: 10px; /* Spacing inside the popup */
 	background: #e8f3ff;
-	opacity: 0; /* Start hidden */
-	visibility: hidden;
+	color: #000;
+
 	transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition */
 	width: 17rem;
 
 	z-index: 2;
-}
-
-.element:hover .popup {
-	opacity: 0.9; /* Start hidden */
-	visibility: visible;
 }
 
 .courseBlockContainer {
@@ -301,7 +296,6 @@ a.secondary {
 
 .courseBlock {
 	font-size: 1rem;
-
 }
 
 .courseBlock h2 {
@@ -391,4 +385,8 @@ a.secondary {
 	.logo {
 		filter: invert();
 	}
+}
+
+.bs-tooltip-start {
+	background-color: #007bff;
 }
