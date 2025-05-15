@@ -125,7 +125,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 				qualifications: [],
 				deleted: false,
 				field: "",
-				keywords: "",
 			});
 			setAreas([]);
 			setQualifications([]);
@@ -399,7 +398,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			name: "",
 			description: "",
 			field: "",
-			keywords: "",
+
 			semester: "Spring",
 			year: 0,
 			ta_needed: 0,
@@ -414,7 +413,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			name: "",
 			description: "",
 			field: "",
-			keywords: "",
+
 			semester: "Spring",
 			year: 0,
 			ta_needed: 0,
@@ -448,10 +447,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 		if (areas) {
 			setAreas([...areas, selectedArea]);
-			formData.keywords = areas.join(",");
 		} else {
 			setAreas([selectedArea]);
-			formData.keywords = selectedArea;
 		}
 	}
 
@@ -475,10 +472,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 		if (qualifications) {
 			setQualifications([...qualifications, selectedQualification]);
-			formData.keywords = qualifications.join(",");
 		} else {
 			setQualifications([selectedQualification]);
-			formData.keywords = selectedQualification;
 		}
 	}
 
@@ -516,25 +511,51 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 							placeholder='Description'
 						/>
 						Year
-						<input
-							name='year'
-							value={formData?.year ? formData.year : 0}
-							onChange={handleChange}
-							placeholder='Year'
-							type='number'
-						/>
+						{mode === MODE_EDITION ? (
+							<input
+								name='year'
+								value={formData?.year ? formData.year : 0}
+								onChange={handleChange}
+								placeholder='Year'
+								type='number'
+								disabled
+							/>
+						) : (
+							<input
+								name='year'
+								value={formData?.year ? formData.year : 0}
+								onChange={handleChange}
+								placeholder='Year'
+								type='number'
+							/>
+						)}
 						Semester
-						<select
-							name='semester'
-							onChange={handleChange}
-							value={formData?.semester ? formData.semester : "Spring"}>
-							<option value='Spring'>Spring</option>
+						{mode === MODE_EDITION ? (
+							<select
+								name='semester'
+								onChange={handleChange}
+								value={formData?.semester ? formData.semester : "Spring"}
+								disabled>
+								<option value='Spring'>Spring</option>
 
-							<option value='Summer'>Summer</option>
+								<option value='Summer'>Summer</option>
 
-							<option value='Fall'>Fall</option>
-							<option value='Winter'>Winter</option>
-						</select>
+								<option value='Fall'>Fall</option>
+								<option value='Winter'>Winter</option>
+							</select>
+						) : (
+							<select
+								name='semester'
+								onChange={handleChange}
+								value={formData?.semester ? formData.semester : "Spring"}>
+								<option value='Spring'>Spring</option>
+
+								<option value='Summer'>Summer</option>
+
+								<option value='Fall'>Fall</option>
+								<option value='Winter'>Winter</option>
+							</select>
+						)}
 						T.A. needed
 						<input
 							name='ta_needed'

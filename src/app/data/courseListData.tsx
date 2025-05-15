@@ -11,5 +11,4 @@ export interface Course {
 	areas: string[];
 	qualifications: string[];
 	field: string;
-	keywords: string;
 }

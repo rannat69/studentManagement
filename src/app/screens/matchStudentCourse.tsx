@@ -112,23 +112,31 @@ export default function MatchStudentCourse() {
 		let studentCourseList = response.data;
 
 		// filter elements of studentCourseList : only take those with year and semester
-		studentCourseList = studentCourseList.filter((studentCourse: { year: number; semester: string; }) => {
-			return studentCourse.year === year && studentCourse.semester === semester;
-		});
+		studentCourseList = studentCourseList.filter(
+			(studentCourse: { year: number; semester: string }) => {
+				return (
+					studentCourse.year === year && studentCourse.semester === semester
+				);
+			}
+		);
+
+		console.log("studentCourseList", studentCourseList);
 
 		studentListTemp.forEach((student: Student) => {
-			studentCourseList.forEach((studentCourse: { student_id: number; course_id: number; }) => {
-				if (student.id === studentCourse.student_id) {
-					// remove record from studentListTemp
+			studentCourseList.forEach(
+				(studentCourse: { student_id: number; course_id: number }) => {
+					if (student.id === studentCourse.student_id) {
+						// remove record from studentListTemp
 
-					// temporary student to not get same value twice
-					const studentTemp = JSON.parse(JSON.stringify(student));
+						// temporary student to not get same value twice
+						const studentTemp = JSON.parse(JSON.stringify(student));
 
-					studentTemp.dropZone = studentCourse.course_id;
+						studentTemp.dropZone = studentCourse.course_id;
 
-					studentListAssignedTemp.push(studentTemp);
+						studentListAssignedTemp.push(studentTemp);
+					}
 				}
-			});
+			);
 		});
 
 		studentListTemp = studentListTemp.filter(
@@ -299,7 +307,6 @@ export default function MatchStudentCourse() {
 			name: "",
 			description: "",
 			field: "",
-			keywords: "",
 			semester: "Spring",
 			year: 0,
 			ta_needed: 0,
@@ -422,7 +429,7 @@ export default function MatchStudentCourse() {
 				name: "",
 				description: "",
 				field: "",
-				keywords: "",
+
 				semester: "Spring",
 				year: 0,
 				ta_needed: 0,
@@ -625,6 +632,9 @@ export default function MatchStudentCourse() {
 		const filteredStudents = students.filter((student) => {
 			return studentListAssigned.findIndex((s) => s.id === student.id) === -1;
 		});
+
+		console.log("filteredStudents", filteredStudents);
+		console.log("studentListAssigned", studentListAssigned);
 
 		// Update the `students` array to the filtered result
 		students = filteredStudents;
@@ -954,7 +964,7 @@ export default function MatchStudentCourse() {
 
 					<div className={styles.dropAreas}>
 						{courseListNeeded.map((course) => (
-							<div key={course.id}>
+							<div className={styles.courseBlockContainer} key={course.id}>
 								<CourseBlock
 									key={course.id.toString()}
 									course={course}

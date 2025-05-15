@@ -292,6 +292,22 @@ a.secondary {
 	visibility: visible;
 }
 
+.courseBlockContainer {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: 15vw;
+}
+
+.courseBlock {
+	font-size: 1rem;
+
+}
+
+.courseBlock h2 {
+	font-size: 1.5rem;
+}
+
 .courseBlock:hover .popup {
 	opacity: 0.9; /* Start hidden */
 	visibility: visible;
@@ -303,8 +319,8 @@ a.secondary {
 	border-radius: 2rem;
 	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
 	font-size: x-small;
-	width: 7rem;
-	height: 2rem;
+	width: 7vw;
+	height: 3.5rem;
 	margin: 0.1rem;
 	background-color: lightgreen;
 }
