@@ -23,7 +23,7 @@ export default function ImportExport() {
 		const file = e.target.files?.[0];
 
 		if (!file) {
-			throw new Error("No file detected."); 
+			throw new Error("No file detected.");
 		}
 
 		const reader = new FileReader();
@@ -42,9 +42,7 @@ export default function ImportExport() {
 				"expected_grad_year",
 				"expected_grad_semester",
 				"ta_available",
-				"deleted",
-				"dropZone",
-				"multiCourses",
+				"available",
 			];
 
 			// Check for missing required fields
@@ -435,6 +433,38 @@ export default function ImportExport() {
 			return response.data;
 		};
 
+		// fetch student areas
+		const fetchStudentAreas = async () => {
+			const response = await axios.get("http://localhost:5000/student_areas");
+
+			return response.data;
+		};
+
+		// fetch student qualification
+		const fetchStudentQualifications = async () => {
+			const response = await axios.get(
+				"http://localhost:5000/student_qualifications"
+			);
+
+			return response.data;
+		};
+
+		// fetch course qualification
+		const fetchCourseQualifications = async () => {
+			const response = await axios.get(
+				"http://localhost:5000/course_qualifications"
+			);
+
+			return response.data;
+		};
+
+		// fetch course areas
+		const fetchCourseAreas = async () => {
+			const response = await axios.get("http://localhost:5000/course_areas");
+
+			return response.data;
+		};
+
 		const courses: Course[] = await fetchCourses();
 
 		const students: Student[] = await fetchStudents();
@@ -442,6 +472,14 @@ export default function ImportExport() {
 		const teachers: Teacher[] = await fetchTeachers();
 
 		const studentCourses = await fetchStudentCourses();
+
+		const studentAreas = await fetchStudentAreas();
+
+		const studentQualifications = await fetchStudentQualifications();
+
+		const courseQualifications = await fetchCourseQualifications();
+
+		const courseAreas = await fetchCourseAreas();
 
 		// put students in an Excel file in a tab, and courses in another tab
 		const wb = XLSX.utils.book_new();
@@ -456,6 +494,18 @@ export default function ImportExport() {
 
 		const ws4 = XLSX.utils.json_to_sheet(studentCourses);
 		XLSX.utils.book_append_sheet(wb, ws4, "Students and courses");
+
+		const ws5 = XLSX.utils.json_to_sheet(studentAreas);
+		XLSX.utils.book_append_sheet(wb, ws4, "Students and areas");
+
+		const ws6 = XLSX.utils.json_to_sheet(studentQualifications);
+		XLSX.utils.book_append_sheet(wb, ws4, "Students and qualifications");
+
+		const ws7 = XLSX.utils.json_to_sheet(courseQualifications);
+		XLSX.utils.book_append_sheet(wb, ws4, "Courses and qualifications");
+
+		const ws8 = XLSX.utils.json_to_sheet(courseAreas);
+		XLSX.utils.book_append_sheet(wb, ws4, "Courses and areas");
 
 		XLSX.writeFile(wb, "students.xlsx");
 

@@ -186,7 +186,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 					&times;
 				</span>
 
-				<button onClick={() => handleCancel()}>Cancel</button>
+				<button  className={styles.buttonCancel}  onClick={() => handleCancel()}>Cancel</button>
 
 				<form onSubmit={handleSubmit} className={styles.modalContent}>
 					<div className={styles.modalContentColumn}>
@@ -224,14 +224,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 							placeholder='field'
 						/>
 						{/* Add more fields as needed */}
-						<button type='submit'>Save</button>
+						<button className={styles.buttonSave} type='submit'>Save</button>
 						{errorMessage.length > 0 && (
 							<div className={styles.error}>{errorMessage}</div>
 						)}
 					</div>
 				</form>
 				{mode === MODE_EDITION && (
-					<button onClick={() => handleDelete()}>Delete</button>
+					<button className={styles.buttonDelete} onClick={() => handleDelete()}>Delete</button>
 				)}
 			</div>
 		</div>

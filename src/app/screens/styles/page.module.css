@@ -287,6 +287,14 @@ a.secondary {
 	z-index: 2;
 }
 
+.popup h2 {
+	font-size: 1.2rem;
+}
+
+.popup h4 {
+	font-size: 0.8rem;
+}
+
 .courseBlockContainer {
 	display: flex;
 	flex-direction: row;

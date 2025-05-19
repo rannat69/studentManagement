@@ -43,6 +43,8 @@ export default function StudentList() {
 			return;
 		}
 
+		console.log("updatedStudent", updatedStudent);
+
 		let updatedList;
 
 		// Check if the student is marked for deletion
@@ -98,7 +100,7 @@ export default function StudentList() {
 			<footer className={styles.footer}></footer>
 			<Modal
 				isOpen={isModalOpen}
-			    student={selectedStudent }
+				student={selectedStudent}
 				onClose={() => setIsModalOpen(false)}
 				onSave={handleSaveStudent}
 			/>
