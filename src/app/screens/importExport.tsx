@@ -446,7 +446,7 @@ export default function ImportExport() {
 			return response.data;
 		};
 
-		const fetchStudentCourses = async () => {
+		/*const fetchStudentCourses = async () => {
 			const response = await axios.get("http://localhost:5000/student_course");
 
 			return response.data;
@@ -482,7 +482,7 @@ export default function ImportExport() {
 			const response = await axios.get("http://localhost:5000/course_areas");
 
 			return response.data;
-		};
+		};*/
 
 		const courses: Course[] = await fetchCourses();
 
@@ -490,7 +490,7 @@ export default function ImportExport() {
 
 		const teachers: Teacher[] = await fetchTeachers();
 
-		const studentCourses = await fetchStudentCourses();
+		/*const studentCourses = await fetchStudentCourses();
 
 		const studentAreas = await fetchStudentAreas();
 
@@ -498,7 +498,7 @@ export default function ImportExport() {
 
 		const courseQualifications = await fetchCourseQualifications();
 
-		const courseAreas = await fetchCourseAreas();
+		const courseAreas = await fetchCourseAreas();*/
 
 		// put students in an Excel file in a tab, and courses in another tab
 		const workbook = new ExcelJS.Workbook();

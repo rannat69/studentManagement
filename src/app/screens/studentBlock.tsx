@@ -4,7 +4,7 @@ import { Student } from "../data/studentListData";
 import { StudentQualification } from "../data/studentQualificationData";
 import styles from "./styles/page.module.css";
 import { StudentArea } from "../data/studentAreaData";
-import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
+import {  OverlayTrigger, Tooltip } from "react-bootstrap";
 
 interface StudentBlockProps {
 	student: Student;

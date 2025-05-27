@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import Modal from "./studentListModal"; // Adjust the import path as necessary
 import { Student } from "../data/studentListData";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Table from "react-bootstrap/Table";
 import styles from "./styles/page.module.css";
 import axios from "axios";
 
