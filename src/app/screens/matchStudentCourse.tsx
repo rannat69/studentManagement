@@ -6,8 +6,6 @@ import { Course } from "../data/courseListData";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import Spinner from "react-bootstrap/Spinner";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip, { TooltipProps } from "react-bootstrap/Tooltip";
 
 import axios from "axios";
 import { Student } from "../data/studentListData";
@@ -17,7 +15,6 @@ import { StudentArea } from "../data/studentAreaData";
 import CourseBlock from "./courseBlock";
 import { CourseArea } from "../data/courseAreaData";
 import { CourseQualification } from "../data/courseQualificationData";
-import { Button } from "react-bootstrap";
 
 export default function MatchStudentCourse() {
 	// List students that have TA available

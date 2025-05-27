@@ -154,6 +154,7 @@
 	width: 17rem;
 	color: #fff;
 	border-color: #1a1a1a;
+	margin: 1rem;
 }
 
 .add:hover {
@@ -182,6 +183,8 @@
 .availableColumn {
 	flex: 1; /* Takes up space proportional to available space */
 	margin-right: 20px; /* Space between columns */
+	max-height: 85vh;
+	overflow-y: scroll;
 }
 
 .dropAreas {
@@ -189,6 +192,8 @@
 	flex-direction: row; /* Stack drop areas vertically */
 	flex-wrap: wrap;
 	flex: 2; /* Takes up more space than available column */
+	max-height: 85vh;
+	overflow-y: scroll;
 }
 
 .dropArea {
@@ -397,4 +402,70 @@ a.secondary {
 
 .bs-tooltip-start {
 	background-color: #007bff;
+}
+
+.tableStudent {
+	border-width: 2px;
+	border-color: #000;
+	border-style: solid;
+}
+.tableStudent thead {
+	background-color: lightblue;
+}
+.tableStudent thead tr th {
+	padding: 0.5rem;
+}
+.tableStudent tbody tr {
+	border-width: 1px;
+	border-color: #000;
+	border-style: solid;
+}
+
+.tableStudent tr:nth-child(even) {
+	background-color: #f2f2f2;
+}
+
+.tableStudent tbody :hover {
+	background-color: lightblue;
+}
+
+.tableStudent tbody tr td {
+	padding: 0.5rem;
+}
+
+.importExport {
+	padding: 0.7rem;
+	border: 0.3rem solid;
+	border-radius: 2rem;
+	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
+	font-size: 1rem;
+	width: 50vh;
+	margin: 0.1rem;
+}
+
+.importExport:hover {
+	background-color: #dddddd; /* Change to your desired hover background color */
+	border-color: #0a0186; /* Change to your desired hover border color */
+}
+
+.buttonClicked {
+	background-color: greenyellow;
+	padding: 0.7rem;
+	border: 0.3rem solid;
+	border-radius: 2rem;
+	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
+	font-size: 0.8rem;
+	width: 10vh;
+	margin: 0.1rem;
+}
+
+.buttonUnclicked {
+	background-color: lightgray;
+	padding: 0.7rem;
+	border: 0.3rem solid;
+	border-radius: 2rem;
+	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
+	font-size: 0.8rem;
+	width: 10vh;
+	margin: 0.1rem;
 }

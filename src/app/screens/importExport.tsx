@@ -6,16 +6,21 @@ import React, { useState } from "react";
 import styles from "./styles/page.module.css";
 import { Student } from "../data/studentListData";
 import * as XLSX from "xlsx";
-
+import ExcelJS, { Workbook } from "exceljs";
 import axios from "axios";
 import { Course } from "../data/courseListData";
 import { Teacher } from "../data/teacherListData";
+import { Spinner } from "react-bootstrap";
 
 export default function ImportExport() {
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [successMessage, setSuccessMessage] = useState<string>("");
-
+	const [isImporting, setIsImporting] = useState<boolean>(false);
+	const [isImportStudents, setIsImportStudents] = useState<boolean>(true);
+	const [isImportCourses, setIsImportCourses] = useState<boolean>(true);
+	const [isImportTeachers, setIsImportTeachers] = useState<boolean>(true);
 	const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setIsImporting(true);
 		setSuccessMessage("");
 		setErrorMessage("");
 		// Open file from local drive.
@@ -30,6 +35,39 @@ export default function ImportExport() {
 
 		const errors: string[] = [];
 
+		const validateCourse = (item: Course): boolean => {
+			const validKeys = [
+				"id",
+				"hkust_identifier",
+				"name",
+				"description",
+				"semester",
+				"year",
+				"field",
+				"keywords",
+				"ta_needed",
+				"ta_assigned",
+			];
+
+			// Check for missing required fields
+			if (!item.hkust_identifier || !item.name) {
+				errors.push("Error: Missing required fields for a course");
+				return false;
+			}
+
+			// Check for invalid properties
+			const courseKeys = Object.keys(item);
+			for (const key of courseKeys) {
+				if (!validKeys.includes(key)) {
+					errors.push(
+						`Error: Invalid property "${key}" found in course object.`
+					);
+					return false;
+				}
+			}
+			return true;
+		};
+
 		const validateStudent = (item: Student): boolean => {
 			const validKeys = [
 				"id",
@@ -43,6 +81,7 @@ export default function ImportExport() {
 				"expected_grad_semester",
 				"ta_available",
 				"available",
+				"",
 			];
 
 			// Check for missing required fields
@@ -61,40 +100,6 @@ export default function ImportExport() {
 				if (!validKeys.includes(key)) {
 					errors.push(
 						`Error: Invalid property "${key}" found in student object.`
-					);
-					return false;
-				}
-			}
-			return true;
-		};
-
-		const validateCourse = (item: Course): boolean => {
-			const validKeys = [
-				"id",
-				"hkust_identifier",
-				"name",
-				"description",
-				"semester",
-				"year",
-				"field",
-				"keywords",
-				"ta_needed",
-				"ta_assigned",
-				"deleted",
-			];
-
-			// Check for missing required fields
-			if (!item.hkust_identifier || !item.name) {
-				errors.push("Error: Missing required fields for a course");
-				return false;
-			}
-
-			// Check for invalid properties
-			const courseKeys = Object.keys(item);
-			for (const key of courseKeys) {
-				if (!validKeys.includes(key)) {
-					errors.push(
-						`Error: Invalid property "${key}" found in course object.`
 					);
 					return false;
 				}
@@ -129,96 +134,104 @@ export default function ImportExport() {
 				const data = new Uint8Array(event.target.result as ArrayBuffer);
 				const workbook = XLSX.read(data, { type: "array" });
 
-				// Student import
+				// Course import
+
 				let sheetName = workbook.SheetNames[0];
 				let sheet = workbook.Sheets[sheetName];
-				const sheetDataStudent: Student[] = XLSX.utils.sheet_to_json(sheet);
+				const sheetDataCourse: Course[] = XLSX.utils.sheet_to_json(sheet);
 
-				for (const item of sheetDataStudent) {
-					// if id is present, update
-					if (validateStudent(item)) {
-						if (item.id && item.id > 0) {
-							// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
+				if (isImportCourses) {
+					for (const item of sheetDataCourse) {
+						console.log(item);
 
-							// read record
-							// if not found, error
-							const fetchStudent = async (id: number) => {
-								try {
-									const response = await axios.get(
-										`http://localhost:5000/students/${id}`
-									);
+						// if id is present, update
+						if (validateCourse(item)) {
+							if (item.id && item.id > 0) {
+								// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
 
-									return response.data;
-								} catch (error: unknown) {
-									if (axios.isAxiosError(error)) {
-										// Gérer les erreurs d'axios
-										console.error("Axios Error:", error.message);
-									} else {
-										// Gérer les autres erreurs
-										console.error("Error:", error);
+								// read record
+								// if not found, error
+								const fetchCourse = async (id: number) => {
+									try {
+										const response = await axios.get(
+											`http://localhost:5000/courses/${id}`
+										);
+
+										return response.data;
+									} catch (error: unknown) {
+										if (axios.isAxiosError(error)) {
+											// Gérer les erreurs d'axios
+											console.error("Axios Error:", error.message);
+										} else {
+											// Gérer les autres erreurs
+											console.error("Error:", error);
+										}
+
+										return false;
 									}
+								};
 
-									return false;
+								const fetchCourseResponse = await fetchCourse(item.id);
+								if (fetchCourseResponse) {
+									updateCourse(item.id, item);
+								} else {
+									errors.push(`Error: Course with id ${item.id} not found`);
 								}
-							};
-
-							const fetchStudentResponse = await fetchStudent(item.id);
-							if (fetchStudentResponse) {
-								updateStudent(item.id, item);
 							} else {
-								errors.push(`Error: Student with id ${item.id} not found`);
+								// if id not present, create
+								createCourse(item);
 							}
 						} else {
-							// if id not present, create
-							createStudent(item);
+							break;
 						}
 					}
 				}
-
-				// Course import
+				// Student import
 				sheetName = workbook.SheetNames[1];
 				sheet = workbook.Sheets[sheetName];
-				const sheetDataCourse: Course[] = XLSX.utils.sheet_to_json(sheet);
+				const sheetDataStudent: Student[] = XLSX.utils.sheet_to_json(sheet);
 
-				for (const item of sheetDataCourse) {
-					console.log(item);
+				if (isImportStudents) {
+					for (const item of sheetDataStudent) {
+						// if id is present, update
+						if (validateStudent(item)) {
+							if (item.id && item.id > 0) {
+								// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
 
-					// if id is present, update
-					if (validateCourse(item)) {
-						if (item.id && item.id > 0) {
-							// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
+								// read record
+								// if not found, error
+								const fetchStudent = async (id: number) => {
+									try {
+										const response = await axios.get(
+											`http://localhost:5000/students/${id}`
+										);
 
-							// read record
-							// if not found, error
-							const fetchCourse = async (id: number) => {
-								try {
-									const response = await axios.get(
-										`http://localhost:5000/courses/${id}`
-									);
+										return response.data;
+									} catch (error: unknown) {
+										if (axios.isAxiosError(error)) {
+											// Gérer les erreurs d'axios
+											console.error("Axios Error:", error.message);
+										} else {
+											// Gérer les autres erreurs
+											console.error("Error:", error);
+										}
 
-									return response.data;
-								} catch (error: unknown) {
-									if (axios.isAxiosError(error)) {
-										// Gérer les erreurs d'axios
-										console.error("Axios Error:", error.message);
-									} else {
-										// Gérer les autres erreurs
-										console.error("Error:", error);
+										return false;
 									}
+								};
 
-									return false;
+								const fetchStudentResponse = await fetchStudent(item.id);
+								if (fetchStudentResponse) {
+									updateStudent(item.id, item);
+								} else {
+									errors.push(`Error: Student with id ${item.id} not found`);
 								}
-							};
-
-							const fetchCourseResponse = await fetchCourse(item.id);
-							if (fetchCourseResponse) {
-								updateCourse(item.id, item);
 							} else {
-								errors.push(`Error: Course with id ${item.id} not found`);
+								// if id not present, create
+								createStudent(item);
 							}
 						} else {
-							// if id not present, create
-							createCourse(item);
+							break;
 						}
 					}
 				}
@@ -228,45 +241,49 @@ export default function ImportExport() {
 				sheet = workbook.Sheets[sheetName];
 				const sheetDataTeacher: Teacher[] = XLSX.utils.sheet_to_json(sheet);
 
-				for (const item of sheetDataTeacher) {
-					console.log(item);
+				if (isImportTeachers) {
+					for (const item of sheetDataTeacher) {
+						console.log(item);
 
-					// if id is present, update
-					if (validateTeacher(item)) {
-						if (item.id && item.id > 0) {
-							// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
+						// if id is present, update
+						if (validateTeacher(item)) {
+							if (item.id && item.id > 0) {
+								// check item properties, at least l_name, ta_available, and expected_grad_year have to be present
 
-							// read record
-							// if not found, error
-							const fetchTeacher = async (id: number) => {
-								try {
-									const response = await axios.get(
-										`http://localhost:5000/teachers/${id}`
-									);
+								// read record
+								// if not found, error
+								const fetchTeacher = async (id: number) => {
+									try {
+										const response = await axios.get(
+											`http://localhost:5000/teachers/${id}`
+										);
 
-									return response.data;
-								} catch (error: unknown) {
-									if (axios.isAxiosError(error)) {
-										// Gérer les erreurs d'axios
-										console.error("Axios Error:", error.message);
-									} else {
-										// Gérer les autres erreurs
-										console.error("Error:", error);
+										return response.data;
+									} catch (error: unknown) {
+										if (axios.isAxiosError(error)) {
+											// Gérer les erreurs d'axios
+											console.error("Axios Error:", error.message);
+										} else {
+											// Gérer les autres erreurs
+											console.error("Error:", error);
+										}
+
+										return false;
 									}
+								};
 
-									return false;
+								const fetchCourseResponse = await fetchTeacher(item.id);
+								if (fetchCourseResponse) {
+									updateTeacher(item.id, item);
+								} else {
+									errors.push(`Error: Course with id ${item.id} not found`);
 								}
-							};
-
-							const fetchCourseResponse = await fetchTeacher(item.id);
-							if (fetchCourseResponse) {
-								updateTeacher(item.id, item);
 							} else {
-								errors.push(`Error: Course with id ${item.id} not found`);
+								// if id not present, create
+								createTeacher(item);
 							}
 						} else {
-							// if id not present, create
-							createTeacher(item);
+							break;
 						}
 					}
 				}
@@ -276,6 +293,8 @@ export default function ImportExport() {
 				} else {
 					setSuccessMessage("Imported successfully");
 				}
+
+				setIsImporting(false);
 			}
 		};
 		reader.readAsArrayBuffer(file);
@@ -482,55 +501,343 @@ export default function ImportExport() {
 		const courseAreas = await fetchCourseAreas();
 
 		// put students in an Excel file in a tab, and courses in another tab
-		const wb = XLSX.utils.book_new();
-		const ws = XLSX.utils.json_to_sheet(students);
-		XLSX.utils.book_append_sheet(wb, ws, "Students");
+		const workbook = new ExcelJS.Workbook();
 
-		const ws2 = XLSX.utils.json_to_sheet(courses);
-		XLSX.utils.book_append_sheet(wb, ws2, "Courses");
+		createSheetCourse(workbook, courses);
 
-		const ws3 = XLSX.utils.json_to_sheet(teachers);
-		XLSX.utils.book_append_sheet(wb, ws3, "Teachers");
+		createSheetStudent(workbook, students);
 
-		const ws4 = XLSX.utils.json_to_sheet(studentCourses);
-		XLSX.utils.book_append_sheet(wb, ws4, "Students and courses");
+		createSheetTeacher(workbook, teachers);
+		// Create a buffer and trigger download
+		const buffer = await workbook.xlsx.writeBuffer();
+		const blob = new Blob([buffer], { type: "application/octet-stream" });
+		const link = document.createElement("a");
+		link.href = URL.createObjectURL(blob);
+		link.download = "Export.Student.Management.xlsx";
+		link.click();
+	}
 
-		const ws5 = XLSX.utils.json_to_sheet(studentAreas);
-		XLSX.utils.book_append_sheet(wb, ws4, "Students and areas");
+	function createSheetCourse(workbook: Workbook, courses: Course[]) {
+		const worksheet = workbook.addWorksheet("Courses");
 
-		const ws6 = XLSX.utils.json_to_sheet(studentQualifications);
-		XLSX.utils.book_append_sheet(wb, ws4, "Students and qualifications");
+		// Define columns
+		worksheet.columns = [
+			{ header: "id", key: "id", width: 15 },
+			{ header: "hkust_identifier", key: "hkust_identifier", width: 30 },
+			{ header: "name", key: "name", width: 50 },
+			{ header: "description", key: "description", width: 50 },
+			{ header: "semester", key: "semester", width: 15 },
+			{ header: "year", key: "year", width: 10 },
+			{ header: "ta_needed", key: "ta_needed", width: 10 },
+			{ header: "field", key: "field", width: 10 },
+			{ header: "keywords", key: "keywords", width: 10 },
+			// Add more columns as needed
+		];
 
-		const ws7 = XLSX.utils.json_to_sheet(courseQualifications);
-		XLSX.utils.book_append_sheet(wb, ws4, "Courses and qualifications");
+		// Add content of courses into worksheet
+		for (const item of courses) {
+			worksheet.addRow({
+				id: item.id,
+				hkust_identifier: item.hkust_identifier,
+				name: item.name,
+				description: item.description,
+				semester: item.semester != "0" ? item.semester : "Spring",
+				year: item.year,
+				ta_needed: item.ta_needed,
+				field: item.field,
+			});
+		}
 
-		const ws8 = XLSX.utils.json_to_sheet(courseAreas);
-		XLSX.utils.book_append_sheet(wb, ws4, "Courses and areas");
+		const headerRow = worksheet.getRow(1);
 
-		XLSX.writeFile(wb, "students.xlsx");
+		headerRow.eachCell((cell) => {
+			cell.fill = {
+				type: "pattern",
+				pattern: "solid",
+				fgColor: { argb: "FFCCCCCC" }, // Light gray color
+			};
+			cell.font = { bold: true };
+		});
 
-		/*const exportToExcel = (data: Student[]) => {
-			const ws = XLSX.utils.json_to_sheet(data);
-			const wb = XLSX.utils.book_new();
-			XLSX.utils.book_append_sheet(wb, ws, "Students");
-			XLSX.writeFile(wb, "students.xlsx");
-		};
-		exportToExcel(students);*/
+		const rows = worksheet.getRows(
+			0,
+			worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
+		);
+
+		console.log("rows", rows);
+
+		if (rows) {
+			for (const row of rows) {
+				if (row.number && row.number > 1) {
+					row.getCell("E").dataValidation = {
+						type: "list",
+						allowBlank: true,
+						formulae: ['"Spring,Summer,Fall,Winter"'],
+						errorStyle: "error",
+						errorTitle: "Semester",
+						error: "The value must be a semester",
+						showErrorMessage: true,
+					};
+
+					row.getCell("F").dataValidation = {
+						type: "decimal",
+						operator: "between",
+						allowBlank: true,
+						showInputMessage: true,
+						formulae: [2000, 3000],
+						promptTitle: "Year",
+						prompt: "The value must a number between 2000 and 3000",
+						errorStyle: "error",
+						errorTitle: "Year",
+						error: "The value must be a year",
+						showErrorMessage: true,
+					};
+
+					row.getCell("G").dataValidation = {
+						type: "decimal",
+						operator: "between",
+						allowBlank: true,
+						showInputMessage: true,
+						formulae: [0, 10],
+						promptTitle: "T.A. needed",
+						prompt: "The value must a number between 0 and 10",
+						errorStyle: "error",
+						errorTitle: "T.A. needed",
+						error: "TThe value must a number between 0 and 10",
+						showErrorMessage: true,
+					};
+				}
+			}
+		}
+	}
+
+	function createSheetStudent(workbook: Workbook, students: Student[]) {
+		const worksheet = workbook.addWorksheet("Students");
+
+		// Define columns
+		worksheet.columns = [
+			{ header: "id", key: "id", width: 15 },
+			{ header: "student_number", key: "student_number", width: 30 },
+			{ header: "l_name", key: "l_name", width: 50 },
+			{ header: "f_names", key: "f_names", width: 50 },
+			{ header: "unoff_name", key: "unoff_name", width: 50 },
+			{ header: "program", key: "program", width: 30 },
+			{ header: "date_joined", key: "date_joined", width: 50 },
+			{ header: "expected_grad_year", key: "expected_grad_year", width: 10 },
+			{
+				header: "expected_grad_semester",
+				key: "expected_grad_semester",
+				width: 10,
+			},
+			{ header: "ta_available", key: "ta_available", width: 10 },
+			{ header: "available", key: "available", width: 10 },
+			// Add more columns as needed
+		];
+
+		// Add content of courses into worksheet
+		for (const item of students) {
+			worksheet.addRow({
+				id: item.id,
+				student_number: item.student_number,
+				l_name: item.l_name,
+				f_names: item.f_names,
+
+				unoff_name: item.unoff_name,
+
+				program: item.program,
+
+				date_joined: item.date_joined,
+				expected_grad_semester:
+					item.expected_grad_semester != "0"
+						? item.expected_grad_semester
+						: "Spring",
+				expected_grad_year: item.expected_grad_year,
+				ta_available: item.ta_available,
+				available: item.available,
+			});
+		}
+
+		const headerRow = worksheet.getRow(1);
+
+		headerRow.eachCell((cell) => {
+			cell.fill = {
+				type: "pattern",
+				pattern: "solid",
+				fgColor: { argb: "FFCCCCCC" }, // Light gray color
+			};
+			cell.font = { bold: true };
+		});
+
+		const rows = worksheet.getRows(
+			0,
+			worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
+		);
+
+		if (rows) {
+			for (const row of rows) {
+				if (row.number && row.number > 1) {
+					row.getCell("F").dataValidation = {
+						type: "list",
+						allowBlank: true,
+						formulae: ['"ISD PHD, ISD MPhil"'],
+						errorStyle: "error",
+						errorTitle: "Program",
+						error: "The value must be a program",
+						showErrorMessage: true,
+					};
+
+					row.getCell("I").dataValidation = {
+						type: "list",
+						allowBlank: true,
+						formulae: ['"Spring,Summer,Fall,Winter"'],
+						errorStyle: "error",
+						errorTitle: "Semester",
+						error: "The value must be a semester",
+						showErrorMessage: true,
+					};
+
+					row.getCell("H").dataValidation = {
+						type: "decimal",
+						operator: "between",
+						allowBlank: true,
+						showInputMessage: true,
+						formulae: [2000, 3000],
+						promptTitle: "Year",
+						prompt: "The value must a number between 2000 and 3000",
+						errorStyle: "error",
+						errorTitle: "Year",
+						error: "The value must be a year",
+						showErrorMessage: true,
+					};
+
+					row.getCell("J").dataValidation = {
+						type: "whole",
+						operator: "between",
+						allowBlank: true,
+						showInputMessage: true,
+						formulae: [0, 10],
+						promptTitle: "T.A. available",
+						prompt: "The value must a number between 0 and 10",
+						errorStyle: "error",
+						errorTitle: "T.A. available",
+						error: "The value must a number between 0 and 10",
+						showErrorMessage: true,
+					};
+
+					row.getCell("K").dataValidation = {
+						type: "whole",
+						operator: "between",
+						allowBlank: true,
+						showInputMessage: true,
+						formulae: [0, 1],
+						promptTitle: "Available",
+						prompt: "The value must a 0 or 1",
+						errorStyle: "error",
+						errorTitle: "Available",
+						error: "The value must a 0 or 1",
+						showErrorMessage: true,
+					};
+				}
+			}
+		}
+	}
+
+	function createSheetTeacher(workbook: Workbook, teachers: Teacher[]) {
+		const worksheet = workbook.addWorksheet("Teachers");
+
+		// Define columns
+		worksheet.columns = [
+			{ header: "id", key: "id", width: 15 },
+
+			{ header: "l_name", key: "l_name", width: 50 },
+			{ header: "f_names", key: "f_names", width: 50 },
+			{ header: "unoff_name", key: "unoff_name", width: 50 },
+			{ header: "field", key: "field", width: 30 },
+
+			// Add more columns as needed
+		];
+
+		// Add content of courses into worksheet
+		for (const item of teachers) {
+			worksheet.addRow({
+				id: item.id,
+				l_name: item.l_name,
+				f_names: item.f_names,
+
+				unoff_name: item.unoff_name,
+
+				field: item.field,
+			});
+		}
+
+		const headerRow = worksheet.getRow(1);
+
+		headerRow.eachCell((cell) => {
+			cell.fill = {
+				type: "pattern",
+				pattern: "solid",
+				fgColor: { argb: "FFCCCCCC" }, // Light gray color
+			};
+			cell.font = { bold: true };
+		});
 	}
 
 	return (
 		<div className={styles.page}>
 			<div className={styles.main}>
-				<div className={styles.element}>
+				<div className={styles.importExport}>
 					<div className={styles.text}>
 						Import
 						<input type='file' onChange={handleImport} />
 					</div>
+					{isImporting && <Spinner />}
 				</div>
-				<div className={styles.element} onClick={() => handleExport()}>
+				<div className={styles.importExport} onClick={() => handleExport()}>
 					<div className={styles.text}>Export</div>
 				</div>
 			</div>
+			<div>
+				{!isImportStudents ? (
+					<div
+						className={styles.buttonUnclicked}
+						onClick={() => setIsImportStudents(!isImportStudents)}>
+						Students
+					</div>
+				) : (
+					<div
+						className={styles.buttonClicked}
+						onClick={() => setIsImportStudents(!isImportStudents)}>
+						Students
+					</div>
+				)}
+				{!isImportCourses ? (
+					<div
+						className={styles.buttonUnclicked}
+						onClick={() => setIsImportCourses(!isImportCourses)}>
+						Courses
+					</div>
+				) : (
+					<div
+						className={styles.buttonClicked}
+						onClick={() => setIsImportCourses(!isImportCourses)}>
+						Courses
+					</div>
+				)}
+				{!isImportTeachers ? (
+					<div
+						className={styles.buttonUnclicked}
+						onClick={() => setIsImportTeachers(!isImportTeachers)}>
+						Teachers
+					</div>
+				) : (
+					<div
+						className={styles.buttonClicked}
+						onClick={() => setIsImportTeachers(!isImportTeachers)}>
+						Teachers
+					</div>
+				)}
+			</div>
+
 			<footer className={styles.footer}>
 				{errorMessage && errorMessage.length > 0 && (
 					<div className={styles.error}>{errorMessage} </div>

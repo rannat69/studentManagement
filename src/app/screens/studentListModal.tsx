@@ -484,7 +484,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 							Student number
 							<input
 								name='student_number'
-								value={formData ? formData.student_number : 0}
+								value={
+									formData && formData.student_number
+										? formData.student_number
+										: 0
+								}
 								onChange={handleChange}
 								placeholder='Student number'
 								type='number'
@@ -492,21 +496,23 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 							Surname
 							<input
 								name='l_name'
-								value={formData ? formData.l_name : ""}
+								value={formData && formData.l_name ? formData.l_name : ""}
 								onChange={handleChange}
 								placeholder='Surname'
 							/>
 							Other names{" "}
 							<input
 								name='f_names'
-								value={formData ? formData.f_names : ""}
+								value={formData && formData.f_names ? formData.f_names : ""}
 								onChange={handleChange}
 								placeholder='Other names'
 							/>
 							Unofficial name
 							<input
 								name='unoff_name'
-								value={formData ? formData.unoff_name : ""}
+								value={
+									formData && formData.unoff_name ? formData.unoff_name : ""
+								}
 								onChange={handleChange}
 								placeholder='Unofficial name'
 							/>
@@ -515,7 +521,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 							<select
 								name='program'
 								onChange={handleChange}
-								value={formData ? formData.program : ""}>
+								value={formData && formData.program ? formData.program : ""}>
 								<option value=''>None</option>
 
 								{PROGRAMS.map((program) => (

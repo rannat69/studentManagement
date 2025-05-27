@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 
-import styles from "./styles/page.module.css";
 import Modal from "./studentListModal"; // Adjust the import path as necessary
 import { Student } from "../data/studentListData";
-
+import "bootstrap/dist/css/bootstrap.min.css";
+import Table from "react-bootstrap/Table";
+import styles from "./styles/page.module.css";
 import axios from "axios";
 
 export default function StudentList() {
@@ -73,29 +74,39 @@ export default function StudentList() {
 	return (
 		<div className={styles.page}>
 			Student list
+					<div className={styles.add} onClick={() => handleClickStudentNew()}>
+					Add student
+				</div>
 			<div className={styles.main}>
-				{studentListState &&
-					studentListState.map((student) => (
-						<div
-							key={student.id}
-							className={styles.element}
-							onClick={() => handleClickStudent(student)}>
-							<h2>
-								{student.l_name} {student.f_names}
-							</h2>
-							<h4>{student.unoff_name}</h4>
-							<p>
-								{"Y. " +
-									student.expected_grad_year +
-									" S. " +
-									student.expected_grad_semester}
-							</p>
-							<p>{"T.A. available : " + student.ta_available}</p>
-						</div>
-					))}
-			</div>
-			<div className={styles.add} onClick={() => handleClickStudentNew()}>
-				Add student
+		
+
+				<table className={styles.tableStudent}>
+					<thead>
+						<tr>
+							<th>Surname</th>
+							<th>First name</th>
+							<th>Unofficial name</th>
+							<th>Expected graduation year</th>
+							<th>Graduation semester</th>
+							<th>T.A. available</th>
+						</tr>
+					</thead>
+					<tbody>
+						{studentListState &&
+							studentListState.map((student) => (
+								<tr
+									key={student.id}
+									onClick={() => handleClickStudent(student)}>
+									<td>{student.l_name}</td>
+									<td>{student.f_names}</td>
+									<td>{student.unoff_name}</td>
+									<td>{student.expected_grad_year}</td>
+									<td>{student.expected_grad_semester}</td>
+									<td>{student.ta_available}</td>
+								</tr>
+							))}
+					</tbody>
+				</table>
 			</div>
 			<footer className={styles.footer}></footer>
 			<Modal

@@ -30,6 +30,15 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 			overlay={
 				<Tooltip id='button-tooltip-2'>
 					<div className={styles.popup}>
+						{student.unoff_name?.length > 0 && <h4>AKA {student.unoff_name}</h4>}
+						<p>
+							{"Expected to graduate :  " +
+								student.expected_grad_year +
+								" " +
+								student.expected_grad_semester}
+						</p>
+						<p>{"T.A. available: " + student.ta_available}</p>
+
 						{student.program && (
 							<div>
 								<h2>Program: {student.program}</h2>
@@ -76,15 +85,6 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 				<h2 className={styles.matchStudentName}>
 					{student.l_name} {student.f_names}
 				</h2>
-
-				<h4>{student.unoff_name}</h4>
-				<p>
-					{"Y. " +
-						student.expected_grad_year +
-						" S. " +
-						student.expected_grad_semester}
-				</p>
-				<p>{"T.A. available: " + student.ta_available}</p>
 			</div>
 		</OverlayTrigger>
 	);

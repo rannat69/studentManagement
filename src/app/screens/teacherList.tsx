@@ -66,25 +66,34 @@ export default function TeacherList() {
 
 	return (
 		<div className={styles.page}>
-			Teacher list
-			<div className={styles.main}>
-				{teacherListState &&
-					teacherListState.map((teacher) => (
-						<div
-							key={teacher.id}
-							className={styles.element}
-							onClick={() => handleClickTeacher(teacher)}>
-							<h2>
-								{teacher.l_name} {teacher.f_names}
-							</h2>
-							<h4>{teacher.unoff_name}</h4>
-
-							<p>{"Field : " + teacher.field}</p>
-						</div>
-					))}
-			</div>
+			Teacher list{" "}
 			<div className={styles.add} onClick={() => handleClickTeacherNew()}>
 				Add teacher
+			</div>
+			<div className={styles.main}>
+				<table className={styles.tableStudent}>
+					<thead>
+						<tr>
+							<th>Surname</th>
+							<th>First name</th>
+							<th>Unofficial name</th>
+							<th>Field</th>
+						</tr>
+					</thead>
+					<tbody>
+						{teacherListState &&
+							teacherListState.map((teacher) => (
+								<tr
+									key={teacher.id}
+									onClick={() => handleClickTeacher(teacher)}>
+									<td>{teacher.l_name}</td>
+									<td>{teacher.f_names}</td>
+									<td>{teacher.unoff_name}</td>
+									<td>{teacher.field}</td>
+								</tr>
+							))}
+					</tbody>
+				</table>
 			</div>
 			<footer className={styles.footer}></footer>
 			<Modal

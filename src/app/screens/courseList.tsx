@@ -139,22 +139,30 @@ export default function CourseList() {
 				</select>
 			</>
 			<div className={styles.main}>
-				{courseListState &&
-					courseListState.map((course) => (
-						<div
-							key={course.id}
-							className={styles.element}
-							onClick={() => handleClickCourse(course)}>
-							<h2>{course.hkust_identifier + " - " + course.name}</h2>
 
-							<p>{"T.A. needed : " + course.ta_needed}</p>
-							<p>
-								{course.ta_assigned
-									? "T.A. assigned : " + course.ta_assigned
-									: "No T.A. assigned"}
-							</p>
-						</div>
-					))}
+
+				<table className={styles.tableStudent}>
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Name</th>
+
+							<th>T.A. needed</th>
+							<th>T.A. assigned</th>
+						</tr>
+					</thead>
+					<tbody>
+						{courseListState &&
+							courseListState.map((course) => (
+								<tr key={course.id} onClick={() => handleClickCourse(course)}>
+									<td>{course.hkust_identifier}</td>
+									<td>{course.name}</td>
+									<td>{course.ta_needed}</td>
+									<td>{course.ta_assigned}</td>
+								</tr>
+							))}
+					</tbody>
+				</table>
 			</div>
 			<div className={styles.add} onClick={() => handleClickCourseNew()}>
 				Add course
