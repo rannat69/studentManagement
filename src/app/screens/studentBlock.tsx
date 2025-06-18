@@ -26,7 +26,7 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 }) => {
 	return (
 		<OverlayTrigger
-			placement='left'
+			placement='bottom'
 			overlay={
 				<Tooltip id='button-tooltip-2'>
 					<div className={styles.popup}>

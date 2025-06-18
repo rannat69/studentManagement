@@ -120,14 +120,14 @@ export default function MakeRequest() {
 	const getTeacherNameById = (id: number) => {
 		const teacher = teachers.find((teacher) => teacher.id === id);
 
-		
+
 
 		return teacher
 			? teacher.l_name + " " + teacher.f_names
 			: "<Unknown Teacher>"; // Fallback if not found
 	};
 
-	useEffect(() => {}, []);
+	useEffect(() => { }, []);
 
 	const handleClickRequest = (request: Request): void => {
 		setSelectedRequest(request);
@@ -140,7 +140,7 @@ export default function MakeRequest() {
 	};
 
 	const handleSaveRequest = (updatedRequest: Request) => {
-		
+
 
 		// Update the request list with the new data
 		if (!requestListState) {
@@ -163,8 +163,8 @@ export default function MakeRequest() {
 
 			updatedList = requestExists
 				? requestListState.map((request) =>
-						request.id === updatedRequest.id ? updatedRequest : request
-				  )
+					request.id === updatedRequest.id ? updatedRequest : request
+				)
 				: [...requestListState, updatedRequest];
 		}
 
@@ -183,28 +183,39 @@ export default function MakeRequest() {
 		<div className={styles.page}>
 			Request list
 			<div className={styles.main}>
-				{requestListState &&
-					requestListState.map((request) => (
-						<div
-							key={request.id}
-							className={styles.element}
-							onClick={() => handleClickRequest(request)}>
-							<h2>{request.message}</h2>
 
-							<p>
-								{request.request_from === "Teacher"
-									? request.teacher_name
-									: request.student_name}
-								{request.want === true ? " wants" : " does not want"}{" "}
-								{request.request_from === "Teacher"
-									? "this student " +
-									  request.student_name +
-									  " in this course : " +
-									  request.course_name
-									: " to be in this course : " + request.course_name}
-							</p>
-						</div>
-					))}
+				<table className={styles.tableStudent}>
+
+					<thead>
+						<tr>
+							<th>Teacher</th>
+							<th>Student</th>
+							<th>Request from</th>
+							<th>Course</th>
+							<th>Message</th>
+							<th>Want ? </th>
+						</tr>
+					</thead>
+					<tbody>
+						{requestListState &&
+							requestListState.map((request) => (
+								<tr key={request.id}
+									onClick={() => handleClickRequest(request)}>
+
+									<td>{request.teacher_name}</td>
+									<td>{request.student_name}</td>
+									<td>{request.request_from}</td>
+									<td>{request.course_name}</td>
+									<td>{request.message}</td>
+									<td>{request.want ? "Yes" : "No"} </td>
+								</tr>
+							))}
+					</tbody>
+				</table>
+
+
+
+
 			</div>
 			<div className={styles.add} onClick={() => handleClickRequestNew()}>
 				Make request

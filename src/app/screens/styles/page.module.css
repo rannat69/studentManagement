@@ -59,12 +59,17 @@
 	justify-content: space-around;
 	background-color: #e1e6ff;
 	border-bottom: 2px solid #ccc;
-	position: fixed; /* Makes the element fixed */
-	top: 0; /* Sticks to the top of the viewport */
-	left: 0; /* Sticks to the left edge */
-	right: 0; /* Sticks to the right edge */
+	position: fixed;
+	/* Makes the element fixed */
+	top: 0;
+	/* Sticks to the top of the viewport */
+	left: 0;
+	/* Sticks to the left edge */
+	right: 0;
+	/* Sticks to the right edge */
 	height: 2rem;
-	z-index: 1000; /* Ensures it stays above other elements */
+	z-index: 1000;
+	/* Ensures it stays above other elements */
 }
 
 .tab div {
@@ -85,10 +90,14 @@
 
 .main {
 	display: flex;
-	flex-direction: row; /* Change to row for multiple items in a row */
-	flex-wrap: wrap; /* Allow items to wrap to the next line */
-	gap: 32px; /* Maintain the gap between items */
-	grid-row-start: 2; /* Keep this if you need it for grid layout */
+	flex-direction: row;
+	/* Change to row for multiple items in a row */
+	flex-wrap: wrap;
+	/* Allow items to wrap to the next line */
+	gap: 32px;
+	/* Maintain the gap between items */
+	grid-row-start: 2;
+	/* Keep this if you need it for grid layout */
 }
 
 .main ol {
@@ -122,15 +131,18 @@
 	padding: 0.2rem;
 	border: 0.3rem solid;
 	border-radius: 2rem;
-	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
+	transition: background-color 0.3s, border-color 0.3s;
+	/* Optional: Smooth transition */
 	font-size: x-small;
 	width: 20vh;
 	margin: 0.1rem;
 }
 
 .element:hover {
-	background-color: #dddddd; /* Change to your desired hover background color */
-	border-color: #0a0186; /* Change to your desired hover border color */
+	background-color: #dddddd;
+	/* Change to your desired hover background color */
+	border-color: #0a0186;
+	/* Change to your desired hover border color */
 }
 
 .element h2 {
@@ -149,7 +161,8 @@
 	padding: 1rem;
 	border: 0.3rem solid;
 	border-radius: 2rem;
-	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
+	transition: background-color 0.3s, border-color 0.3s;
+	/* Optional: Smooth transition */
 	background-color: green;
 	width: 17rem;
 	color: #fff;
@@ -158,8 +171,10 @@
 }
 
 .add:hover {
-	background-color: lightgreen; /* Change to your desired hover background color */
-	border-color: #0a0186; /* Change to your desired hover border color */
+	background-color: lightgreen;
+	/* Change to your desired hover background color */
+	border-color: #0a0186;
+	/* Change to your desired hover border color */
 	color: #1a1a1a;
 }
 
@@ -181,17 +196,21 @@
 }
 
 .availableColumn {
-	flex: 1; /* Takes up space proportional to available space */
-	margin-right: 20px; /* Space between columns */
+	flex: 1;
+	/* Takes up space proportional to available space */
+	margin-right: 20px;
+	/* Space between columns */
 	max-height: 85vh;
 	overflow-y: scroll;
 }
 
 .dropAreas {
 	display: flex;
-	flex-direction: row; /* Stack drop areas vertically */
+	flex-direction: row;
+	/* Stack drop areas vertically */
 	flex-wrap: wrap;
-	flex: 2; /* Takes up more space than available column */
+	flex: 2;
+	/* Takes up more space than available column */
 	max-height: 85vh;
 	overflow-y: scroll;
 }
@@ -199,13 +218,15 @@
 .dropArea {
 	border: 1px dashed #ccc;
 	padding: 10px;
-	margin-bottom: 10px; /* Space between drop areas */
+	margin-bottom: 10px;
+	/* Space between drop areas */
 	width: 20rem;
 }
 
 .innerDropArea {
 	border: 1px solid #aaa;
-	min-height: 100px; /* Minimum height for the drop area */
+	min-height: 100px;
+	/* Minimum height for the drop area */
 	padding: 10px;
 }
 
@@ -279,14 +300,18 @@ a.secondary {
 }
 
 .popup {
-	position: fixed; /* Position it relative to the containing div */
-
-	border-radius: 5px; /* Rounded corners */
-	padding: 10px; /* Spacing inside the popup */
+	position: fixed;
+	/* Position it relative to the containing div */
+	right: -20vh;
+	border-radius: 5px;
+	/* Rounded corners */
+	padding: 10px;
+	/* Spacing inside the popup */
 	background: #e8f3ff;
 	color: #000;
 
-	transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition */
+	transition: opacity 0.3s ease, visibility 0.3s ease;
+	/* Smooth transition */
 	width: 17rem;
 
 	z-index: 2;
@@ -316,7 +341,8 @@ a.secondary {
 }
 
 .courseBlock:hover .popup {
-	opacity: 0.9; /* Start hidden */
+	opacity: 0.9;
+	/* Start hidden */
 	visibility: visible;
 }
 
@@ -324,7 +350,8 @@ a.secondary {
 	padding: 0.5rem;
 	border: 0.3rem solid;
 	border-radius: 2rem;
-	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
+	transition: background-color 0.3s, border-color 0.3s;
+	/* Optional: Smooth transition */
 	font-size: x-small;
 	width: 7vw;
 	height: 3.5rem;
@@ -333,12 +360,12 @@ a.secondary {
 }
 
 .button:hover {
-	background-color: rgb(
-		27,
-		192,
-		27
-	); /* Change to your desired hover background color */
-	border-color: #0a0186; /* Change to your desired hover border color */
+	background-color: rgb(27,
+			192,
+			27);
+	/* Change to your desired hover background color */
+	border-color: #0a0186;
+	/* Change to your desired hover border color */
 }
 
 /* Enable hover only on non-touch devices */
@@ -409,12 +436,15 @@ a.secondary {
 	border-color: #000;
 	border-style: solid;
 }
+
 .tableStudent thead {
 	background-color: lightblue;
 }
+
 .tableStudent thead tr th {
 	padding: 0.5rem;
 }
+
 .tableStudent tbody tr {
 	border-width: 1px;
 	border-color: #000;
@@ -437,15 +467,18 @@ a.secondary {
 	padding: 0.7rem;
 	border: 0.3rem solid;
 	border-radius: 2rem;
-	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
+	transition: background-color 0.3s, border-color 0.3s;
+	/* Optional: Smooth transition */
 	font-size: 1rem;
 	width: 50vh;
 	margin: 0.1rem;
 }
 
 .importExport:hover {
-	background-color: #dddddd; /* Change to your desired hover background color */
-	border-color: #0a0186; /* Change to your desired hover border color */
+	background-color: #dddddd;
+	/* Change to your desired hover background color */
+	border-color: #0a0186;
+	/* Change to your desired hover border color */
 }
 
 .buttonClicked {
@@ -453,7 +486,8 @@ a.secondary {
 	padding: 0.7rem;
 	border: 0.3rem solid;
 	border-radius: 2rem;
-	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
+	transition: background-color 0.3s, border-color 0.3s;
+	/* Optional: Smooth transition */
 	font-size: 0.8rem;
 	width: 10vh;
 	margin: 0.1rem;
@@ -464,7 +498,8 @@ a.secondary {
 	padding: 0.7rem;
 	border: 0.3rem solid;
 	border-radius: 2rem;
-	transition: background-color 0.3s, border-color 0.3s; /* Optional: Smooth transition */
+	transition: background-color 0.3s, border-color 0.3s;
+	/* Optional: Smooth transition */
 	font-size: 0.8rem;
 	width: 10vh;
 	margin: 0.1rem;

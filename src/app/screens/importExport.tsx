@@ -559,16 +559,34 @@ export default function ImportExport() {
 			cell.font = { bold: true };
 		});
 
+		// add 100 empty rows to have control fields 
+		for (let i = 0; i < 100; i++) {
+			worksheet.addRow({});
+		}
+
 		const rows = worksheet.getRows(
 			0,
 			worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
 		);
 
-		console.log("rows", rows);
-
 		if (rows) {
 			for (const row of rows) {
 				if (row.number && row.number > 1) {
+
+					row.getCell("A").dataValidation = {
+						type: "whole",
+						operator: "equal",
+						allowBlank: true,
+						showInputMessage: true,
+						formulae: [999999999999999999999999],
+						promptTitle: "ID",
+						prompt: "Do not modify this. If empty, creation of a new record. If not, modification of an existing record. ",
+						errorStyle: "error",
+						errorTitle: "Year",
+						error: "Do not modify this.",
+						showErrorMessage: true,
+					};
+
 					row.getCell("E").dataValidation = {
 						type: "list",
 						allowBlank: true,
@@ -668,6 +686,11 @@ export default function ImportExport() {
 			cell.font = { bold: true };
 		});
 
+		// add 100 empty rows to have control fields 
+		for (let i = 0; i < 100; i++) {
+			worksheet.addRow({});
+		}
+
 		const rows = worksheet.getRows(
 			0,
 			worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
@@ -676,6 +699,22 @@ export default function ImportExport() {
 		if (rows) {
 			for (const row of rows) {
 				if (row.number && row.number > 1) {
+
+					row.getCell("A").dataValidation = {
+						type: "whole",
+						operator: "equal",
+						allowBlank: true,
+						showInputMessage: true,
+						formulae: [999999999999999999999999],
+						promptTitle: "ID",
+						prompt: "Do not modify this. If empty, creation of a new record. If not, modification of an existing record. ",
+						errorStyle: "error",
+						errorTitle: "Year",
+						error: "Do not modify this.",
+						showErrorMessage: true,
+					};
+
+
 					row.getCell("F").dataValidation = {
 						type: "list",
 						allowBlank: true,
@@ -780,6 +819,39 @@ export default function ImportExport() {
 			};
 			cell.font = { bold: true };
 		});
+
+		// add 100 empty rows to have control fields 
+		for (let i = 0; i < 100; i++) {
+			worksheet.addRow({});
+		}
+
+		const rows = worksheet.getRows(
+			0,
+			worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
+		);
+
+
+
+		if (rows) {
+			for (const row of rows) {
+				if (row.number && row.number > 1) {
+
+					row.getCell("A").dataValidation = {
+						type: "whole",
+						operator: "equal",
+						allowBlank: true,
+						showInputMessage: true,
+						formulae: [999999999999999999999999],
+						promptTitle: "ID",
+						prompt: "Do not modify this. If empty, creation of a new record. If not, modification of an existing record. ",
+						errorStyle: "error",
+						errorTitle: "Year",
+						error: "Do not modify this.",
+						showErrorMessage: true,
+					};
+				}
+			}
+		}
 	}
 
 	return (

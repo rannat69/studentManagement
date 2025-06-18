@@ -22,7 +22,7 @@ router.get("/", (req, res) => {
 
 router.post("/login", (req, res) => {
 	const { login, password } = req.body; // Get the ID and password from the request body
-
+	//123456
 	db.all("SELECT * FROM user WHERE login = ?", [login], (err, rows) => {
 		if (err) {
 			return res.status(500).json({ error: err.message });
