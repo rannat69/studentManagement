@@ -182,6 +182,11 @@ export default function MakeRequest() {
 	return (
 		<div className={styles.page}>
 			Request list
+
+			<div className={styles.add} onClick={() => handleClickRequestNew()}>
+				Make request
+			</div>
+
 			<div className={styles.main}>
 
 				<table className={styles.tableStudent}>
@@ -217,9 +222,7 @@ export default function MakeRequest() {
 
 
 			</div>
-			<div className={styles.add} onClick={() => handleClickRequestNew()}>
-				Make request
-			</div>
+
 			<footer className={styles.footer}></footer>
 			<Modal
 				isOpen={isModalOpen}

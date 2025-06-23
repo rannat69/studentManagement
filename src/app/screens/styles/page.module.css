@@ -456,7 +456,7 @@ a.secondary {
 }
 
 .tableStudent tbody :hover {
-	background-color: lightblue;
+	background-color: rgb(220, 246, 255);
 }
 
 .tableStudent tbody tr td {

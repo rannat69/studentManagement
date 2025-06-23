@@ -39,7 +39,7 @@ export default function Home() {
 	}, []);
 
 	async function handleLogin(): Promise<void> {
-		// check if login = admin and password = 123
+		// check if login = admin and password = 123456
 
 		const login = (document.getElementById("login") as HTMLInputElement).value;
 
@@ -140,23 +140,29 @@ export default function Home() {
 					</div>
 				</>
 			) : (
-				<>
+				<form>
 					<div className={styles.login}>
 						Login
 						<br />
-						<input type='text' id='login' placeholder='login' />
+						<input type='text' id='login' placeholder='login' onKeyDown={(e) => {
+							if (e.key === "Enter")
+								handleLogin();
+						}} />
 						<br />
 						Password
 						<br />
-						<input type='password' id='password' placeholder='password' />
-						<div className={styles.add} onClick={() => handleLogin()}>
+						<input type='password' id='password' placeholder='password' onKeyDown={(e) => {
+							if (e.key === "Enter")
+								handleLogin();
+						}} />
+						<div className={styles.add} onClick={() => handleLogin()}  >
 							Login
 						</div>
 						{errorMessage.length > 0 && (
 							<div className={styles.error}>{errorMessage}</div>
 						)}
 					</div>
-				</>
+				</form>
 			)}
 		</>
 	);

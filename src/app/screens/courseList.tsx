@@ -79,8 +79,8 @@ export default function CourseList() {
 
 			updatedList = courseExists
 				? courseListState.map((course) =>
-						course.id === updatedCourse.id ? updatedCourse : course
-				  )
+					course.id === updatedCourse.id ? updatedCourse : course
+				)
 				: [...courseListState, updatedCourse];
 		}
 
@@ -138,6 +138,11 @@ export default function CourseList() {
 					<option value={"Winter"}>Winter</option>
 				</select>
 			</>
+
+			<div className={styles.add} onClick={() => handleClickCourseNew()}>
+				Add course
+			</div>
+
 			<div className={styles.main}>
 
 
@@ -164,9 +169,7 @@ export default function CourseList() {
 					</tbody>
 				</table>
 			</div>
-			<div className={styles.add} onClick={() => handleClickCourseNew()}>
-				Add course
-			</div>
+
 			<footer className={styles.footer}></footer>
 			{selectedCourse && (
 				<Modal
