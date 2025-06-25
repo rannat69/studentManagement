@@ -948,7 +948,13 @@ export default function MatchStudentCourse() {
 			<b>Year :</b>{" "}
 			<input type='number' onChange={handleChangeYear} value={year} />
 			<b>Semester :</b>
+			{errorMessage.length > 0 && (
+				<div className={styles.error}>{errorMessage}</div>
+			)}
 
+			{warningMessage.length > 0 && (
+				<div className={styles.warning}>{warningMessage}</div>
+			)}
 
 
 			<select
@@ -1026,13 +1032,7 @@ export default function MatchStudentCourse() {
 					</div>
 				)}
 
-				{errorMessage.length > 0 && (
-					<div className={styles.error}>{errorMessage}</div>
-				)}
 
-				{warningMessage.length > 0 && (
-					<div className={styles.warning}>{warningMessage}</div>
-				)}
 			</div>
 		</div>
 	);
