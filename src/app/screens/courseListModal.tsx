@@ -1,5 +1,5 @@
 // Modal.tsx
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./styles/modal.module.css";
 import { Course } from "../data/courseListData";
 import axios from "axios";
@@ -13,13 +13,13 @@ import {
 
 interface ModalProps {
 	isOpen: boolean;
-	course: Course;
+	course: Course | null;
 	onClose: () => void;
 	onSave: (updatedCourse: Course) => void;
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
-	const [formData, setFormData] = useState<Course>(course);
+	const [formData, setFormData] = useState<Course | null>(course);
 	const [mode, setMode] = useState<string>("");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -36,18 +36,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 			const fetchAreas = async () => {
 				try {
-					const response = await axios.get(
-						`http://localhost:5000/course_areas/${course.id}`
-					);
+					if (course != null) {
+						const response = await axios.get(
+							`http://localhost:5000/course_areas/${course.id}`
+						);
 
-					console.log(response.data);
-
-					for (let i = 0; i < response.data.length; i++) {
-						response.data[i] = response.data[i].area;
+						setAreas(response.data);
+						return response.data;
+					} else {
+						return null;
 					}
 
-					setAreas(response.data);
-					return response.data;
+
 				} catch (error: unknown) {
 					if (axios.isAxiosError(error)) {
 						// Gérer les erreurs d'axios
@@ -63,18 +63,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 			const fetchQualifications = async () => {
 				try {
-					const response = await axios.get(
-						`http://localhost:5000/course_qualifications/${course.id}`
-					);
+					if (course != null) {
+						const response = await axios.get(
+							`http://localhost:5000/course_qualifications/${course.id}`
+						);
 
-					console.log(response.data);
-
-					for (let i = 0; i < response.data.length; i++) {
-						response.data[i] = response.data[i].qualification;
+						setQualifications(response.data);
+						return response.data;
+					} else {
+						return null;
 					}
-
-					setQualifications(response.data);
-					return response.data;
 				} catch (error: unknown) {
 					if (axios.isAxiosError(error)) {
 						// Gérer les erreurs d'axios
@@ -121,8 +119,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 				year: currentYear,
 				ta_needed: 0,
 				ta_assigned: 0,
-				areas: [],
-				qualifications: [],
+				area: [],
+				qualification: [],
 				deleted: false,
 				field: "",
 			});
@@ -133,10 +131,24 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 	}, [course]); // Add course to the dependency array
 
 	const handleChange = (
-		e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
+		e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
 	) => {
-		const { name, value } = e.target;
-		setFormData({ ...formData, [name]: value });
+		const { name, type, value } = e.target;
+		let newValue;
+
+		if (type === "checkbox") {
+			// Utiliser une assertion de type pour accéder à checked
+			newValue = (e.target as HTMLInputElement).checked;
+		} else {
+			newValue = value;
+		}
+
+		if (formData) {
+			setFormData({
+				...formData,
+				[name]: newValue,
+			});
+		}
 	};
 
 	const createCourse = async (courseData: Course) => {
@@ -217,6 +229,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 	const updateCourse = async (id: number, updatedData: Course) => {
 		try {
+
+			
 			await axios.put(`http://localhost:5000/courses/${id}`, updatedData);
 
 			// Delete all areas for course first
@@ -231,6 +245,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 				throw new Error("Network response was not ok");
 			}
 
+		
 			// Delete all qualifs for course first
 			responseCourse = await fetch(
 				`http://localhost:5000/course_qualifications/${id}`,
@@ -247,7 +262,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			if (areas && areas.length > 0) {
 				areas.forEach(async (area) => {
 					const courseArea = {
-						course_id: id,
+						courseId: id,
 						area: area,
 					};
 					responseCourse = await fetch("http://localhost:5000/course_areas", {
@@ -334,18 +349,23 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
 		setErrorMessage("");
 		onClose();
-		deleteCourse(course.id);
+		if (course) {
+			deleteCourse(course.id);
 
-		course.deleted = true;
+			course.deleted = true;
 
-		onSave(course);
+			onSave(course);
+		}
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		setErrorMessage("");
 
 		e.preventDefault();
-
+		if (!formData) {
+			setErrorMessage("Something's wrong.");
+			return;
+		}
 		if (
 			!formData.hkust_identifier ||
 			formData.hkust_identifier.length === 0 ||
@@ -355,6 +375,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			setErrorMessage("Please enter an identifier and a name");
 			return;
 		}
+
 
 		// check if ta_available is number
 		if (isNaN(Number(formData.ta_needed))) {
@@ -383,45 +404,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			});
 		} else {
 			if (mode === MODE_DELETE) {
-				formData.deleted = true;
-
-				console.log("formData", formData);
+				formData.deleted = true;			
 			} else {
 				updateCourse(formData.id, formData);
 			}
 			onSave(formData);
 		}
-
-		setFormData({
-			id: 0,
-			hkust_identifier: "",
-			name: "",
-			description: "",
-			field: "",
-
-			semester: "Spring",
-			year: 0,
-			ta_needed: 0,
-			ta_assigned: 0,
-			deleted: false,
-			areas: [],
-			qualifications: [],
-		});
-		course = {
-			id: 0,
-			hkust_identifier: "",
-			name: "",
-			description: "",
-			field: "",
-
-			semester: "Spring",
-			year: 0,
-			ta_needed: 0,
-			ta_assigned: 0,
-			deleted: false,
-			areas: [],
-			qualifications: [],
-		};
 		onClose();
 	};
 

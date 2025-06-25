@@ -25,7 +25,7 @@ export default function MakeRequest() {
 		let studentsTemp: Student[] = [];
 		let teachersTemp: Teacher[] = [];
 
-		const fetchCourses = async () => {
+		const fetchRequests = async () => {
 			try {
 				const response = await axios.get("http://localhost:5000/courses");
 				coursesTemp = response.data;
@@ -33,11 +33,7 @@ export default function MakeRequest() {
 			} catch (error) {
 				console.error("Error fetching courses:", error);
 			}
-		};
 
-		fetchCourses();
-
-		const fetchStudents = async () => {
 			try {
 				const response = await axios.get("http://localhost:5000/students");
 				studentsTemp = response.data;
@@ -45,11 +41,7 @@ export default function MakeRequest() {
 			} catch (error) {
 				console.error("Error fetching students:", error);
 			}
-		};
 
-		fetchStudents();
-
-		const fetchTeachers = async () => {
 			try {
 				const response = await axios.get("http://localhost:5000/teachers");
 				teachersTemp = response.data;
@@ -57,12 +49,9 @@ export default function MakeRequest() {
 			} catch (error) {
 				console.error("Error fetching teachers:", error);
 			}
-		};
 
-		fetchTeachers();
+			// fetch requests
 
-		// fetch requests
-		const fetchRequests = async () => {
 			const response = await axios.get("http://localhost:5000/requests");
 
 			for (const request of response.data) {
@@ -70,8 +59,9 @@ export default function MakeRequest() {
 			}
 
 			for (const request of response.data) {
+
 				const student = studentsTemp.find(
-					(student) => student.id === request.student_id
+					(student) => student.id === Number(request.student_id)
 				);
 
 				if (student) {
@@ -79,7 +69,7 @@ export default function MakeRequest() {
 				}
 
 				const teacher = teachersTemp.find(
-					(teacher) => teacher.id === request.teacher_id
+					(teacher) => teacher.id === Number(request.teacher_id)
 				);
 
 				if (teacher) {
@@ -87,7 +77,7 @@ export default function MakeRequest() {
 				}
 
 				const course = coursesTemp.find(
-					(course) => course.id === request.course_id
+					(course) => course.id === Number(request.course_id)
 				);
 
 				if (course) {
@@ -96,7 +86,7 @@ export default function MakeRequest() {
 			}
 
 			setRequestListState(response.data);
-		};
+		}
 
 		fetchRequests();
 	}, []);

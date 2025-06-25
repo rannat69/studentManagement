@@ -47,10 +47,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 							`http://localhost:5000/student_qualifications/${student.id}`
 						);
 
-						for (let i = 0; i < response.data.length; i++) {
-							response.data[i] = response.data[i].qualification;
-						}
-
 						setQualifications(response.data);
 						return response.data;
 					} else {
@@ -76,12 +72,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						const response = await axios.get(
 							`http://localhost:5000/student_areas/${student.id}`
 						);
-
-						console.log("student areas", response.data);
-
-						for (let i = 0; i < response.data.length; i++) {
-							response.data[i] = response.data[i].area;
-						}
 
 						setAreas(response.data);
 						return response.data;
@@ -119,6 +109,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				deleted: false,
 				dropZone: 0,
 				multiCourses: false,
+				qualification: [],
+				area: [],
 			});
 			setQualifications([]);
 			setAreas([]);
@@ -180,11 +172,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 		// the currently selected area is in the select whose idea is "area"
 
 		if (selectedArea === "") {
-			setErrorMessage("Please select a qualification");
+			setErrorMessage("Please select an area");
 			return;
 		}
 		if (areas && areas.includes(selectedArea)) {
-			setErrorMessage("Qualification already added");
+			setErrorMessage("Area already added");
 			return;
 		}
 
@@ -258,6 +250,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			}
 
 			// Add areas
+
+
 			if (areas && areas.length > 0) {
 				areas.forEach(async (area) => {
 					const studentArea = {
@@ -286,11 +280,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 	};
 
 	const updateStudent = async (id: number, updatedData: Student) => {
-		console.log("Updating student with ID:", id);
+
 
 		try {
-			await axios.put(`http://localhost:5000/students/${id}`, updatedData);
 
+
+			await axios.put(`http://localhost:5000/students/${id}`, updatedData);
+		
 			// Delete all qualifs for student first
 			await fetch(`http://localhost:5000/student_qualifications/${id}`, {
 				method: "DELETE",
@@ -300,8 +296,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			await fetch(`http://localhost:5000/student_areas/${id}`, {
 				method: "DELETE",
 			});
-
+		
 			// Add qualifs
+
+	
+
 			if (qualifications && qualifications.length > 0) {
 				qualifications.forEach(async (qualif) => {
 					const qualifStudent = {
@@ -319,6 +318,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			}
 
 			// Add areas
+	
+
 			if (areas && areas.length > 0) {
 				areas.forEach(async (area) => {
 					const areaStudent = {
@@ -408,6 +409,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				deleted: true,
 				dropZone: 0,
 				multiCourses: false,
+				area:[],
+				qualification:[]
 			};
 
 			onSave(student);

@@ -8,7 +8,7 @@ export interface Course {
 	ta_needed: number;
 	ta_assigned: number;
 	deleted: boolean;
-	areas: string[];
-	qualifications: string[];
+	area: string[];
+	qualification: string[];
 	field: string;
 }

@@ -26,6 +26,10 @@ const path = require("path");
 const { exec } = require("child_process");
 const bcrypt = require("bcrypt");
 
+
+
+
+
 app.use(cors());
 app.use(express.json());
 

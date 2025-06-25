@@ -5,64 +5,102 @@ const sqlite3 = require("sqlite3").verbose();
 // Create or open the SQLite database
 const db = new sqlite3.Database("sql.db");
 
-// API to get all qualification
+var admin = require("firebase-admin");
+var serviceAccount = require("../firebase.json");
+const dbFirebase = admin.firestore();
+
+// API to get all students and qualifications
 router.get("/", (req, res) => {
-	db.all("SELECT * FROM student_qualification", [], (err, rows) => {
-		if (err) {
-			res.status(500).json({ error: err.message });
-		} else {
-			res.json(rows);
-		}
+	dbFirebase.collection("student").get().then((querySnapshot) => {
+		const students = [];
+		querySnapshot.forEach((doc) => {
+			students.push(doc.data());
+
+		});
+		res.json(students);
+	}).catch((error) => {
+		res.status(500).json({ error: error.message });
 	});
 });
 
 router.get("/:id", (req, res) => {
+
+
 	const studentId = req.params.id; // Get the ID from the request parameters
-	db.all(
-		"SELECT * FROM student_qualification WHERE student_id = ?",
-		[studentId],
-		(err, row) => {
-			if (err) {
-				res.status(500).json({ error: err.message });
-			} else {
-				res.json(row);
-			}
-		}
-	);
+	dbFirebase.collection("student").where("id", "==", Number(studentId)).get().then((querySnapshot) => {
+		let studentQualifications = [];
+		querySnapshot.forEach((doc) => {
+
+
+
+			studentQualifications = doc.data().qualification;
+		});
+		res.json(studentQualifications);
+	}).catch((error) => {
+		console.log("error", error);
+		res.status(500).json({ error: error.message });
+	});
+
 });
 
-// API to assign a qualification to a student
+// API to assign an qualification to a student
 router.post("/", (req, res) => {
-	const { studentId, qualification } = req.body;
+	const { qualification, studentId } = req.body;
 
-	db.run(
-		`INSERT INTO student_qualification
-		(student_id , qualification ) VALUES (?, ?)`,
-		[studentId, qualification],
-		function (err) {
-			if (err) {
-				res.status(500).json({ error: err.message });
-			} else {
-				res.json({ id: this.lastID });
-			}
-		}
-	);
+
+	// add an qualification array property to student
+	dbFirebase.collection("student").where("id", "==", Number(studentId)).get().then((querySnapshot) => {
+
+
+		querySnapshot.forEach((doc) => {
+
+			// update doc to add qualification
+			doc.ref.update({
+				qualification: admin.firestore.FieldValue.arrayUnion(qualification)
+			}).then(() => {
+				res.json({ id: doc.id });
+			}).catch((error) => {
+				console.log("error", error);
+				res.status(500).json({ error: error.message });
+			});
+
+		});
+	}).catch((error) => {
+		console.log("error", error);
+		res.status(500).json({ error: error.message });
+
+
+
+	});
 });
 
-// API to delete all qualifications of a student
+// API to delete all qualifs of a student
 router.delete("/:id", (req, res) => {
 	const { id } = req.params;
-	db.run(
-		`DELETE FROM student_qualification WHERE student_id = ?`,
-		[id],
-		function (err) {
-			if (err) {
-				res.status(500).json({ error: err.message });
-			} else {
-				res.json({ id });
-			}
-		}
-	);
+
+	
+	dbFirebase.collection("student").where("id", "==", Number(id)).get().then((querySnapshot) => {
+
+
+		querySnapshot.forEach((doc) => {
+
+			// update doc to add area
+			doc.ref.update({
+				qualification: []
+			}).then(() => {
+				res.json({ id: doc.id });
+			}).catch((error) => {
+				console.log("error", error);
+				res.status(500).json({ error: error.message });
+			});
+
+		});
+	}).catch((error) => {
+		console.log("error", error);
+		res.status(500).json({ error: error.message });
+
+
+	});
 });
 
 module.exports = router;

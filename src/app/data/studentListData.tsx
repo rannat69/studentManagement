@@ -13,5 +13,7 @@ export interface Student {
 	deleted: boolean;
 	dropZone: number;
 	multiCourses: boolean;
+	qualification: [];
+	area: [];
 
 }

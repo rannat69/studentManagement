@@ -171,14 +171,14 @@ export default function CourseList() {
 			</div>
 
 			<footer className={styles.footer}></footer>
-			{selectedCourse && (
-				<Modal
-					isOpen={isModalOpen}
-					course={selectedCourse}
-					onClose={() => setIsModalOpen(false)}
-					onSave={handleSaveCourse}
-				/>
-			)}
+
+			<Modal
+				isOpen={isModalOpen}
+				course={selectedCourse}
+				onClose={() => setIsModalOpen(false)}
+				onSave={handleSaveCourse}
+			/>
+
 		</div>
 	);
 }

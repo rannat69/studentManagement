@@ -1,15 +1,14 @@
 // StudentBlock.tsx
 import React from "react";
 import { Student } from "../data/studentListData";
-import { StudentQualification } from "../data/studentQualificationData";
+
 import styles from "./styles/page.module.css";
-import { StudentArea } from "../data/studentAreaData";
-import {  OverlayTrigger, Tooltip } from "react-bootstrap";
+
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 interface StudentBlockProps {
 	student: Student;
-	studentQualification: StudentQualification[];
-	studentArea: StudentArea[];
+
 	onDragStart: (
 		event: React.DragEvent<HTMLDivElement>,
 		student: Student
@@ -20,8 +19,7 @@ interface StudentBlockProps {
 
 const StudentBlock: React.FC<StudentBlockProps> = ({
 	student,
-	studentQualification,
-	studentArea,
+
 	onDragStart,
 }) => {
 	return (
@@ -45,32 +43,25 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 							</div>
 						)}
 
-						{studentQualification.filter(
-							(qualification) => qualification.student_id === student.id
-						).length > 0 && (
+						{student.qualification && student.qualification.length > 0 && (
 							<div>
 								<h2>Qualifications: </h2>
-								{studentQualification
-									.filter(
-										(qualification) => qualification.student_id === student.id
-									)
+								{student.qualification
 									.map((qualification) => (
-										<div key={qualification.qualification}>
-											<h4>- {qualification.qualification}</h4>
+										<div key={qualification}>
+											<h4>- {qualification}</h4>
 										</div>
 									))}
 							</div>
 						)}
 
-						{studentArea.filter((area) => area.student_id === student.id)
-							.length > 0 && (
+						{student.area && student.area.length > 0 && (
 							<div>
 								<h2>Areas: </h2>
-								{studentArea
-									.filter((area) => area.student_id === student.id)
+								{student.area
 									.map((area) => (
-										<div key={area.area}>
-											<h4>- {area.area}</h4>
+										<div key={area}>
+											<h4>- {area}</h4>
 										</div>
 									))}
 							</div>

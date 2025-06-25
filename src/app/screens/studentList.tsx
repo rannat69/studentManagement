@@ -43,8 +43,6 @@ export default function StudentList() {
 			return;
 		}
 
-		console.log("updatedStudent", updatedStudent);
-
 		let updatedList;
 
 		// Check if the student is marked for deletion
@@ -61,8 +59,8 @@ export default function StudentList() {
 
 			updatedList = studentExists
 				? studentListState.map((student) =>
-						student.id === updatedStudent.id ? updatedStudent : student
-				  )
+					student.id === updatedStudent.id ? updatedStudent : student
+				)
 				: [...studentListState, updatedStudent];
 		}
 
@@ -73,11 +71,11 @@ export default function StudentList() {
 	return (
 		<div className={styles.page}>
 			Student list
-					<div className={styles.add} onClick={() => handleClickStudentNew()}>
-					Add student
-				</div>
+			<div className={styles.add} onClick={() => handleClickStudentNew()}>
+				Add student
+			</div>
 			<div className={styles.main}>
-		
+
 
 				<table className={styles.tableStudent}>
 					<thead>
