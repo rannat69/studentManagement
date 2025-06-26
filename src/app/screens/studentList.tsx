@@ -12,6 +12,10 @@ export default function StudentList() {
 	const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [studentListState, setStudentListState] = useState<Student[]>();
+	const [orderByField, setOrderByField] = useState<string | null>(null);
+	const [orderByDirection, setOrderByDirection] = useState<"asc" | "desc">(
+		"asc"
+	);
 
 	useEffect(() => {
 		const fetchStudents = async () => {
@@ -19,6 +23,8 @@ export default function StudentList() {
 
 			for (let i = 0; i < response.data.length; i++) {
 				response.data[i].available = response.data[i].available === 1;
+
+				response.data[i].unoff_name = response.data[i].unoff_name != null &&  response.data[i].unoff_name != undefined ? response.data[i].unoff_name : "";
 			}
 
 			setStudentListState(response.data);
@@ -61,8 +67,8 @@ export default function StudentList() {
 
 			updatedList = studentExists
 				? studentListState.map((student) =>
-						student.id === updatedStudent.id ? updatedStudent : student
-				  )
+					student.id === updatedStudent.id ? updatedStudent : student
+				)
 				: [...studentListState, updatedStudent];
 		}
 
@@ -70,24 +76,72 @@ export default function StudentList() {
 		setStudentListState(updatedList);
 	};
 
+
+	const handleOrderBy = (column: string) => {
+		if (!studentListState) {
+			return;
+		}
+
+		console.log("column", column);
+
+		let orderByDirectionTemp = "asc";
+
+		// Check if the current column is the same as the previous one
+		if (column === orderByField) {
+			// Toggle order direction
+			setOrderByDirection(orderByDirection === "asc" ? "desc" : "asc");
+
+			orderByDirectionTemp = orderByDirection === "asc" ? "desc" : "asc";
+
+		} else {
+			// Reset to ascending order for a new column
+			setOrderByDirection("asc");
+		}
+
+		// Sort the student list
+		const sortedList = [...studentListState].sort((a, b) => {
+			const aValue = a[column as keyof Student];
+			const bValue = b[column as keyof Student];
+
+			if (typeof aValue === "string" && typeof bValue === "string") {
+				return aValue > bValue ? 1 : -1;
+			} else if (typeof aValue === "number" && typeof bValue === "number") {
+				return aValue - bValue;
+			} else {
+				return 0;
+			}
+		});
+
+		console.log(orderByDirectionTemp);
+
+		// Reverse the list if the order direction is 'desc'
+		if (orderByDirectionTemp === "desc") {
+			sortedList.reverse();
+		}
+
+		// Update the state
+		setOrderByField(column);
+		setStudentListState(sortedList);
+	};
+
 	return (
 		<div className={styles.page}>
 			Student list
-					<div className={styles.add} onClick={() => handleClickStudentNew()}>
-					Add student
-				</div>
+			<div className={styles.add} onClick={() => handleClickStudentNew()}>
+				Add student
+			</div>
 			<div className={styles.main}>
-		
+
 
 				<table className={styles.tableStudent}>
 					<thead>
 						<tr>
-							<th>Surname</th>
-							<th>First name</th>
-							<th>Unofficial name</th>
-							<th>Expected graduation year</th>
-							<th>Graduation semester</th>
-							<th>T.A. available</th>
+							<th onClick={() => handleOrderBy("l_name")}>Surname</th>
+							<th onClick={() => handleOrderBy("f_names")}>First name</th>
+							<th onClick={() => handleOrderBy("unoff_name")}>Unofficial name</th>
+							<th onClick={() => handleOrderBy("expected_grad_year")}>Expected graduation year</th>
+							<th onClick={() => handleOrderBy("expected_grad_semester")}>Graduation semester</th>
+							<th onClick={() => handleOrderBy("ta_available")}>T.A. available</th>
 						</tr>
 					</thead>
 					<tbody>

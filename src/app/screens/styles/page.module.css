@@ -134,7 +134,7 @@
 	transition: background-color 0.3s, border-color 0.3s;
 	/* Optional: Smooth transition */
 	font-size: x-small;
-	width: 20vh;
+	width: 10vw;
 	margin: 0.1rem;
 }
 
@@ -202,6 +202,7 @@
 	/* Space between columns */
 	max-height: 85vh;
 	overflow-y: scroll;
+	width: 20rem;
 }
 
 .dropAreas {
@@ -225,7 +226,7 @@
 
 .innerDropArea {
 	border: 1px solid #aaa;
-	min-height: 100px;
+	min-height: 15rem;
 	/* Minimum height for the drop area */
 	padding: 10px;
 }
@@ -329,11 +330,15 @@ a.secondary {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	width: 15vw;
+	width: 20rem;
+
 }
 
 .courseBlock {
+	margin-left: auto;
+	margin-right: auto;
 	font-size: 1rem;
+	height: 10rem;
 }
 
 .courseBlock h2 {
@@ -443,6 +448,11 @@ a.secondary {
 
 .tableStudent thead tr th {
 	padding: 0.5rem;
+}
+
+.tableStudent thead tr th:hover {
+	background-color: #6cb3ff;
+	cursor: pointer;
 }
 
 .tableStudent tbody tr {

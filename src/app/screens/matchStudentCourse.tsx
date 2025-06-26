@@ -705,9 +705,9 @@ export default function MatchStudentCourse() {
 
 					const response = await axios.get(
 						"http://localhost:5000/requests/Teacher/1/" +
-							student.id +
-							"/" +
-							course.id
+						student.id +
+						"/" +
+						course.id
 					);
 
 					if (response.data) {
@@ -756,9 +756,9 @@ export default function MatchStudentCourse() {
 					// Check if student previously assigned to same course
 					const responseStudentCourse = await axios.get(
 						"http://localhost:5000/student_course/" +
-							student.id +
-							"/" +
-							course.id
+						student.id +
+						"/" +
+						course.id
 					);
 
 					if (responseStudentCourse.data) {
@@ -940,6 +940,16 @@ export default function MatchStudentCourse() {
 				<option value={"Fall"}>Fall</option>
 				<option value={"Winter"}>Winter</option>
 			</select>
+
+
+			{errorMessage.length > 0 && (
+				<div className={styles.error}>{errorMessage}</div>
+			)}
+
+			{warningMessage.length > 0 && (
+				<div className={styles.warning}>{warningMessage}</div>
+			)}
+
 			<div className={styles.pageHoriz}>
 				<div className={styles.columns}>
 					{/* Column for available students */}
@@ -1009,13 +1019,7 @@ export default function MatchStudentCourse() {
 					</div>
 				)}
 
-				{errorMessage.length > 0 && (
-					<div className={styles.error}>{errorMessage}</div>
-				)}
 
-				{warningMessage.length > 0 && (
-					<div className={styles.warning}>{warningMessage}</div>
-				)}
 			</div>
 		</div>
 	);
