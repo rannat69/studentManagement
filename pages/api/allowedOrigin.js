@@ -1,6 +1,6 @@
 
 export default async function allowedOrigin(req, res) {
-    const allowedOrigin = 'http://localhost:3000/';
+    const allowedOrigin = 'https://main.dzt0l5rhw4wr1.amplifyapp.com/';
 
     if (req.method === 'OPTIONS') {
         res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
