@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
     console.log("start scheduler");
 
-    const job = CronJob.from({
+    CronJob.from({
         cronTime: '0 0 */2 * * *',
         onTick: async function () {
             try {
