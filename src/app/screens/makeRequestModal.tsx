@@ -27,7 +27,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 	useEffect(() => {
 		// get teachers
 		const fetchTeachers = async () => {
-			const response = await axios.get("http://localhost:5000/teachers");
+			const response = await axios.get("/api/teacher/all");
+
+			response.data = response.data.sort((a: Teacher, b: Teacher) => {
+				if (a.l_name < b.l_name) {
+					return -1;
+				}
+				if (a.l_name > b.l_name) {
+					return 1;
+				}
+				return 0;
+			});
+
 
 			setTeachersListState(response.data);
 		};
@@ -36,7 +47,17 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 
 		// get students
 		const fetchStudents = async () => {
-			const response = await axios.get("http://localhost:5000/students");
+			const response = await axios.get("/api/student/all");
+
+			response.data = response.data.sort((a: Student, b: Student) => {
+				if (a.l_name < b.l_name) {
+					return -1;
+				}
+				if (a.l_name > b.l_name) {
+					return 1;
+				}
+				return 0;
+			});
 
 			setStudentsListState(response.data);
 		};
@@ -45,7 +66,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 
 		// get courses
 		const fetchCourses = async () => {
-			const response = await axios.get("http://localhost:5000/courses");
+			const response = await axios.get("/api/course/all");
+
+			// order list response.data on response.data.name 
+			response.data = response.data.sort((a: Course, b: Course) => {
+				if (a.hkust_identifier < b.hkust_identifier) {
+					return -1;
+				}
+				if (a.hkust_identifier > b.hkust_identifier) {
+					return 1;
+				}
+				return 0;
+			});
 
 			setCoursesListState(response.data);
 		};
@@ -68,7 +100,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 				message: "",
 				status: "",
 				request_from: "",
-				want: true,
+				want: 1,
 				deleted: false,
 			});
 			setMode(MODE_CREATION);
@@ -101,7 +133,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 		try {
 			console.log(requestData);
 
-			const response = await fetch("http://localhost:5000/requests", {
+			const response = await fetch("/api/request/create", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -125,7 +157,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 	const updateRequest = async (id: number, updatedData: Request) => {
 		try {
 			const response = await axios.put(
-				`http://localhost:5000/requests/${id}`,
+				`/api/request/${id}`,
 				updatedData
 			);
 
@@ -139,7 +171,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 
 	const deleteRequest = async (id: number) => {
 		try {
-			const response = await fetch(`http://localhost:5000/requests/${id}`, {
+			const response = await fetch(`/api/request/${id}`, {
 				method: "DELETE",
 			});
 
@@ -179,7 +211,34 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 		setErrorMessage("");
 
 		e.preventDefault();
+
 		if (formData) {
+
+			console.log("formdata.student_id", formData.student_id);
+
+			if (formData.request_from === "") {
+				setErrorMessage("Please select who made the request.");
+				return null;
+			}
+
+			if (formData.student_id === 0) {
+				console.log("stydebtid = 0");
+				setErrorMessage("Please select a student.");
+				return null;
+			} else {
+				console.log("stydebtid = 0", formData.student_id);
+			}
+
+			if (formData.teacher_id === 0) {
+				setErrorMessage("Please select a teacher.");
+				return null;
+			}
+
+			if (formData.course_id === 0) {
+				setErrorMessage("Please select a course.");
+				return null;
+			}
+
 			if (mode === MODE_CREATION) {
 				createRequest(formData).then((newRequest) => {
 					// Update the state with the new request
@@ -204,7 +263,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 				message: "",
 				status: "",
 				request_from: "",
-				want: true,
+				want: 1,
 				deleted: false,
 			});
 
@@ -215,90 +274,90 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 	if (!isOpen) return null;
 
 	return (
-		<div className={styles.modal}>
+		<div className={ styles.modal }>
 			<div>
-				<span className={styles.close} onClick={onClose}>
+				<span className={ styles.close } onClick={ onClose }>
 					&times;
 				</span>
 
-				<button  className={styles.buttonCancel}  onClick={() => handleCancel()}>Cancel</button>
+				<button className={ styles.buttonCancel } onClick={ () => handleCancel() }>Cancel</button>
 
-				<form onSubmit={handleSubmit} className={styles.modalContent}>
-					<div className={styles.modalContentColumn}>
-						{mode === MODE_EDITION ? (
+				<form onSubmit={ handleSubmit } className={ styles.modalContent }>
+					<div className={ styles.modalContentColumn }>
+						{ mode === MODE_EDITION ? (
 							<h2>Edit Request</h2>
 						) : (
 							<h2>Create Request</h2>
-						)}
-						Request made by{" "}
+						) }
+						Request made by{ " " }
 						<select
 							name='request_from'
-							onChange={handleChange}
-							value={formData ? formData.request_from : ""}>
-							<option value={""}>-- Who made the request ? --</option>
-							<option value={"Teacher"}>Teacher</option>
-							<option value={"Student"}>Student</option>
+							onChange={ handleChange }
+							value={ formData ? formData.request_from : "" }>
+							<option value={ "" }>-- Who made the request ? --</option>
+							<option value={ "Teacher" }>Teacher</option>
+							<option value={ "Student" }>Student</option>
 						</select>
 						<select
 							name='want'
-							onChange={handleChange}
-							value={formData ? String(formData.want) : "true"}>
-							<option value={"true"}>Want</option>
-							<option value={"false"}>Do not want</option>
+							onChange={ handleChange }
+							value={ formData ? String(formData.want) : 1 }>
+							<option value={ 1 }>Want</option>
+							<option value={ 0 }>Do not want</option>
 						</select>
 						Student list
 						<select
 							name='student_id'
-							onChange={handleChange}
-							value={formData ? formData.student_id : 0}>
-							<option value={0}>-- Which student ? --</option>
-							{studentsListState.map((student) => (
-								<option key={student.id} value={student.id}>
-									{student.l_name + " " + student.f_names}
+							onChange={ handleChange }
+							value={ formData ? formData.student_id : 0 }>
+							<option value={ 0 }>-- Which student ? --</option>
+							{ studentsListState.map((student) => (
+								<option key={ student.id } value={ student.id }>
+									{ student.l_name + " " + student.f_names }
 								</option>
-							))}
+							)) }
 						</select>
 						Teacher list
 						<select
 							name='teacher_id'
-							onChange={handleChange}
-							value={formData ? formData.teacher_id : 0}>
-							<option value={0}>-- Which teacher ? --</option>
-							{teachersListState.map((teacher) => (
-								<option key={teacher.id} value={teacher.id}>
-									{teacher.l_name}
+							onChange={ handleChange }
+							value={ formData ? formData.teacher_id : 0 }>
+							<option value={ 0 }>-- Which teacher ? --</option>
+							{ teachersListState.map((teacher) => (
+								<option key={ teacher.id } value={ teacher.id }>
+									{ teacher.l_name }
 								</option>
-							))}
+							)) }
 						</select>
 						Course list
 						<select
 							name='course_id'
-							onChange={handleChange}
-							value={formData ? formData.course_id : 0}>
-							<option value={0}>-- Which course ? --</option>
-							{coursesListState.map((course) => (
-								<option key={course.id} value={course.id}>
-									{course.name}
+							onChange={ handleChange }
+							value={ formData ? formData.course_id : 0 }>
+							<option value={ 0 }>-- Which course ? --</option>
+							{ coursesListState.map((course) => (
+								<option key={ course.id } value={ course.id }>
+									{ course.hkust_identifier + " - " +  course.name }
 								</option>
-							))}
+							)) }
 						</select>
 						Message
 						<input
 							name='message'
-							value={formData ? formData.message : ""}
-							onChange={handleChange}
+							value={ formData ? formData.message : "" }
+							onChange={ handleChange }
 							placeholder='Message'
 						/>
-						{/* Add more fields as needed */}
-						<button className={styles.buttonSave} type='submit'>Save</button>
-						{errorMessage.length > 0 && (
-							<div className={styles.error}>{errorMessage}</div>
-						)}
+						{/* Add more fields as needed */ }
+						<button className={ styles.buttonSave } type='submit'>Save</button>
+						{ errorMessage.length > 0 && (
+							<div className={ styles.error }>{ errorMessage }</div>
+						) }
 					</div>
 				</form>
-				{mode === MODE_EDITION && (
-					<button className={styles.buttonDelete} onClick={() => handleDelete()}>Delete</button>
-				)}
+				{ mode === MODE_EDITION && (
+					<button className={ styles.buttonDelete } onClick={ () => handleDelete() }>Delete</button>
+				) }
 			</div>
 		</div>
 	);

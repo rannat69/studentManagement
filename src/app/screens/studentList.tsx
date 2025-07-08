@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "./styles/page.module.css";
 import axios from "axios";
 
+
 export default function StudentList() {
 	const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,13 +19,14 @@ export default function StudentList() {
 	);
 
 	useEffect(() => {
+
 		const fetchStudents = async () => {
-			const response = await axios.get("http://localhost:5000/students");
+			const response = await axios.get("/api/student/all");
 
 			for (let i = 0; i < response.data.length; i++) {
 				response.data[i].available = response.data[i].available === 1;
 
-				response.data[i].unoff_name = response.data[i].unoff_name != null &&  response.data[i].unoff_name != undefined ? response.data[i].unoff_name : "";
+				response.data[i].unoff_name = response.data[i].unoff_name != null && response.data[i].unoff_name != undefined ? response.data[i].unoff_name : "";
 			}
 
 			setStudentListState(response.data);
@@ -125,48 +127,48 @@ export default function StudentList() {
 	};
 
 	return (
-		<div className={styles.page}>
+		<div className={ styles.page }>
 			Student list
-			<div className={styles.add} onClick={() => handleClickStudentNew()}>
+			<div className={ styles.add } onClick={ () => handleClickStudentNew() }>
 				Add student
 			</div>
-			<div className={styles.main}>
+			<div className={ styles.main }>
 
 
-				<table className={styles.tableStudent}>
+				<table className={ styles.tableStudent }>
 					<thead>
 						<tr>
-							<th onClick={() => handleOrderBy("l_name")}>Surname</th>
-							<th onClick={() => handleOrderBy("f_names")}>First name</th>
-							<th onClick={() => handleOrderBy("unoff_name")}>Unofficial name</th>
-							<th onClick={() => handleOrderBy("expected_grad_year")}>Expected graduation year</th>
-							<th onClick={() => handleOrderBy("expected_grad_semester")}>Graduation semester</th>
-							<th onClick={() => handleOrderBy("ta_available")}>T.A. available</th>
+							<th onClick={ () => handleOrderBy("l_name") }>Surname</th>
+							<th onClick={ () => handleOrderBy("f_names") }>First name</th>
+							<th onClick={ () => handleOrderBy("unoff_name") }>Unofficial name</th>
+							<th onClick={ () => handleOrderBy("expected_grad_year") }>Expected graduation year</th>
+							<th onClick={ () => handleOrderBy("expected_grad_semester") }>Graduation semester</th>
+							<th onClick={ () => handleOrderBy("ta_available") }>T.A. available</th>
 						</tr>
 					</thead>
 					<tbody>
-						{studentListState &&
+						{ studentListState &&
 							studentListState.map((student) => (
 								<tr
-									key={student.id}
-									onClick={() => handleClickStudent(student)}>
-									<td>{student.l_name}</td>
-									<td>{student.f_names}</td>
-									<td>{student.unoff_name}</td>
-									<td>{student.expected_grad_year}</td>
-									<td>{student.expected_grad_semester}</td>
-									<td>{student.ta_available}</td>
+									key={ student.id }
+									onClick={ () => handleClickStudent(student) }>
+									<td>{ student.l_name }</td>
+									<td>{ student.f_names }</td>
+									<td>{ student.unoff_name }</td>
+									<td>{ student.expected_grad_year }</td>
+									<td>{ student.expected_grad_semester }</td>
+									<td>{ student.ta_available }</td>
 								</tr>
-							))}
+							)) }
 					</tbody>
 				</table>
 			</div>
-			<footer className={styles.footer}></footer>
+			<footer className={ styles.footer }></footer>
 			<Modal
-				isOpen={isModalOpen}
-				student={selectedStudent}
-				onClose={() => setIsModalOpen(false)}
-				onSave={handleSaveStudent}
+				isOpen={ isModalOpen }
+				student={ selectedStudent }
+				onClose={ () => setIsModalOpen(false) }
+				onSave={ handleSaveStudent }
 			/>
 		</div>
 	);

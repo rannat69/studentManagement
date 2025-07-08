@@ -6,7 +6,7 @@ export interface Request {
 	message: string;
 	status: string;
 	request_from: string;
-	want: boolean;
+	want: number;
 	deleted: boolean;
 	student_name?: string;
 	teacher_name?: string;

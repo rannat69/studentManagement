@@ -16,6 +16,11 @@ export default function CourseList() {
 	const [semester, setSemester] = useState<string>("Spring");
 	const [year, setYear] = useState<number>(0);
 
+	const [orderByField, setOrderByField] = useState<string | null>(null);
+	const [orderByDirection, setOrderByDirection] = useState<"asc" | "desc">(
+		"asc"
+	);
+
 	useEffect(() => {
 		const fetchCourses = async () => {
 			// get current year
@@ -39,6 +44,8 @@ export default function CourseList() {
 				setSemester("Spring");
 				setYear(currentYear + 1);
 			}
+
+
 
 			// get students and courses assignment for current semester and year
 			fetchCourseForSemester(currentYear, semester);
@@ -89,7 +96,7 @@ export default function CourseList() {
 	};
 
 	const fetchCourseForSemester = async (year: number, semester: string) => {
-		const response = await axios.get("http://localhost:5000/courses");
+		const response = await axios.get("/api/course/all");
 
 		let courseList = response.data;
 
@@ -99,6 +106,16 @@ export default function CourseList() {
 				return course.year === year && course.semester === semester;
 			}
 		);
+
+		for (const course of courseList) {
+			if (course.ta_available === null) {
+				course.ta_available = 0;
+			}
+
+			if (course.ta_assigned === null) {
+				course.ta_assigned = 0;
+			}
+		}
 
 		setCourseListState(courseList);
 	};
@@ -121,64 +138,114 @@ export default function CourseList() {
 		fetchCourseForSemester(parseInt(event.target.value), semester);
 	};
 
+	const handleOrderBy = (column: string) => {
+		if (!courseListState) {
+			return;
+		}
+
+		console.log("column", column);
+
+		let orderByDirectionTemp = "asc";
+
+		// Check if the current column is the same as the previous one
+		if (column === orderByField) {
+			// Toggle order direction
+			setOrderByDirection(orderByDirection === "asc" ? "desc" : "asc");
+
+			orderByDirectionTemp = orderByDirection === "asc" ? "desc" : "asc";
+
+		} else {
+			// Reset to ascending order for a new column
+			setOrderByDirection("asc");
+		}
+
+		// Sort the student list
+		const sortedList = [...courseListState].sort((a, b) => {
+			const aValue = a[column as keyof Course];
+			const bValue = b[column as keyof Course];
+
+			if (typeof aValue === "string" && typeof bValue === "string") {
+				return aValue > bValue ? 1 : -1;
+			} else if (typeof aValue === "number" && typeof bValue === "number") {
+				return aValue - bValue;
+			} else {
+				return 0;
+			}
+		});
+
+		console.log(orderByDirectionTemp);
+
+		// Reverse the list if the order direction is 'desc'
+		if (orderByDirectionTemp === "desc") {
+			sortedList.reverse();
+		}
+
+		// Update the state
+		setOrderByField(column);
+		setCourseListState(sortedList);
+	};
+
 	return (
-		<div className={styles.page}>
-			Course list{" "}
+		<div className={ styles.page }>
+			Course list{ " " }
 			<>
-				{" "}
-				<b>Year :</b>{" "}
-				<input type='number' onChange={handleChangeYear} value={year} />
+				{ " " }
+				<b>Year :</b>{ " " }
+				<input type='number' onChange={ handleChangeYear } value={ year } />
 				<b>Semester :</b>
 				<select
 					name='semester'
-					onChange={handleChangeSemester}
-					value={semester ? semester : "Spring"}>
-					<option value={"Spring"}>Spring</option>
-					<option value={"Fall"}>Fall</option>
-					<option value={"Winter"}>Winter</option>
+					onChange={ handleChangeSemester }
+					value={ semester ? semester : "Spring" }>
+					<option value={ "Spring" }>Spring</option>
+					<option value={ "Fall" }>Fall</option>
+					<option value={ "Winter" }>Winter</option>
 				</select>
 			</>
 
-			<div className={styles.add} onClick={() => handleClickCourseNew()}>
+			<div className={ styles.add } onClick={ () => handleClickCourseNew() }>
 				Add course
 			</div>
 
-			<div className={styles.main}>
+			<div className={ styles.main }>
 
 
-				<table className={styles.tableStudent}>
+				<table className={ styles.tableStudent }>
 					<thead>
 						<tr>
-							<th>ID</th>
-							<th>Name</th>
 
-							<th>T.A. needed</th>
-							<th>T.A. assigned</th>
+
+							<th onClick={ () => handleOrderBy("hkust_identifier") }>ID</th>
+							<th onClick={ () => handleOrderBy("name") }>Name</th>
+							<th onClick={ () => handleOrderBy("ta_needed") }>T.A. needed</th>
+							<th onClick={ () => handleOrderBy("ta_assigned") }>T.A. assigned</th>
+
+
 						</tr>
 					</thead>
 					<tbody>
-						{courseListState &&
+						{ courseListState &&
 							courseListState.map((course) => (
-								<tr key={course.id} onClick={() => handleClickCourse(course)}>
-									<td>{course.hkust_identifier}</td>
-									<td>{course.name}</td>
-									<td>{course.ta_needed}</td>
-									<td>{course.ta_assigned}</td>
+								<tr key={ course.id } onClick={ () => handleClickCourse(course) }>
+									<td>{ course.hkust_identifier }</td>
+									<td>{ course.name }</td>
+									<td>{ course.ta_needed }</td>
+									<td>{ course.ta_assigned }</td>
 								</tr>
-							))}
+							)) }
 					</tbody>
 				</table>
 			</div>
 
-			<footer className={styles.footer}></footer>
-			{selectedCourse && (
-				<Modal
-					isOpen={isModalOpen}
-					course={selectedCourse}
-					onClose={() => setIsModalOpen(false)}
-					onSave={handleSaveCourse}
-				/>
-			)}
+			<footer className={ styles.footer }></footer>
+
+			<Modal
+				isOpen={ isModalOpen }
+				course={ selectedCourse }
+				onClose={ () => setIsModalOpen(false) }
+				onSave={ handleSaveCourse }
+			/>
+
 		</div>
 	);
 }

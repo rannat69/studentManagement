@@ -13,9 +13,14 @@ export default function TeacherList() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [teacherListState, setTeacherListState] = useState<Teacher[]>();
 
+	const [orderByField, setOrderByField] = useState<string | null>(null);
+	const [orderByDirection, setOrderByDirection] = useState<"asc" | "desc">(
+		"asc"
+	);
+
 	useEffect(() => {
 		const fetchTeachers = async () => {
-			const response = await axios.get("http://localhost:5000/teachers");
+			const response = await axios.get("/api/teacher/all/");
 
 			setTeacherListState(response.data);
 		};
@@ -55,8 +60,8 @@ export default function TeacherList() {
 
 			updatedList = teacherExists
 				? teacherListState.map((teacher) =>
-						teacher.id === updatedTeacher.id ? updatedTeacher : teacher
-				  )
+					teacher.id === updatedTeacher.id ? updatedTeacher : teacher
+				)
 				: [...teacherListState, updatedTeacher];
 		}
 
@@ -64,43 +69,89 @@ export default function TeacherList() {
 		setTeacherListState(updatedList);
 	};
 
+	const handleOrderBy = (column: string) => {
+		if (!teacherListState) {
+			return;
+		}
+
+		let orderByDirectionTemp = "asc";
+
+		// Check if the current column is the same as the previous one
+		if (column === orderByField) {
+			// Toggle order direction
+			setOrderByDirection(orderByDirection === "asc" ? "desc" : "asc");
+
+			orderByDirectionTemp = orderByDirection === "asc" ? "desc" : "asc";
+
+		} else {
+			// Reset to ascending order for a new column
+			setOrderByDirection("asc");
+		}
+
+		// Sort the student list
+		const sortedList = [...teacherListState].sort((a, b) => {
+			const aValue = a[column as keyof Teacher];
+			const bValue = b[column as keyof Teacher];
+
+			if (typeof aValue === "string" && typeof bValue === "string") {
+				return aValue > bValue ? 1 : -1;
+			} else if (typeof aValue === "number" && typeof bValue === "number") {
+				return aValue - bValue;
+			} else {
+				return 0;
+			}
+		});
+
+
+		// Reverse the list if the order direction is 'desc'
+		if (orderByDirectionTemp === "desc") {
+			sortedList.reverse();
+		}
+
+		// Update the state
+		setOrderByField(column);
+		setTeacherListState(sortedList);
+	};
+
 	return (
-		<div className={styles.page}>
-			Teacher list{" "}
-			<div className={styles.add} onClick={() => handleClickTeacherNew()}>
+		<div className={ styles.page }>
+			Teacher list{ " " }
+			<div className={ styles.add } onClick={ () => handleClickTeacherNew() }>
 				Add teacher
 			</div>
-			<div className={styles.main}>
-				<table className={styles.tableStudent}>
+			<div className={ styles.main }>
+				<table className={ styles.tableStudent }>
 					<thead>
 						<tr>
-							<th>Surname</th>
-							<th>First name</th>
-							<th>Unofficial name</th>
-							<th>Field</th>
+
+
+							<th onClick={ () => handleOrderBy("l_name") }>Surname</th>
+							<th onClick={ () => handleOrderBy("f_names") }>First name</th>
+							<th onClick={ () => handleOrderBy("unoff_name") }>Unofficial name</th>
+							<th onClick={ () => handleOrderBy("field") }>Field</th>
 						</tr>
 					</thead>
 					<tbody>
-						{teacherListState &&
+						{ teacherListState &&
 							teacherListState.map((teacher) => (
 								<tr
-									key={teacher.id}
-									onClick={() => handleClickTeacher(teacher)}>
-									<td>{teacher.l_name}</td>
-									<td>{teacher.f_names}</td>
-									<td>{teacher.unoff_name}</td>
-									<td>{teacher.field}</td>
+									key={ teacher.id }
+									onClick={ () => handleClickTeacher(teacher) }>
+									<td>{ teacher.l_name }</td>
+									<td>{ teacher.f_names }</td>
+									<td>{ teacher.unoff_name }</td>
+									<td>{ teacher.field }</td>
 								</tr>
-							))}
+							)) }
 					</tbody>
 				</table>
 			</div>
-			<footer className={styles.footer}></footer>
+			<footer className={ styles.footer }></footer>
 			<Modal
-				isOpen={isModalOpen}
-				teacher={selectedTeacher}
-				onClose={() => setIsModalOpen(false)}
-				onSave={handleSaveTeacher}
+				isOpen={ isModalOpen }
+				teacher={ selectedTeacher }
+				onClose={ () => setIsModalOpen(false) }
+				onSave={ handleSaveTeacher }
 			/>
 		</div>
 	);

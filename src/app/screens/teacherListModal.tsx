@@ -65,7 +65,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 
 	const createTeacher = async (teacherData: Teacher) => {
 		try {
-			const response = await fetch("http://localhost:5000/teachers", {
+			const response = await fetch("/api/teacher/create", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -88,7 +88,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 
 	const updateTeacher = async (id: number, updatedData: Teacher) => {
 		try {
-			await axios.put(`http://localhost:5000/teachers/${id}`, updatedData);
+			await axios.put(`/api/teacher/${id}`, updatedData);
 		} catch (error) {
 			console.error("Error updating teacher:", error);
 		}
@@ -96,7 +96,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 
 	const deleteTeacher = async (id: number) => {
 		try {
-			const response = await fetch(`http://localhost:5000/teachers/${id}`, {
+			const response = await fetch(`/api/teacher/${id}`, {
 				method: "DELETE",
 			});
 

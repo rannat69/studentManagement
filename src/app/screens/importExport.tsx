@@ -154,7 +154,7 @@ export default function ImportExport() {
 								const fetchCourse = async (id: number) => {
 									try {
 										const response = await axios.get(
-											`http://localhost:5000/courses/${id}`
+											`/api/course/${id}`
 										);
 
 										return response.data;
@@ -203,7 +203,7 @@ export default function ImportExport() {
 								const fetchStudent = async (id: number) => {
 									try {
 										const response = await axios.get(
-											`http://localhost:5000/students/${id}`
+											`/api/student/${id}`
 										);
 
 										return response.data;
@@ -255,7 +255,7 @@ export default function ImportExport() {
 								const fetchTeacher = async (id: number) => {
 									try {
 										const response = await axios.get(
-											`http://localhost:5000/teachers/${id}`
+											`/api/teacher/${id}`
 										);
 
 										return response.data;
@@ -302,7 +302,7 @@ export default function ImportExport() {
 
 	const createStudent = async (studentData: Student) => {
 		try {
-			const response = await fetch("http://localhost:5000/students", {
+			const response = await fetch("/api/student/create", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -329,7 +329,7 @@ export default function ImportExport() {
 
 	const createCourse = async (courseData: Course) => {
 		try {
-			const response = await fetch("http://localhost:5000/courses", {
+			const response = await fetch("/api/course/create", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -356,7 +356,7 @@ export default function ImportExport() {
 
 	const createTeacher = async (teacherData: Teacher) => {
 		try {
-			const response = await fetch("http://localhost:5000/teachers", {
+			const response = await fetch("/api/teacher/create", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -384,7 +384,7 @@ export default function ImportExport() {
 	const updateStudent = async (id: number, updatedData: Student) => {
 		try {
 			const response = await axios.put(
-				`http://localhost:5000/students/${id}`,
+				`/api/student/${id}`,
 				updatedData
 			);
 
@@ -399,7 +399,7 @@ export default function ImportExport() {
 	const updateCourse = async (id: number, updatedData: Course) => {
 		try {
 			const response = await axios.put(
-				`http://localhost:5000/courses/${id}`,
+				`/api/course/${id}`,
 				updatedData
 			);
 
@@ -414,7 +414,7 @@ export default function ImportExport() {
 	const updateTeacher = async (id: number, updatedData: Teacher) => {
 		try {
 			const response = await axios.put(
-				`http://localhost:5000/teachers/${id}`,
+				`/api/teacher/${id}`,
 				updatedData
 			);
 			if (response.statusText != "OK") {
@@ -429,19 +429,19 @@ export default function ImportExport() {
 		// Read DB, then export in Excel file
 
 		const fetchStudents = async () => {
-			const response = await axios.get("http://localhost:5000/students");
+			const response = await axios.get("/api/student/all");
 
 			return response.data;
 		};
 
 		const fetchCourses = async () => {
-			const response = await axios.get("http://localhost:5000/courses");
+			const response = await axios.get("/api/course/all");
 
 			return response.data;
 		};
 
 		const fetchTeachers = async () => {
-			const response = await axios.get("http://localhost:5000/teachers");
+			const response = await axios.get("/api/teacher/all");
 
 			return response.data;
 		};
@@ -855,68 +855,68 @@ export default function ImportExport() {
 	}
 
 	return (
-		<div className={styles.page}>
-			<div className={styles.main}>
-				<div className={styles.importExport}>
-					<div className={styles.text}>
+		<div className={ styles.page }>
+			<div className={ styles.main }>
+				<div className={ styles.importExport }>
+					<div className={ styles.text }>
 						Import
-						<input type='file' onChange={handleImport} />
+						<input type='file' onChange={ handleImport } />
 					</div>
-					{isImporting && <Spinner />}
+					{ isImporting && <Spinner /> }
 				</div>
-				<div className={styles.importExport} onClick={() => handleExport()}>
-					<div className={styles.text}>Export</div>
+				<div className={ styles.importExport } onClick={ () => handleExport() }>
+					<div className={ styles.text }>Export</div>
 				</div>
 			</div>
 			<div>
-				{!isImportStudents ? (
+				{ !isImportStudents ? (
 					<div
-						className={styles.buttonUnclicked}
-						onClick={() => setIsImportStudents(!isImportStudents)}>
+						className={ styles.buttonUnclicked }
+						onClick={ () => setIsImportStudents(!isImportStudents) }>
 						Students
 					</div>
 				) : (
 					<div
-						className={styles.buttonClicked}
-						onClick={() => setIsImportStudents(!isImportStudents)}>
+						className={ styles.buttonClicked }
+						onClick={ () => setIsImportStudents(!isImportStudents) }>
 						Students
 					</div>
-				)}
-				{!isImportCourses ? (
+				) }
+				{ !isImportCourses ? (
 					<div
-						className={styles.buttonUnclicked}
-						onClick={() => setIsImportCourses(!isImportCourses)}>
+						className={ styles.buttonUnclicked }
+						onClick={ () => setIsImportCourses(!isImportCourses) }>
 						Courses
 					</div>
 				) : (
 					<div
-						className={styles.buttonClicked}
-						onClick={() => setIsImportCourses(!isImportCourses)}>
+						className={ styles.buttonClicked }
+						onClick={ () => setIsImportCourses(!isImportCourses) }>
 						Courses
 					</div>
-				)}
-				{!isImportTeachers ? (
+				) }
+				{ !isImportTeachers ? (
 					<div
-						className={styles.buttonUnclicked}
-						onClick={() => setIsImportTeachers(!isImportTeachers)}>
+						className={ styles.buttonUnclicked }
+						onClick={ () => setIsImportTeachers(!isImportTeachers) }>
 						Teachers
 					</div>
 				) : (
 					<div
-						className={styles.buttonClicked}
-						onClick={() => setIsImportTeachers(!isImportTeachers)}>
+						className={ styles.buttonClicked }
+						onClick={ () => setIsImportTeachers(!isImportTeachers) }>
 						Teachers
 					</div>
-				)}
+				) }
 			</div>
 
-			<footer className={styles.footer}>
-				{errorMessage && errorMessage.length > 0 && (
-					<div className={styles.error}>{errorMessage} </div>
-				)}
-				{successMessage && successMessage.length > 0 && (
-					<div className={styles.success}>{successMessage} </div>
-				)}
+			<footer className={ styles.footer }>
+				{ errorMessage && errorMessage.length > 0 && (
+					<div className={ styles.error }>{ errorMessage } </div>
+				) }
+				{ successMessage && successMessage.length > 0 && (
+					<div className={ styles.success }>{ successMessage } </div>
+				) }
 			</footer>
 		</div>
 	);

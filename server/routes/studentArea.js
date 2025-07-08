@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 
+
+
 // Create or open the SQLite database
 const db = new sqlite3.Database("sql.db");
 

@@ -42,7 +42,7 @@
 	background-color: red;
 	color: #f2f2f2;
 	max-width: 20rem;
-	max-height: 3rem;
+	max-height: 5rem;
 }
 
 .warning {
@@ -51,7 +51,7 @@
 	background-color: darkgoldenrod;
 	color: #f2f2f2;
 	max-width: 20rem;
-	max-height: 3rem;
+	max-height: 5rem;
 }
 
 .tab {
@@ -481,6 +481,7 @@ a.secondary {
 	/* Optional: Smooth transition */
 	font-size: 1rem;
 	width: 50vh;
+	min-width: 20rem;
 	margin: 0.1rem;
 }
 
@@ -499,7 +500,7 @@ a.secondary {
 	transition: background-color 0.3s, border-color 0.3s;
 	/* Optional: Smooth transition */
 	font-size: 0.8rem;
-	width: 10vh;
+	width: 6rem;
 	margin: 0.1rem;
 }
 
@@ -511,6 +512,6 @@ a.secondary {
 	transition: background-color 0.3s, border-color 0.3s;
 	/* Optional: Smooth transition */
 	font-size: 0.8rem;
-	width: 10vh;
+	width: 6rem;
 	margin: 0.1rem;
 }

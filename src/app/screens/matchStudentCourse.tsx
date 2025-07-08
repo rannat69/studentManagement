@@ -15,6 +15,7 @@ import { StudentArea } from "../data/studentAreaData";
 import CourseBlock from "./courseBlock";
 import { CourseArea } from "../data/courseAreaData";
 import { CourseQualification } from "../data/courseQualificationData";
+import { Request } from "../data/requestData";
 
 export default function MatchStudentCourse() {
 	// List students that have TA available
@@ -86,7 +87,7 @@ export default function MatchStudentCourse() {
 	};
 
 	const fetchCourses = async (year: number, semester: string) => {
-		const response = await axios.get("http://localhost:5000/courses");
+		const response = await axios.get("/api/course/all");
 
 		let courseList = response.data;
 
@@ -102,12 +103,12 @@ export default function MatchStudentCourse() {
 		year: number,
 		semester: string
 	) => {
-		let response = await axios.get("http://localhost:5000/students");
+		let response = await axios.get("/api/student/all");
 
 		let studentListTemp = response.data;
 		const studentListAssignedTemp: Student[] = [];
 
-		response = await axios.get("http://localhost:5000/student_course");
+		response = await axios.get("/api/student_course/all");
 
 		let studentCourseList = response.data;
 
@@ -156,22 +157,21 @@ export default function MatchStudentCourse() {
 		}
 
 		// list of qualifications per student
-		response = await axios.get("http://localhost:5000/student_qualifications");
+		response = await axios.get("/api/student_qualif/all");
 
 		setStudentQualification(response.data);
 
 		// list of areas per student
-		response = await axios.get("http://localhost:5000/student_areas");
-
+		response = await axios.get("/api/student_area/all");
 		setStudentArea(response.data);
 
 		// list of qualifications per course
-		response = await axios.get("http://localhost:5000/course_qualifications");
+		response = await axios.get("/api/course_qualif/all");
 
 		setCourseQualification(response.data);
 
 		// list of areas per course
-		response = await axios.get("http://localhost:5000/course_areas");
+		response = await axios.get("/api/course_area/all");
 
 		setCourseArea(response.data);
 
@@ -196,7 +196,7 @@ export default function MatchStudentCourse() {
 		// update student
 		try {
 			const response = await axios.put(
-				`http://localhost:5000/students/${updatedStudent.id}`,
+				`/api/student/${updatedStudent.id}`,
 				updatedStudent
 			);
 
@@ -212,7 +212,7 @@ export default function MatchStudentCourse() {
 		// update course
 		try {
 			const response = await axios.put(
-				`http://localhost:5000/courses/${updatedCourse.id}`,
+				`/api/course/${updatedCourse.id}`,
 				updatedCourse
 			);
 
@@ -230,7 +230,7 @@ export default function MatchStudentCourse() {
 		updatedCourse: Course
 	) => {
 		try {
-			const response = await fetch("http://localhost:5000/student_course/", {
+			const response = await fetch("/api/student_course/create", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -263,20 +263,15 @@ export default function MatchStudentCourse() {
 		updatedCourse: Course
 	) => {
 		try {
-			const response = await fetch(
-				"http://localhost:5000/student_course/delete",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
 
-					body: JSON.stringify({
-						student_id: updatedStudent.id,
-						course_id: updatedCourse.id,
-					}),
+			const response = await fetch(
+				`api/student_course/${updatedStudent.id}/${updatedCourse.id}`,
+				{
+					method: "DELETE",
 				}
 			);
+
+
 
 			if (!response.ok) {
 				throw new Error("Network response was not ok");
@@ -704,22 +699,28 @@ export default function MatchStudentCourse() {
 					};
 
 					const response = await axios.get(
-						"http://localhost:5000/requests/Teacher/1/" +
-						student.id +
-						"/" +
-						course.id
-					);
+						"/api/request/all");
 
 					if (response.data) {
 						// request for this student and course by a teacher found
 
-						studentCourseToAdd.score += 10000;
+						// check if request exists with student id, and course id
+						const request = response.data.find(
+							(request: Request) =>
+								request.student_id === student.id &&
+								request.course_id === course.id &&
+								request.request_from === "Teacher" &&
+								request.want === 1
+						)
+						if (request) {
+							studentCourseToAdd.score += 10000;
+						}
 					}
 
 					// Check student and course qualifs
 					let courseQualif = [];
 					const responseCourseQualif = await axios.get(
-						"http://localhost:5000/course_qualifications/" + course.id
+						"/api/course_qualif/" + course.id
 					);
 
 					if (responseCourseQualif.data) {
@@ -730,7 +731,7 @@ export default function MatchStudentCourse() {
 					// get student's qualifs
 					let studentQualif = [];
 					const responseStudentQualif = await axios.get(
-						"http://localhost:5000/student_qualifications/" + student.id
+						"/api/student_qualif/" + student.id
 					);
 
 					if (responseStudentQualif.data) {
@@ -755,7 +756,7 @@ export default function MatchStudentCourse() {
 
 					// Check if student previously assigned to same course
 					const responseStudentCourse = await axios.get(
-						"http://localhost:5000/student_course/" +
+						"/api/student_course/" +
 						student.id +
 						"/" +
 						course.id
@@ -788,7 +789,7 @@ export default function MatchStudentCourse() {
 					// Check student and course areas
 					let courseArea = [];
 					const responseCourseArea = await axios.get(
-						"http://localhost:5000/course_areas/" + course.id
+						"/api/course_area/" + course.id
 					);
 
 					if (responseCourseArea.data) {
@@ -799,7 +800,7 @@ export default function MatchStudentCourse() {
 					// get student's areas
 					let studentArea = [];
 					const responseStudentAreas = await axios.get(
-						"http://localhost:5000/student_areas/" + student.id
+						"/api/student_area/" + student.id
 					);
 
 					if (responseStudentAreas.data) {
@@ -895,7 +896,7 @@ export default function MatchStudentCourse() {
 					// get course and update it
 
 					const response = await axios.get(
-						"http://localhost:5000/courses/" + studentCourseToAdd.courseId
+						"/api/course/" + studentCourseToAdd.courseId
 					);
 
 					if (response) {
@@ -925,99 +926,99 @@ export default function MatchStudentCourse() {
 	};
 
 	return (
-		<div className={styles.pageTitle}>
-			<b>Year :</b>{" "}
-			<input type='number' onChange={handleChangeYear} value={year} />
+		<div className={ styles.pageTitle }>
+			<b>Year :</b>{ " " }
+			<input type='number' onChange={ handleChangeYear } value={ year } />
 			<b>Semester :</b>
 
 
 
 			<select
 				name='semester'
-				onChange={handleChangeSemester}
-				value={semester ? semester : "Spring"}>
-				<option value={"Spring"}>Spring</option>
-				<option value={"Fall"}>Fall</option>
-				<option value={"Winter"}>Winter</option>
+				onChange={ handleChangeSemester }
+				value={ semester ? semester : "Spring" }>
+				<option value={ "Spring" }>Spring</option>
+				<option value={ "Fall" }>Fall</option>
+				<option value={ "Winter" }>Winter</option>
 			</select>
 
 
-			{errorMessage.length > 0 && (
-				<div className={styles.error}>{errorMessage}</div>
-			)}
+			{ errorMessage.length > 0 && (
+				<div className={ styles.error }>{ errorMessage }</div>
+			) }
 
-			{warningMessage.length > 0 && (
-				<div className={styles.warning}>{warningMessage}</div>
-			)}
+			{ warningMessage.length > 0 && (
+				<div className={ styles.warning }>{ warningMessage }</div>
+			) }
 
-			<div className={styles.pageHoriz}>
-				<div className={styles.columns}>
-					{/* Column for available students */}
+			<div className={ styles.pageHoriz }>
+				<div className={ styles.columns }>
+					{/* Column for available students */ }
 					<div
-						className={styles.availableColumn}
-						onDrop={(event) => dropHandler(event, 0)}
-						onDragOver={handleDragOver}>
+						className={ styles.availableColumn }
+						onDrop={ (event) => dropHandler(event, 0) }
+						onDragOver={ handleDragOver }>
 						<h2>Students Available</h2>
-						<div className={styles.dropArea}>
-							{studentListAvail.map((student) => (
+						<div className={ styles.dropArea }>
+							{ studentListAvail.map((student) => (
 								<StudentBlock
-									key={student.id.toString()}
-									student={student}
-									studentQualification={studentQualification}
-									studentArea={studentArea}
-									onDragStart={handleDragStart}
-									hoveredStudent={hoveredStudent}
-									setHoveredStudent={setHoveredStudent}
+									key={ student.id.toString() }
+									student={ student }
+									studentQualification={ studentQualification }
+									studentArea={ studentArea }
+									onDragStart={ handleDragStart }
+									hoveredStudent={ hoveredStudent }
+									setHoveredStudent={ setHoveredStudent }
 								/>
-							))}
+							)) }
 						</div>
 					</div>
 
-					{/* Columns for drop areas */}
+					{/* Columns for drop areas */ }
 
-					<div className={styles.dropAreas}>
-						{courseListNeeded.map((course) => (
-							<div className={styles.courseBlockContainer} key={course.id}>
+					<div className={ styles.dropAreas }>
+						{ courseListNeeded.map((course) => (
+							<div className={ styles.courseBlockContainer } key={ course.id }>
 								<CourseBlock
-									key={course.id.toString()}
-									course={course}
-									courseQualification={courseQualification}
-									courseArea={courseArea}
+									key={ course.id.toString() }
+									course={ course }
+									courseQualification={ courseQualification }
+									courseArea={ courseArea }
 								/>
 
-								<div className={styles.dropArea}>
+								<div className={ styles.dropArea }>
 									<h3></h3>
 									<div
-										onDrop={(event) => dropHandler(event, course.id)}
-										onDragOver={handleDragOver}
-										className={styles.innerDropArea}>
-										{studentListAssigned
+										onDrop={ (event) => dropHandler(event, course.id) }
+										onDragOver={ handleDragOver }
+										className={ styles.innerDropArea }>
+										{ studentListAssigned
 											.filter((student) => student.dropZone === course.id)
 											.map((student) => (
 												<StudentBlock
-													key={student.id.toString()}
-													student={student}
-													studentQualification={studentQualification}
-													studentArea={studentArea}
-													onDragStart={handleDragStart}
-													hoveredStudent={hoveredStudent}
-													setHoveredStudent={setHoveredStudent}
+													key={ student.id.toString() }
+													student={ student }
+													studentQualification={ studentQualification }
+													studentArea={ studentArea }
+													onDragStart={ handleDragStart }
+													hoveredStudent={ hoveredStudent }
+													setHoveredStudent={ setHoveredStudent }
 												/>
-											))}
+											)) }
 									</div>
 								</div>
 							</div>
-						))}
+						)) }
 					</div>
 				</div>
 
-				{autoMatchRunning ? (
+				{ autoMatchRunning ? (
 					<Spinner />
 				) : (
-					<div className={styles.button} onClick={() => handleAutoMatch()}>
+					<div className={ styles.button } onClick={ () => handleAutoMatch() }>
 						Auto match
 					</div>
-				)}
+				) }
 
 
 			</div>

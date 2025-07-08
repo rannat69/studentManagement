@@ -20,6 +20,12 @@ export default function MakeRequest() {
 	const [students, setStudents] = useState<Student[]>([]);
 	const [teachers, setTeachers] = useState<Teacher[]>([]);
 
+	const [orderByField, setOrderByField] = useState<string | null>(null);
+	const [orderByDirection, setOrderByDirection] = useState<"asc" | "desc">(
+		"asc"
+	);
+
+
 	useEffect(() => {
 		let coursesTemp: Course[] = [];
 		let studentsTemp: Student[] = [];
@@ -27,7 +33,7 @@ export default function MakeRequest() {
 
 		const fetchCourses = async () => {
 			try {
-				const response = await axios.get("http://localhost:5000/courses");
+				const response = await axios.get("/api/course/all");
 				coursesTemp = response.data;
 				setCourses(response.data);
 			} catch (error) {
@@ -39,7 +45,7 @@ export default function MakeRequest() {
 
 		const fetchStudents = async () => {
 			try {
-				const response = await axios.get("http://localhost:5000/students");
+				const response = await axios.get("/api/student/all");
 				studentsTemp = response.data;
 				setStudents(response.data);
 			} catch (error) {
@@ -51,7 +57,7 @@ export default function MakeRequest() {
 
 		const fetchTeachers = async () => {
 			try {
-				const response = await axios.get("http://localhost:5000/teachers");
+				const response = await axios.get("/api/teacher/all");
 				teachersTemp = response.data;
 				setTeachers(response.data);
 			} catch (error) {
@@ -63,7 +69,32 @@ export default function MakeRequest() {
 
 		// fetch requests
 		const fetchRequests = async () => {
-			const response = await axios.get("http://localhost:5000/requests");
+
+			try {
+				const response = await axios.get("/api/course/all");
+				coursesTemp = response.data;
+
+			} catch (error) {
+				console.error("Error fetching courses:", error);
+			}
+
+			try {
+				const response = await axios.get("/api/student/all");
+				studentsTemp = response.data;
+
+			} catch (error) {
+				console.error("Error fetching students:", error);
+			}
+
+			try {
+				const response = await axios.get("/api/teacher/all");
+				teachersTemp = response.data;
+
+			} catch (error) {
+				console.error("Error fetching teachers:", error);
+			}
+
+			const response = await axios.get("/api/request/all");
 
 			for (const request of response.data) {
 				request.want = request.want === 1 ? true : false;
@@ -78,9 +109,12 @@ export default function MakeRequest() {
 					request.student_name = student.l_name + " " + student.f_names;
 				}
 
-				const teacher = teachersTemp.find(
+				let teacher: Teacher | undefined = undefined;
+
+				teacher = teachersTemp.find(
 					(teacher) => teacher.id === request.teacher_id
 				);
+
 
 				if (teacher) {
 					request.teacher_name = teacher.l_name + " " + teacher.f_names;
@@ -120,14 +154,10 @@ export default function MakeRequest() {
 	const getTeacherNameById = (id: number) => {
 		const teacher = teachers.find((teacher) => teacher.id === id);
 
-
-
 		return teacher
 			? teacher.l_name + " " + teacher.f_names
 			: "<Unknown Teacher>"; // Fallback if not found
 	};
-
-	useEffect(() => { }, []);
 
 	const handleClickRequest = (request: Request): void => {
 		setSelectedRequest(request);
@@ -140,7 +170,6 @@ export default function MakeRequest() {
 	};
 
 	const handleSaveRequest = (updatedRequest: Request) => {
-
 
 		// Update the request list with the new data
 		if (!requestListState) {
@@ -179,42 +208,91 @@ export default function MakeRequest() {
 		setRequestListState(updatedList);
 	};
 
+	const handleOrderBy = (column: string) => {
+		if (!requestListState) {
+			return;
+		}
+
+		let orderByDirectionTemp = "asc";
+
+		// Check if the current column is the same as the previous one
+		if (column === orderByField) {
+			// Toggle order direction
+			setOrderByDirection(orderByDirection === "asc" ? "desc" : "asc");
+
+			orderByDirectionTemp = orderByDirection === "asc" ? "desc" : "asc";
+
+		} else {
+			// Reset to ascending order for a new column
+			setOrderByDirection("asc");
+		}
+
+		// Sort the student list
+		const sortedList = [...requestListState].sort((a, b) => {
+			const aValue = a[column as keyof Request];
+			const bValue = b[column as keyof Request];
+
+			if (typeof aValue === "string" && typeof bValue === "string") {
+				return aValue > bValue ? 1 : -1;
+			} else if (typeof aValue === "number" && typeof bValue === "number") {
+				return aValue - bValue;
+			} else if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+				// Sort booleans: true first, then false
+				return aValue === bValue ? 0 : (aValue ? -1 : 1);
+			} else {
+				return 0;
+			}
+		});
+
+
+		// Reverse the list if the order direction is 'desc'
+		if (orderByDirectionTemp === "desc") {
+			sortedList.reverse();
+		}
+
+		// Update the state
+		setOrderByField(column);
+		setRequestListState(sortedList);
+	};
+
 	return (
-		<div className={styles.page}>
+		<div className={ styles.page }>
 			Request list
 
-			<div className={styles.add} onClick={() => handleClickRequestNew()}>
+			<div className={ styles.add } onClick={ () => handleClickRequestNew() }>
 				Make request
 			</div>
 
-			<div className={styles.main}>
+			<div className={ styles.main }>
 
-				<table className={styles.tableStudent}>
+				<table className={ styles.tableStudent }>
 
 					<thead>
 						<tr>
-							<th>Teacher</th>
-							<th>Student</th>
-							<th>Request from</th>
-							<th>Course</th>
-							<th>Message</th>
-							<th>Want ? </th>
+
+							<th onClick={ () => handleOrderBy("teacher_name") }>Teacher</th>
+							<th onClick={ () => handleOrderBy("student_name") }>Student</th>
+							<th onClick={ () => handleOrderBy("request_from") }>Request from</th>
+							<th onClick={ () => handleOrderBy("course_name") }>Course</th>
+							<th onClick={ () => handleOrderBy("message") }>Message</th>
+							<th onClick={ () => handleOrderBy("want") }>Want ?</th>
+
 						</tr>
 					</thead>
 					<tbody>
-						{requestListState &&
+						{ requestListState &&
 							requestListState.map((request) => (
-								<tr key={request.id}
-									onClick={() => handleClickRequest(request)}>
+								<tr key={ request.id }
+									onClick={ () => handleClickRequest(request) }>
 
-									<td>{request.teacher_name}</td>
-									<td>{request.student_name}</td>
-									<td>{request.request_from}</td>
-									<td>{request.course_name}</td>
-									<td>{request.message}</td>
-									<td>{request.want ? "Yes" : "No"} </td>
+									<td>{ request.teacher_name }</td>
+									<td>{ request.student_name }</td>
+									<td>{ request.request_from }</td>
+									<td>{ request.course_name }</td>
+									<td>{ request.message }</td>
+									<td>{ request.want ? "Yes" : "No" } </td>
 								</tr>
-							))}
+							)) }
 					</tbody>
 				</table>
 
@@ -223,12 +301,12 @@ export default function MakeRequest() {
 
 			</div>
 
-			<footer className={styles.footer}></footer>
+			<footer className={ styles.footer }></footer>
 			<Modal
-				isOpen={isModalOpen}
-				request={selectedRequest}
-				onClose={() => setIsModalOpen(false)}
-				onSave={handleSaveRequest}
+				isOpen={ isModalOpen }
+				request={ selectedRequest }
+				onClose={ () => setIsModalOpen(false) }
+				onSave={ handleSaveRequest }
 			/>
 		</div>
 	);

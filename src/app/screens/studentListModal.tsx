@@ -44,7 +44,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				try {
 					if (student != null) {
 						const response = await axios.get(
-							`http://localhost:5000/student_qualifications/${student.id}`
+							`/api/student_qualif/${student.id}`
 						);
 
 						for (let i = 0; i < response.data.length; i++) {
@@ -74,9 +74,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				try {
 					if (student != null) {
 						const response = await axios.get(
-							`http://localhost:5000/student_areas/${student.id}`
+							`/api/student_area/${student.id}`
 						);
-
+						console.log("student areas", response);
 						console.log("student areas", response.data);
 
 						for (let i = 0; i < response.data.length; i++) {
@@ -89,6 +89,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						return null;
 					}
 				} catch (error: unknown) {
+
 					if (axios.isAxiosError(error)) {
 						// Gérer les erreurs d'axios
 						console.error("Axios Error:", error.message);
@@ -197,7 +198,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 	const createStudent = async (studentData: Student) => {
 		try {
-			let response = await fetch("http://localhost:5000/students", {
+			let response = await fetch("/api/student/create", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -210,10 +211,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			}
 
 			const data = await response.json();
+			studentData.id = data.id;
 
 			// Delete all qualifications for student first
 			response = await fetch(
-				`http://localhost:5000/student_qualifications/${studentData.id}`,
+				`api/student_qualif/${studentData.id}`,
 				{
 					method: "DELETE",
 				}
@@ -223,7 +225,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			}
 			// Delete all areas for student first
 			response = await fetch(
-				`http://localhost:5000/student_areas/${studentData.id}`,
+				`/api/student_area/${studentData.id}`,
 				{
 					method: "DELETE",
 				}
@@ -241,7 +243,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						qualification: qualif,
 					};
 					response = await fetch(
-						"http://localhost:5000/student_qualifications",
+						"api/student_qualif/create",
 						{
 							method: "POST",
 							headers: {
@@ -264,7 +266,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						studentId: data.id,
 						area: area,
 					};
-					response = await fetch("http://localhost:5000/student_areas", {
+					response = await fetch("api/student_area/create", {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
@@ -278,7 +280,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				throw new Error("Network response was not ok");
 			}
 
-			return data; // Return the newly created student ID or object
+			console.log("studentData", studentData);
+			return studentData; // Return the newly created student ID or object
 		} catch (error) {
 			console.error("Error adding student:", error);
 			throw error; // Rethrow the error for handling in the caller
@@ -289,15 +292,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 		console.log("Updating student with ID:", id);
 
 		try {
-			await axios.put(`http://localhost:5000/students/${id}`, updatedData);
+			await axios.put(`/api/student/${id}`, updatedData);
 
 			// Delete all qualifs for student first
-			await fetch(`http://localhost:5000/student_qualifications/${id}`, {
+			await fetch(`/api/student_qualif/${id}`, {
 				method: "DELETE",
 			});
 
 			// Delete all areas for student first
-			await fetch(`http://localhost:5000/student_areas/${id}`, {
+			await fetch(`/api/student_area/${id}`, {
 				method: "DELETE",
 			});
 
@@ -308,7 +311,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						studentId: id,
 						qualification: qualif,
 					};
-					await fetch("http://localhost:5000/student_qualifications", {
+					await fetch("/api/student_qualif/create", {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
@@ -326,7 +329,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						area: area,
 					};
 
-					await fetch("http://localhost:5000/student_areas", {
+					await fetch("/api/student_area/create", {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
@@ -342,7 +345,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 	const deleteStudent = async (id: number) => {
 		try {
-			let response = await fetch(`http://localhost:5000/students/${id}`, {
+			let response = await fetch(`/api/student/${id}`, {
 				method: "DELETE",
 			});
 
@@ -352,7 +355,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 			// Delete all qualifs for student first
 			response = await fetch(
-				`http://localhost:5000/student_qualifications/${id}`,
+				`/api/student_area/${id}`,
 				{
 					method: "DELETE",
 				}
@@ -363,7 +366,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			}
 
 			// Delete all qualifs for student first
-			response = await fetch(`http://localhost:5000/student_areas/${id}`, {
+			response = await fetch(`/api/student_qualif/${id}`, {
 				method: "DELETE",
 			});
 
