@@ -13,7 +13,7 @@ async function openDb() {
 
 export default async function handler(req, res) {
 
-  allowedOrigin(req, res);
+  //allowedOrigin(req, res);
 
   const db = await openDb();
 
