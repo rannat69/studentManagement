@@ -1,6 +1,6 @@
 
 export default async function allowedOrigin(req, res) {
-    const allowedOrigin = 'http://16.163.154.145:3000/';
+    const allowedOrigin = 'http://18.162.49.28:3000/';
 
     if (req.method === 'OPTIONS') {
         res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
