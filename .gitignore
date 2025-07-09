@@ -40,3 +40,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 serverMgmt.ppk
+pages/api/allowedOrigin.js
