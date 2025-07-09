@@ -14,9 +14,20 @@ export default async function handler(req, res) {
 
   //allowedOrigin(req, res);
 
-  const db = await openDb();
+  try {
 
-  const data = await db.all('SELECT * FROM student'); // Remplacez par votre requête
+    const db = await openDb();
 
-  res.status(200).json(data);
+    const data = await db.all('SELECT * FROM student'); // Remplacez par votre requête
+
+    res.status(200).json(data);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({ error: 'Error : ' + error });
+
+  }
+
 }
