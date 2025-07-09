@@ -2,7 +2,6 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import bcrypt from "bcrypt";
-import cookie from 'cookie';
 import allowedOrigin from '../allowedOrigin';
 
 async function openDb() {
@@ -33,14 +32,6 @@ export default async function handler(req, res) {
             if (result) {
                 console.log("Password is valid!");
                 // Proceed with login
-
-                res.setHeader('Set-Cookie', cookie.serialize('token', login, {
-                    httpOnly: true,
-                    secure: true,
-                    maxAge: 60 * 60 * 24,
-                    path: '/',
-                    sameSite: 'Strict',
-                }));
 
                 // create a record in the session table
 

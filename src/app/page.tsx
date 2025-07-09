@@ -18,7 +18,7 @@ import MatchStudentCourse from "./screens/matchStudentCourse";
 import TeacherList from "./screens/teacherList";
 import MakeRequest from "./screens/makeRequest";
 import ImportExport from "./screens/importExport";
-import axios from "axios";
+
 
 export default function Home() {
 	const [activeTab, setActiveTab] = useState<string | null>(STUDENT_LIST);
@@ -33,7 +33,7 @@ export default function Home() {
 
 	useEffect(() => {
 
-		axios.get("/api/user/scheduler");
+	
 
 		setUserLoggedIn("");
 

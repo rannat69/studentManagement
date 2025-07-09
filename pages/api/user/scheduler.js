@@ -11,7 +11,7 @@ async function openDb() {
     });
 }
 
-// Planifie la tâche pour vider la table toutes les 2 heures
+// Empty session table every 2 hours
 
 export default async function handler(req, res) {
 
@@ -37,5 +37,28 @@ export default async function handler(req, res) {
     });
 
     //cron.schedule('0 */2 * * *', async () => {
+
+}
+
+export function scheduler() {
+
+    console.log("start scheduler once");
+
+    CronJob.from({
+        cronTime: '0 0 */2 * * *',
+        onTick: async function () {
+            try {
+                console.log("clear session");
+
+                const db = await openDb();
+                await db.run("DELETE FROM session");
+
+                console.log('Session emptied');
+            } catch (error) {
+                console.error('Error session:', error);
+            }
+        },
+        start: true,
+    });
 
 }
