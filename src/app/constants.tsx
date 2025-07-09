@@ -32,9 +32,59 @@ export const AREAS = [
 ];
 
 export const QUALIFICATIONS = [
-	"Fluent in english",
-	"Forklift certified",
-	"Black belt in ninjutsu",
-	"Completed Dark Souls 2 all bosses no hit",
-	"Knows the difference between a crocodile and an alligator",
+	"Embedded Systems",
+
+	"AI Hardware",
+
+	"Low Energy System Design",
+
+	"Innovative Design",
+
+	"Product Development",
+
+	"Human-Centered Design",
+
+	"Architectural Geometry",
+
+	"Computer-Aided Design and Manufacturing (CAD / CAM)",
+
+	"Computer Vision",
+
+	"Computer Graphics",
+
+	"Computational Design",
+
+	"Augmented Reality",
+
+	"Pervasive and Cloud Computing",
+
+	"User-Centered System Design",
+
+	"Advanced Manufacturing and Material",
+
+	"Wearable Healthcare Devices",
+
+	"Microelectronics",
+
+	"Edge AI",
+
+	"Beyond 5G",
+
+	"Bio-Inspired Design",
+
+	"IoT",
+
+	"[Tele] Medical Design",
+
+	"Robotics Dynamics and Control",
+
+	"Systems Simulation and Modeling",
+
+	"Integrative Systems Design",
+
+	"Design Theory",
+
+	"Sustainable Design",
+
+	"Marine Tech, Underwater Vision, Transport, Communication",
 ];

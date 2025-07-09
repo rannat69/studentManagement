@@ -1,6 +1,6 @@
 
 export default async function allowedOrigin(req, res) {
-    const allowedOrigin = 'https://main.dzt0l5rhw4wr1.amplifyapp.com/';
+    const allowedOrigin = 'http://16.163.154.145:3000/';
 
     if (req.method === 'OPTIONS') {
         res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
