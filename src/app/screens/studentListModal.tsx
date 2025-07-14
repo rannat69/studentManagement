@@ -466,24 +466,24 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 	if (!isOpen) return null;
 
 	return (
-		<div className={styles.modal}>
-			<div className={styles.modal2}>
-				<span className={styles.close} onClick={onClose}>
+		<div className={ styles.modal }>
+			<div className={ styles.modal2 }>
+				<span className={ styles.close } onClick={ onClose }>
 					&times;
 				</span>
 
-				<button className={styles.buttonCancel} onClick={() => handleCancel()}>
+				<button className={ styles.buttonCancel } onClick={ () => handleCancel() }>
 					Cancel
 				</button>
 
-				<form onSubmit={handleSubmit} className={styles.modalContent}>
-					<div className={styles.modalContentRow}>
-						<div className={styles.modalContentColumn}>
-							{mode === MODE_EDITION ? (
+				<form onSubmit={ handleSubmit } className={ styles.modalContent }>
+					<div className={ styles.modalContentRow }>
+						<div className={ styles.modalContentColumn }>
+							{ mode === MODE_EDITION ? (
 								<h2>Edit Student</h2>
 							) : (
 								<h2>Add Student</h2>
-							)}
+							) }
 							Student number
 							<input
 								name='student_number'
@@ -492,22 +492,22 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 										? formData.student_number
 										: 0
 								}
-								onChange={handleChange}
+								onChange={ handleChange }
 								placeholder='Student number'
 								type='number'
 							/>
 							Surname
 							<input
 								name='l_name'
-								value={formData && formData.l_name ? formData.l_name : ""}
-								onChange={handleChange}
+								value={ formData && formData.l_name ? formData.l_name : "" }
+								onChange={ handleChange }
 								placeholder='Surname'
 							/>
-							Other names{" "}
+							Other names{ " " }
 							<input
 								name='f_names'
-								value={formData && formData.f_names ? formData.f_names : ""}
-								onChange={handleChange}
+								value={ formData && formData.f_names ? formData.f_names : "" }
+								onChange={ handleChange }
 								placeholder='Other names'
 							/>
 							Unofficial name
@@ -516,22 +516,22 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 								value={
 									formData && formData.unoff_name ? formData.unoff_name : ""
 								}
-								onChange={handleChange}
+								onChange={ handleChange }
 								placeholder='Unofficial name'
 							/>
 							<br />
 							Program
 							<select
 								name='program'
-								onChange={handleChange}
-								value={formData && formData.program ? formData.program : ""}>
+								onChange={ handleChange }
+								value={ formData && formData.program ? formData.program : "" }>
 								<option value=''>None</option>
 
-								{PROGRAMS.map((program) => (
-									<option key={program} value={program}>
-										{program}
+								{ PROGRAMS.map((program) => (
+									<option key={ program } value={ program }>
+										{ program }
 									</option>
-								))}
+								)) }
 							</select>
 							Date joined
 							<input
@@ -544,21 +544,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 											: formData.date_joined
 										: ""
 								}
-								onChange={handleChange}
+								onChange={ handleChange }
 							/>
 							Expected graduation date
 							<br /> Year
 							<input
 								name='expected_grad_year'
 								type='number'
-								value={formData ? formData.expected_grad_year : ""}
-								onChange={handleChange}
+								value={ formData ? formData.expected_grad_year : "" }
+								onChange={ handleChange }
 							/>
 							Semester
 							<select
 								name='expected_grad_semester'
-								onChange={handleChange}
-								value={formData ? formData.expected_grad_semester : "Spring"}>
+								onChange={ handleChange }
+								value={ formData ? formData.expected_grad_semester : "Spring" }>
 								<option value='Spring'>Spring</option>
 
 								<option value='Summer'>Summer</option>
@@ -570,111 +570,114 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 							<input
 								name='ta_available'
 								type='number'
-								value={formData ? formData.ta_available : ""}
-								onChange={handleChange}
+								value={ formData ? formData.ta_available : "" }
+								onChange={ handleChange }
 								placeholder='Number of T.A. available'
 							/>
 							Student available
 							<input
 								name='available'
 								type='checkbox'
-								checked={formData ? formData.available : true}
-								onChange={handleChange}></input>
+								checked={ formData ? formData.available : true }
+								onChange={ handleChange }></input>
 						</div>
 
-						<div className={styles.modalContentColumn}>
-							Qualifications
-							<div>
-								<select
-									id='qualifications'
-									onChange={(e) => setSelectedQualif(e.target.value)}>
-									<option key='' value=''>
-										-- Choose a qualification --
-									</option>
+						<div className={ styles.modalContentColumn }>
 
-									{QUALIFICATIONS.map((qualif) => (
-										<option key={qualif} value={qualif}>
-											{qualif}
-										</option>
-									))}
-								</select>
-								<div onClick={() => addQualif()} className={styles.add}>
-									+{" "}
-								</div>
-								{qualifications && qualifications.length > 0 && (
-									<div>
-										{qualifications.map((qualif) => (
-											<div key={qualif}>
-												<div className={styles.smalltext}>{qualif}</div>
-												<div
-													className={styles.remove}
-													onClick={() => {
-														setQualifications(
-															qualifications.filter((a) => a !== qualif)
-														);
-														qualifications.filter((a) => a !== qualif);
-													}}>
-													x
-												</div>
-											</div>
-										))}
-									</div>
-								)}
-							</div>
 							Areas
 							<div>
 								<select
 									id='areas'
-									onChange={(e) => setSelectedArea(e.target.value)}>
+									onChange={ (e) => setSelectedArea(e.target.value) }>
 									<option key='' value=''>
 										-- Choose an area --
 									</option>
 
-									{AREAS.map((area) => (
-										<option key={area} value={area}>
-											{area}
+									{ AREAS.map((area) => (
+										<option key={ area } value={ area }>
+											{ area }
 										</option>
-									))}
+									)) }
 								</select>
-								<div onClick={() => addArea()} className={styles.add}>
-									+{" "}
+								<div onClick={ () => addArea() } className={ styles.add }>
+									+{ " " }
 								</div>
-								{areas && areas.length > 0 && (
+								{ areas && areas.length > 0 && (
 									<div>
-										{areas.map((area) => (
-											<div key={area}>
-												<div className={styles.smalltext}>{area}</div>
+										{ areas.map((area) => (
+											<div key={ area }>
+												<div className={ styles.smalltext }>{ area }</div>
 												<div
-													className={styles.remove}
-													onClick={() => {
+													className={ styles.remove }
+													onClick={ () => {
 														setAreas(areas.filter((a) => a !== area));
 														areas.filter((a) => a !== area);
-													}}>
+													} }>
 													x
 												</div>
 											</div>
-										))}
+										)) }
 									</div>
-								)}
+								) }
 							</div>
+
+							Qualifications
+							<div>
+								<select
+									id='qualifications'
+									onChange={ (e) => setSelectedQualif(e.target.value) }>
+									<option key='' value=''>
+										-- Choose a qualification --
+									</option>
+
+									{ QUALIFICATIONS.map((qualif) => (
+										<option key={ qualif } value={ qualif }>
+											{ qualif }
+										</option>
+									)) }
+								</select>
+								<div onClick={ () => addQualif() } className={ styles.add }>
+									+{ " " }
+								</div>
+								{ qualifications && qualifications.length > 0 && (
+									<div>
+										{ qualifications.map((qualif) => (
+											<div key={ qualif }>
+												<div className={ styles.smalltext }>{ qualif }</div>
+												<div
+													className={ styles.remove }
+													onClick={ () => {
+														setQualifications(
+															qualifications.filter((a) => a !== qualif)
+														);
+														qualifications.filter((a) => a !== qualif);
+													} }>
+													x
+												</div>
+											</div>
+										)) }
+									</div>
+								) }
+							</div>
+
 						</div>
 					</div>
 
-					{/* Add more fields as needed */}
-					<button className={styles.buttonSave} type='submit'>
+					{/* Add more fields as needed */ }
+					<button className={ styles.buttonSave } type='submit'>
 						Save
 					</button>
-					{errorMessage.length > 0 && (
-						<div className={styles.error}>{errorMessage}</div>
-					)}
+					{ errorMessage.length > 0 && (
+						<div className={ styles.error }>{ errorMessage }</div>
+					) }
 				</form>
-				{mode === MODE_EDITION && (
+				{ mode === MODE_EDITION && (
 					<button
-						className={styles.buttonDelete}
-						onClick={() => handleDelete()}>
+						className={ styles.buttonDelete }
+						onClick={ () => handleDelete() }>
 						Delete
 					</button>
-				)}
+				) }
 			</div>
 		</div>
 	);

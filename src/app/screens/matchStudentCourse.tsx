@@ -46,7 +46,7 @@ export default function MatchStudentCourse() {
 	const [year, setYear] = useState<number>(0);
 
 	const [autoMatchRunning, setAutoMatchRunning] = useState<boolean>(false);
-
+	const [areYouSure, setAreYouSure] = useState<boolean>(false);
 	useEffect(() => {
 		// get current year
 		let currentYear = new Date().getFullYear();
@@ -270,8 +270,6 @@ export default function MatchStudentCourse() {
 					method: "DELETE",
 				}
 			);
-
-
 
 			if (!response.ok) {
 				throw new Error("Network response was not ok");
@@ -684,6 +682,7 @@ export default function MatchStudentCourse() {
 
 		// for each student, find a course with ta_needed > 0 and no dropZone
 		for (const student of students) {
+
 			const courses = courseListNeeded.filter((course) => course.ta_needed > 0);
 
 			// if a course is found, add the student to the course
@@ -829,7 +828,17 @@ export default function MatchStudentCourse() {
 						studentCourseToAdd.score += 1;
 					}
 
-					studentCourseToAddList.push(studentCourseToAdd);
+					// Each student in one class only when auto match
+					// check if student is already present in studentCourseToAdd
+					const studentCourseToAddExists = studentCourseToAddList.some(
+						(studentCourse) =>
+							studentCourse.studentId === student.id);
+
+					// if already present, do not add. 
+					if (!studentCourseToAddExists) {
+
+						studentCourseToAddList.push(studentCourseToAdd);
+					}
 				}
 			} else {
 				// if no course is found, display a message
@@ -925,6 +934,66 @@ export default function MatchStudentCourse() {
 		setAutoMatchRunning(false);
 	};
 
+	const handleAreYouSure = async () => {
+		setAreYouSure(true);
+	}
+
+	const handleClearAll = async () => {
+		setAutoMatchRunning(true);
+		setAreYouSure(false);
+
+		for (const student of studentListAssigned) {
+			console.log("student", student)
+
+			// read student with id = student.id
+			const response = await axios.get(
+				"/api/student/" + student.id);
+
+			if (response.data) {
+				const studentTemp: Student = response.data;
+				studentTemp.ta_available += 1;
+
+				updateStudent(studentTemp);
+
+			}
+
+			// read course with id=  student.dropZone 
+			const responseCourse = await axios.get(
+				"/api/course/" + student.dropZone);
+
+			if (responseCourse.data) {
+				const courseTemp: Course = responseCourse.data;
+				courseTemp.ta_needed += 1;
+				courseTemp.ta_assigned -= 1;
+
+				updateCourse(courseTemp);
+
+			}
+
+		}
+
+		// Delete all student_course for year/semester
+		await fetch("/api/student_course/deleteAllForYearSemester", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+
+			body: JSON.stringify({
+				year: year,
+				semester: semester,
+			}),
+		});
+
+		// empty the array studentListAssigned
+
+		setStudentListAssigned([]);
+
+		fetchCourses(year, semester);
+
+		setAutoMatchRunning(false);
+	}
+
 	return (
 		<div className={ styles.pageTitle }>
 			<b>Year :</b>{ " " }
@@ -1019,6 +1088,26 @@ export default function MatchStudentCourse() {
 						Auto match
 					</div>
 				) }
+
+				{ autoMatchRunning ? (
+					<Spinner />
+				) : (
+					<div className={ styles.buttonRed } onClick={ () => handleAreYouSure() }>
+						Clear all
+					</div>
+				) }
+
+				{ areYouSure &&
+					(
+						<div className={ styles.modal }>
+							<div className={ styles.modalContent }>
+								This will remove all students of all classes for the period { semester } { year }. Are you sure ?
+								<div className={ styles.button } onClick={ () => handleClearAll() }>
+									Clear all					</div>
+								<div className={ styles.buttonRed } onClick={ () => setAreYouSure(false) }>
+									Cancel					</div>	</div>
+						</div>
+					) }
 
 
 			</div>

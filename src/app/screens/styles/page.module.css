@@ -362,6 +362,22 @@ a.secondary {
 	height: 3.5rem;
 	margin: 0.1rem;
 	background-color: lightgreen;
+
+
+
+}
+
+.buttonRed {
+	padding: 0.5rem;
+	border: 0.3rem solid;
+	border-radius: 2rem;
+	transition: background-color 0.3s, border-color 0.3s;
+	/* Optional: Smooth transition */
+	font-size: x-small;
+	width: 7vw;
+	height: 3.5rem;
+	margin: 0.1rem;
+	background-color: rgb(255, 131, 48);
 }
 
 .button:hover {
@@ -371,7 +387,22 @@ a.secondary {
 	/* Change to your desired hover background color */
 	border-color: #0a0186;
 	/* Change to your desired hover border color */
+
+	.red {
+		background-color: rgb(255, 0, 0);
+	}
 }
+
+.buttonRed:hover {
+	background-color: rgb(255, 0, 0);
+	/* Change to your desired hover background color */
+	border-color: #0a0186;
+	/* Change to your desired hover border color */
+
+
+}
+
+
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
@@ -514,4 +545,26 @@ a.secondary {
 	font-size: 0.8rem;
 	width: 6rem;
 	margin: 0.1rem;
+}
+
+.modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.modalContent {
+	background: white;
+	padding: 20px;
+	border-radius: 8px;
+
+	position: relative;
+	display: flex;
+	flex-direction: column;
 }

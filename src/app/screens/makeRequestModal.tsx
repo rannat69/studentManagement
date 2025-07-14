@@ -7,12 +7,18 @@ import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "../constants";
 import { Teacher } from "../data/teacherListData";
 import { Student } from "../data/studentListData";
 import { Course } from "../data/courseListData";
+import ReactSelect from "react-select";
 
 interface ModalProps {
 	isOpen: boolean;
 	request: Request | null;
 	onClose: () => void;
 	onSave: (updatedRequest: Request) => void;
+}
+
+interface Dropbox {
+	value: number,
+	name: string
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
@@ -24,7 +30,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 	const [studentsListState, setStudentsListState] = useState<Student[]>([]);
 	const [coursesListState, setCoursesListState] = useState<Course[]>([]);
 
+	const [selectedCourse, setSelectedCourse] = useState<Dropbox>({ value: 0, name: "" });
+	const [selectedTeacher, setSelectedTeacher] = useState<Dropbox>({ value: 0, name: "" });
+	const [selectedStudent, setSelectedStudent] = useState<Dropbox>({ value: 0, name: "" });
 	useEffect(() => {
+
+
+
 		// get teachers
 		const fetchTeachers = async () => {
 			const response = await axios.get("/api/teacher/all");
@@ -79,16 +91,50 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 				return 0;
 			});
 
+			// find course with id = formData.course_id im courseListState
+
+
+
 			setCoursesListState(response.data);
 		};
 
 		fetchCourses();
+
+
+
+		//setSelectedCourse({ value: 16 });
+
 	}, []);
 
 	useEffect(() => {
 		if (request) {
 			setMode(MODE_EDITION);
 			setFormData(request);
+
+			coursesListState.forEach((course: Course) => {
+				if (course.id == request?.course_id) {
+
+
+					setSelectedCourse({ value: course.id, name: course.hkust_identifier + " - " + course.name });
+				}
+			});
+
+			studentsListState.forEach((student: Student) => {
+				if (student.id == request?.student_id) {
+
+					setSelectedStudent({ value: student.id, name: student.l_name + " " + student.f_names });
+				}
+			});
+
+			teachersListState.forEach((teacher: Teacher) => {
+				if (teacher.id == request?.teacher_id) {
+
+
+					setSelectedTeacher({ value: teacher.id, name: teacher.l_name + " " + teacher.f_names });
+				}
+			});
+
+
 		} else {
 			// We are in creation mode
 
@@ -210,33 +256,53 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 	const handleSubmit = (e: React.FormEvent) => {
 		setErrorMessage("");
 
+		let studentId = 0;
+		let courseId = 0;
+		let teacherId = 0;
+
+		const student = document.getElementsByName("studentList") as NodeListOf<HTMLInputElement>;
+		if (student.length > 0) {
+			studentId = Number(student[0].value);
+		}
+
+		const teacher = document.getElementsByName("teacherList") as NodeListOf<HTMLInputElement>;
+		if (teacher.length > 0) {
+			teacherId = Number(teacher[0].value);
+		}
+
+		const course = document.getElementsByName("courseList") as NodeListOf<HTMLInputElement>;
+		if (course.length > 0) {
+			courseId = Number(course[0].value);
+		}
+
 		e.preventDefault();
 
 		if (formData) {
-
-			console.log("formdata.student_id", formData.student_id);
 
 			if (formData.request_from === "") {
 				setErrorMessage("Please select who made the request.");
 				return null;
 			}
 
-			if (formData.student_id === 0) {
-				console.log("stydebtid = 0");
+			if (studentId === 0) {
 				setErrorMessage("Please select a student.");
 				return null;
 			} else {
-				console.log("stydebtid = 0", formData.student_id);
+				formData.student_id = studentId;
 			}
 
-			if (formData.teacher_id === 0) {
+			if (teacherId === 0) {
 				setErrorMessage("Please select a teacher.");
 				return null;
+			} else {
+				formData.teacher_id = teacherId;
 			}
 
-			if (formData.course_id === 0) {
+			if (courseId === 0) {
 				setErrorMessage("Please select a course.");
 				return null;
+			} else {
+				formData.course_id = courseId;
 			}
 
 			if (mode === MODE_CREATION) {
@@ -306,41 +372,42 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 							<option value={ 0 }>Do not want</option>
 						</select>
 						Student list
-						<select
-							name='student_id'
-							onChange={ handleChange }
-							value={ formData ? formData.student_id : 0 }>
-							<option value={ 0 }>-- Which student ? --</option>
-							{ studentsListState.map((student) => (
-								<option key={ student.id } value={ student.id }>
-									{ student.l_name + " " + student.f_names }
-								</option>
-							)) }
-						</select>
+
+						<ReactSelect
+							name="studentList"
+							options={ studentsListState.map((student) => ({
+								value: student.id,
+								name: student.l_name + " " + student.f_names,
+							})) }
+							getOptionLabel={ (option) => option.name }
+							value={ selectedStudent }
+						/>
+
 						Teacher list
-						<select
-							name='teacher_id'
-							onChange={ handleChange }
-							value={ formData ? formData.teacher_id : 0 }>
-							<option value={ 0 }>-- Which teacher ? --</option>
-							{ teachersListState.map((teacher) => (
-								<option key={ teacher.id } value={ teacher.id }>
-									{ teacher.l_name }
-								</option>
-							)) }
-						</select>
+
+						<ReactSelect
+							name="teacherList"
+							options={ teachersListState.map((teacher) => ({
+								value: teacher.id,
+								name: teacher.l_name + " " + teacher.f_names,
+							})) }
+							getOptionLabel={ (option) => option.name }
+							value={ selectedTeacher }
+						/>
+
 						Course list
-						<select
-							name='course_id'
-							onChange={ handleChange }
-							value={ formData ? formData.course_id : 0 }>
-							<option value={ 0 }>-- Which course ? --</option>
-							{ coursesListState.map((course) => (
-								<option key={ course.id } value={ course.id }>
-									{ course.hkust_identifier + " - " +  course.name }
-								</option>
-							)) }
-						</select>
+
+						<ReactSelect
+							name="courseList"
+							options={ coursesListState.map((course) => ({
+								value: course.id,
+								name: course.hkust_identifier + " - " + course.name,
+							})) }
+							getOptionLabel={ (option) => option.name }
+							onChange={ (e) => console.log(e) } // Update the selected course
+							value={ selectedCourse }
+						/>
+
 						Message
 						<input
 							name='message'
