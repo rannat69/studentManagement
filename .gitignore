@@ -41,3 +41,4 @@ yarn-error.log*
 next-env.d.ts
 serverMgmt.ppk
 pages/api/allowedOrigin.js
+pages/api/sql.db
