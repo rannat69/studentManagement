@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { scheduler } from "../../pages/api/user/scheduler";
+import { initdb } from "../../pages/api/initdb";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
 
 scheduler();
 
+initdb();
 
 export default function RootLayout({
   children,

@@ -2,6 +2,7 @@ import { CronJob } from 'cron';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import allowedOrigin from '../allowedOrigin';
+import { createTables } from '../createTables';
 
 async function openDb() {
 
@@ -17,8 +18,12 @@ export default async function handler(req, res) {
 
     allowedOrigin(req, res);
 
-    console.log("start scheduler");
+    const db = new sqlite3.Database("../sql.db"); // Use a file instead for persistent storage
 
+    const bcrypt = require("bcrypt");
+    createTables(db, bcrypt);
+
+    console.log("start scheduler");
     CronJob.from({
         cronTime: '0 0 */2 * * *',
         onTick: async function () {
