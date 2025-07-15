@@ -3,6 +3,7 @@ import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import allowedOrigin from '../allowedOrigin';
 import { createTables } from '../createTables';
+import bcrypt from "bcrypt";
 
 async function openDb() {
 
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
 
     const db = new sqlite3.Database("../sql.db"); // Use a file instead for persistent storage
 
-    const bcrypt = require("bcrypt");
+
     createTables(db, bcrypt);
 
     console.log("start scheduler");
