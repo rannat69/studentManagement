@@ -12,6 +12,7 @@ import axios from "axios";
 export default function StudentList() {
 	const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [studentListStateUnfiltered, setStudentListStateUnfiltered] = useState<Student[]>();
 	const [studentListState, setStudentListState] = useState<Student[]>();
 	const [orderByField, setOrderByField] = useState<string | null>(null);
 	const [orderByDirection, setOrderByDirection] = useState<"asc" | "desc">(
@@ -29,6 +30,7 @@ export default function StudentList() {
 				response.data[i].unoff_name = response.data[i].unoff_name != null && response.data[i].unoff_name != undefined ? response.data[i].unoff_name : "";
 			}
 
+			setStudentListStateUnfiltered(response.data);
 			setStudentListState(response.data);
 		};
 
@@ -126,49 +128,80 @@ export default function StudentList() {
 		setStudentListState(sortedList);
 	};
 
+	const handleSearchStudent = (searchTerm: string) => {
+
+		if (searchTerm === "") {
+
+			setStudentListState(studentListStateUnfiltered);
+
+
+			return;
+		}
+
+		if (!studentListStateUnfiltered) {
+			return;
+		}
+
+		const filteredList = studentListStateUnfiltered.filter((student) => {
+			// Check if the search term matches any of the student's properties
+			return (
+				(student.l_name && student.l_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+				(student.f_names && student.f_names.toLowerCase().includes(searchTerm.toLowerCase())) ||
+				(student.unoff_name && student.unoff_name.toLowerCase().includes(searchTerm.toLowerCase()))
+			);
+		});
+
+		// Update the state with the filtered list
+		setStudentListState(filteredList);
+	};
+
 	return (
-		<div className={ styles.page }>
+		<div className={styles.page}>
 			Student list
-			<div className={ styles.add } onClick={ () => handleClickStudentNew() }>
+			<br />
+			<input type="text" placeholder="Search student" onChange={(e) => handleSearchStudent(e.target.value)}></input>
+
+			<div className={styles.add} onClick={() => handleClickStudentNew()}>
 				Add student
 			</div>
-			<div className={ styles.main }>
+			<div className={styles.main}>
 
 
-				<table className={ styles.tableStudent }>
+
+				<table className={styles.tableStudent}>
 					<thead>
 						<tr>
-							<th onClick={ () => handleOrderBy("l_name") }>Surname</th>
-							<th onClick={ () => handleOrderBy("f_names") }>First name</th>
-							<th onClick={ () => handleOrderBy("unoff_name") }>Unofficial name</th>
-							<th onClick={ () => handleOrderBy("expected_grad_year") }>Expected graduation year</th>
-							<th onClick={ () => handleOrderBy("expected_grad_semester") }>Graduation semester</th>
-							<th onClick={ () => handleOrderBy("ta_available") }>T.A. available</th>
+							<th onClick={() => handleOrderBy("l_name")}>Surname</th>
+							<th onClick={() => handleOrderBy("f_names")}>First name</th>
+							<th onClick={() => handleOrderBy("unoff_name")}>Unofficial name</th>
+							<th onClick={() => handleOrderBy("expected_grad_year")}>Expected graduation year</th>
+							<th onClick={() => handleOrderBy("expected_grad_semester")}>Graduation semester</th>
+							<th onClick={() => handleOrderBy("ta_available")}>T.A. available</th>
 						</tr>
 					</thead>
 					<tbody>
-						{ studentListState &&
+						{studentListState &&
 							studentListState.map((student) => (
 								<tr
-									key={ student.id }
-									onClick={ () => handleClickStudent(student) }>
-									<td>{ student.l_name }</td>
-									<td>{ student.f_names }</td>
-									<td>{ student.unoff_name }</td>
-									<td>{ student.expected_grad_year }</td>
-									<td>{ student.expected_grad_semester }</td>
-									<td>{ student.ta_available }</td>
+									key={student.id}
+									onClick={() => handleClickStudent(student)}>
+									<td>{student.l_name}</td>
+									<td>{student.f_names}</td>
+									<td>{student.unoff_name}</td>
+									<td>{student.expected_grad_year}</td>
+									<td>{student.expected_grad_semester}</td>
+									<td>{student.ta_available}</td>
 								</tr>
-							)) }
+							))}
 					</tbody>
 				</table>
 			</div>
-			<footer className={ styles.footer }></footer>
+			<footer className={styles.footer}></footer>
 			<Modal
-				isOpen={ isModalOpen }
-				student={ selectedStudent }
-				onClose={ () => setIsModalOpen(false) }
-				onSave={ handleSaveStudent }
+				isOpen={isModalOpen}
+				student={selectedStudent}
+				onClose={() => setIsModalOpen(false)}
+				onSave={handleSaveStudent}
 			/>
 		</div>
 	);

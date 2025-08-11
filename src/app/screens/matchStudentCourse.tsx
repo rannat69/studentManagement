@@ -20,6 +20,8 @@ import { Request } from "../data/requestData";
 export default function MatchStudentCourse() {
 	// List students that have TA available
 
+
+	const [studentListAvailUnfiltered, setStudentListAvailUnfiltered] = useState<Student[]>([]);
 	const [studentListAvail, setStudentListAvail] = useState<Student[]>([]);
 	const [studentListAssigned, setStudentListAssigned] = useState<Student[]>([]);
 
@@ -175,6 +177,18 @@ export default function MatchStudentCourse() {
 
 		setCourseArea(response.data);
 
+		// order studentListTemp per last name 
+		studentListTemp = studentListTemp.sort((a: Student, b: Student) => {
+			if (a.l_name < b.l_name) {
+				return -1;
+			} else if (a.l_name > b.l_name) {
+				return 1;
+			} else {
+				return 0;
+			}
+		});
+
+		setStudentListAvailUnfiltered(studentListTemp);
 		setStudentListAvail(studentListTemp);
 		setStudentListAssigned(studentListAssignedTemp);
 	};
@@ -994,120 +1008,154 @@ export default function MatchStudentCourse() {
 		setAutoMatchRunning(false);
 	}
 
+	const handleSearchStudent = (searchTerm: string) => {
+
+		if (searchTerm === "") {
+
+			setStudentListAvail(studentListAvailUnfiltered);
+
+
+			return;
+		}
+
+		if (!studentListAvailUnfiltered) {
+			return;
+		}
+
+		const filteredList = studentListAvailUnfiltered.filter((student) => {
+			// Check if the search term matches any of the student's properties
+			return (
+				(student.l_name && student.l_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+				(student.f_names && student.f_names.toLowerCase().includes(searchTerm.toLowerCase())) ||
+				(student.unoff_name && student.unoff_name.toLowerCase().includes(searchTerm.toLowerCase()))
+			);
+		});
+
+		// Update the state with the filtered list
+		setStudentListAvail(filteredList);
+	};
+
 	return (
-		<div className={ styles.pageTitle }>
-			<b>Year :</b>{ " " }
-			<input type='number' onChange={ handleChangeYear } value={ year } />
+		<div className={styles.pageTitle}>
+			<b>Year :</b>{" "}
+			<input type='number' onChange={handleChangeYear} value={year} />
 			<b>Semester :</b>
 
 
 
 			<select
 				name='semester'
-				onChange={ handleChangeSemester }
-				value={ semester ? semester : "Spring" }>
-				<option value={ "Spring" }>Spring</option>
-				<option value={ "Fall" }>Fall</option>
-				<option value={ "Winter" }>Winter</option>
+				onChange={handleChangeSemester}
+				value={semester ? semester : "Spring"}>
+				<option value={"Spring"}>Spring</option>
+				<option value={"Fall"}>Fall</option>
+				<option value={"Winter"}>Winter</option>
 			</select>
 
 
-			{ errorMessage.length > 0 && (
-				<div className={ styles.error }>{ errorMessage }</div>
-			) }
+			{errorMessage.length > 0 && (
+				<div className={styles.error}>{errorMessage}</div>
+			)}
 
-			{ warningMessage.length > 0 && (
-				<div className={ styles.warning }>{ warningMessage }</div>
-			) }
+			{warningMessage.length > 0 && (
+				<div className={styles.warning}>{warningMessage}</div>
+			)}
 
-			<div className={ styles.pageHoriz }>
-				<div className={ styles.columns }>
-					{/* Column for available students */ }
+			<div className={styles.pageHoriz}>
+				<div className={styles.columns}>
+
+
+
+					{/* Column for available students */}
 					<div
-						className={ styles.availableColumn }
-						onDrop={ (event) => dropHandler(event, 0) }
-						onDragOver={ handleDragOver }>
+						className={styles.availableColumn}
+						onDrop={(event) => dropHandler(event, 0)}
+						onDragOver={handleDragOver}>
 						<h2>Students Available</h2>
-						<div className={ styles.dropArea }>
-							{ studentListAvail.map((student) => (
+
+						<input type="text" placeholder="Search student" onChange={(e) => handleSearchStudent(e.target.value)}></input>
+
+
+						<div className={styles.dropArea}>
+							{studentListAvail.map((student) => (
 								<StudentBlock
-									key={ student.id.toString() }
-									student={ student }
-									studentQualification={ studentQualification }
-									studentArea={ studentArea }
-									onDragStart={ handleDragStart }
-									hoveredStudent={ hoveredStudent }
-									setHoveredStudent={ setHoveredStudent }
+									key={student.id.toString()}
+									student={student}
+									studentQualification={studentQualification}
+									studentArea={studentArea}
+									onDragStart={handleDragStart}
+									hoveredStudent={hoveredStudent}
+									setHoveredStudent={setHoveredStudent}
 								/>
-							)) }
+							))}
 						</div>
 					</div>
 
-					{/* Columns for drop areas */ }
+					{/* Columns for drop areas */}
 
-					<div className={ styles.dropAreas }>
-						{ courseListNeeded.map((course) => (
-							<div className={ styles.courseBlockContainer } key={ course.id }>
+					<div className={styles.dropAreas}>
+						{courseListNeeded.map((course) => (
+							<div className={styles.courseBlockContainer} key={course.id}>
 								<CourseBlock
-									key={ course.id.toString() }
-									course={ course }
-									courseQualification={ courseQualification }
-									courseArea={ courseArea }
+									key={course.id.toString()}
+									course={course}
+									courseQualification={courseQualification}
+									courseArea={courseArea}
 								/>
 
-								<div className={ styles.dropArea }>
+								<div className={styles.dropArea}>
 									<h3></h3>
 									<div
-										onDrop={ (event) => dropHandler(event, course.id) }
-										onDragOver={ handleDragOver }
-										className={ styles.innerDropArea }>
-										{ studentListAssigned
+										onDrop={(event) => dropHandler(event, course.id)}
+										onDragOver={handleDragOver}
+										className={styles.innerDropArea}>
+										{studentListAssigned
 											.filter((student) => student.dropZone === course.id)
 											.map((student) => (
 												<StudentBlock
-													key={ student.id.toString() }
-													student={ student }
-													studentQualification={ studentQualification }
-													studentArea={ studentArea }
-													onDragStart={ handleDragStart }
-													hoveredStudent={ hoveredStudent }
-													setHoveredStudent={ setHoveredStudent }
+													key={student.id.toString()}
+													student={student}
+													studentQualification={studentQualification}
+													studentArea={studentArea}
+													onDragStart={handleDragStart}
+													hoveredStudent={hoveredStudent}
+													setHoveredStudent={setHoveredStudent}
 												/>
-											)) }
+											))}
 									</div>
 								</div>
 							</div>
-						)) }
+						))}
 					</div>
 				</div>
 
-				{ autoMatchRunning ? (
+				{autoMatchRunning ? (
 					<Spinner />
 				) : (
-					<div className={ styles.button } onClick={ () => handleAutoMatch() }>
+					<div className={styles.button} onClick={() => handleAutoMatch()}>
 						Auto match
 					</div>
-				) }
+				)}
 
-				{ autoMatchRunning ? (
+				{autoMatchRunning ? (
 					<Spinner />
 				) : (
-					<div className={ styles.buttonRed } onClick={ () => handleAreYouSure() }>
+					<div className={styles.buttonRed} onClick={() => handleAreYouSure()}>
 						Clear all
 					</div>
-				) }
+				)}
 
-				{ areYouSure &&
+				{areYouSure &&
 					(
-						<div className={ styles.modal }>
-							<div className={ styles.modalContent }>
-								This will remove all students of all classes for the period { semester } { year }. Are you sure ?
-								<div className={ styles.button } onClick={ () => handleClearAll() }>
+						<div className={styles.modal}>
+							<div className={styles.modalContent}>
+								This will remove all students of all classes for the period {semester} {year}. Are you sure ?
+								<div className={styles.button} onClick={() => handleClearAll()}>
 									Clear all					</div>
-								<div className={ styles.buttonRed } onClick={ () => setAreYouSure(false) }>
+								<div className={styles.buttonRed} onClick={() => setAreYouSure(false)}>
 									Cancel					</div>	</div>
 						</div>
-					) }
+					)}
 
 
 			</div>
