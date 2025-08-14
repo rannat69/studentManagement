@@ -107,7 +107,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 			setFormData({
 				id: 0,
-				student_number: 0,
+				student_number: "",
 				l_name: "",
 				f_names: "",
 				unoff_name: "",
@@ -398,7 +398,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 			student = {
 				id: student.id,
-				student_number: 0,
+				student_number: "",
 				l_name: "",
 				f_names: "",
 				unoff_name: "",
@@ -467,219 +467,260 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
 	return (
 		<div className={ styles.modal }>
-			<div className={ styles.modal2 }>
-				<span className={ styles.close } onClick={ onClose }>
-					&times;
-				</span>
 
-				<button className={ styles.buttonCancel } onClick={ () => handleCancel() }>
-					Cancel
-				</button>
+			<span className={ styles.close } onClick={ onClose }>
+				&times;
+			</span>
 
-				<form onSubmit={ handleSubmit } className={ styles.modalContent }>
-					<div className={ styles.modalContentRow }>
-						<div className={ styles.modalContentColumn }>
-							{ mode === MODE_EDITION ? (
-								<h2>Edit Student</h2>
-							) : (
-								<h2>Add Student</h2>
-							) }
-							Student number
-							<input
-								name='student_number'
-								value={
-									formData && formData.student_number
-										? formData.student_number
-										: 0
-								}
-								onChange={ handleChange }
-								placeholder='Student number'
-								type='number'
-							/>
-							Surname
-							<input
-								name='l_name'
-								value={ formData && formData.l_name ? formData.l_name : "" }
-								onChange={ handleChange }
-								placeholder='Surname'
-							/>
-							Other names{ " " }
-							<input
-								name='f_names'
-								value={ formData && formData.f_names ? formData.f_names : "" }
-								onChange={ handleChange }
-								placeholder='Other names'
-							/>
-							Unofficial name
-							<input
-								name='unoff_name'
-								value={
-									formData && formData.unoff_name ? formData.unoff_name : ""
-								}
-								onChange={ handleChange }
-								placeholder='Unofficial name'
-							/>
-							<br />
-							Program
-							<select
-								name='program'
-								onChange={ handleChange }
-								value={ formData && formData.program ? formData.program : "" }>
-								<option value=''>None</option>
+			<form onSubmit={ handleSubmit } className={ styles.modalContent }>
 
-								{ PROGRAMS.map((program) => (
-									<option key={ program } value={ program }>
-										{ program }
-									</option>
-								)) }
-							</select>
-							Date joined
-							<input
-								name='date_joined'
-								type='date'
-								value={
-									formData
-										? formData.date_joined instanceof Date
-											? formData.date_joined.toISOString().split("T")[0]
-											: formData.date_joined
-										: ""
-								}
-								onChange={ handleChange }
-							/>
-							Expected graduation date
-							<br /> Year
-							<input
-								name='expected_grad_year'
-								type='number'
-								value={ formData ? formData.expected_grad_year : "" }
-								onChange={ handleChange }
-							/>
-							Semester
-							<select
-								name='expected_grad_semester'
-								onChange={ handleChange }
-								value={ formData ? formData.expected_grad_semester : "Spring" }>
-								<option value='Spring'>Spring</option>
+				{ mode === MODE_EDITION ? (
+					<h2>Edit Student</h2>
+				) : (
+					<h2>Add Student</h2>
+				) }
 
-								<option value='Summer'>Summer</option>
+				<h5>Personal</h5>
 
-								<option value='Fall'>Fall</option>
-								<option value='Winter'>Winter</option>
-							</select>
-							T.A. available
-							<input
-								name='ta_available'
-								type='number'
-								value={ formData ? formData.ta_available : "" }
-								onChange={ handleChange }
-								placeholder='Number of T.A. available'
-							/>
-							Student available
-							<input
-								name='available'
-								type='checkbox'
-								checked={ formData ? formData.available : true }
-								onChange={ handleChange }></input>
-						</div>
+				<div className={ styles.inputContainer }>
 
-						<div className={ styles.modalContentColumn }>
+					<div className={ styles.inputTitle }>Surname</div>
 
-							Areas
-							<div>
-								<select
-									id='areas'
-									onChange={ (e) => setSelectedArea(e.target.value) }>
-									<option key='' value=''>
-										-- Choose an area --
-									</option>
+					<input
+						name='l_name'
+						value={ formData && formData.l_name ? formData.l_name : "" }
+						onChange={ handleChange }
+						placeholder='Surname'
+						className={ styles.input }
+					/>
 
-									{ AREAS.map((area) => (
-										<option key={ area } value={ area }>
-											{ area }
-										</option>
-									)) }
-								</select>
-								<div onClick={ () => addArea() } className={ styles.add }>
-									+{ " " }
-								</div>
-								{ areas && areas.length > 0 && (
-									<div>
-										{ areas.map((area) => (
-											<div key={ area }>
-												<div className={ styles.smalltext }>{ area }</div>
-												<div
-													className={ styles.remove }
-													onClick={ () => {
-														setAreas(areas.filter((a) => a !== area));
-														areas.filter((a) => a !== area);
-													} }>
-													x
-												</div>
-											</div>
-										)) }
-									</div>
-								) }
-							</div>
+					<div className={ styles.inputTitle }>Given name</div>
+					<input
+						name='f_names'
+						value={ formData && formData.f_names ? formData.f_names : "" }
+						onChange={ handleChange }
+						placeholder='Other names'
+						className={ styles.input }
+					/>
+				</div>
+				<div className={ styles.inputContainer }>
+					<div className={ styles.inputTitle }>Nickname	</div>							<input
+						name='unoff_name'
+						value={
+							formData && formData.unoff_name ? formData.unoff_name : ""
+						}
+						onChange={ handleChange }
+						placeholder='Unofficial name'
+						className={ styles.input }
+					/>
 
-							Qualifications
-							<div>
-								<select
-									id='qualifications'
-									onChange={ (e) => setSelectedQualif(e.target.value) }>
-									<option key='' value=''>
-										-- Choose a qualification --
-									</option>
+					<div className={ styles.inputTitle }>Student id</div>
+					<input
+						name='student_number'
+						value={
+							formData && formData.student_number
+								? formData.student_number
+								: 0
+						}
+						onChange={ handleChange }
+						placeholder='Student number'
+						className={ styles.input }
 
-									{ QUALIFICATIONS.map((qualif) => (
-										<option key={ qualif } value={ qualif }>
-											{ qualif }
-										</option>
-									)) }
-								</select>
-								<div onClick={ () => addQualif() } className={ styles.add }>
-									+{ " " }
-								</div>
-								{ qualifications && qualifications.length > 0 && (
-									<div>
-										{ qualifications.map((qualif) => (
-											<div key={ qualif }>
-												<div className={ styles.smalltext }>{ qualif }</div>
-												<div
-													className={ styles.remove }
-													onClick={ () => {
-														setQualifications(
-															qualifications.filter((a) => a !== qualif)
-														);
-														qualifications.filter((a) => a !== qualif);
-													} }>
-													x
-												</div>
-											</div>
-										)) }
-									</div>
-								) }
-							</div>
+					/>
+				</div>
 
+				<h5>Academic</h5>
+
+				<div className={ styles.inputContainer }>
+					<div className={ styles.inputTitle }>Program</div>
+					<select
+						name='program'
+						onChange={ handleChange }
+						value={ formData && formData.program ? formData.program : "" } className={ styles.smallSelect }>
+						<option value=''>None</option>
+
+						{ PROGRAMS.map((program) => (
+							<option key={ program } value={ program }>
+								{ program }
+							</option>
+						)) }
+					</select>
+					<div className={ styles.inputTitle }>Date joined</div>
+					<input
+						name='date_joined'
+						type='date'
+						value={
+							formData
+								? formData.date_joined instanceof Date
+									? formData.date_joined.toISOString().split("T")[0]
+									: formData.date_joined
+								: ""
+						}
+						onChange={ handleChange } className={ styles.input }
+					/>
+				</div>
+				<div className={ styles.inputContainer }>
+					<div className={ styles.inputTitle }>Areas</div>
+
+					<div className={ styles.selectContainer }>
+						<select
+							id='areas'
+							onChange={ (e) => setSelectedArea(e.target.value) } className={ styles.select }>
+							<option key='' value=''>
+								-- Choose an area --
+							</option>
+
+							{ AREAS.map((area) => (
+								<option key={ area } value={ area }>
+									{ area }
+								</option>
+							)) }
+						</select>
+
+						<div onClick={ () => addArea() } className={ styles.add }>
+							+{ " " }
 						</div>
 					</div>
 
-					{/* Add more fields as needed */ }
-					<button className={ styles.buttonSave } type='submit'>
-						Save
-					</button>
-					{ errorMessage.length > 0 && (
-						<div className={ styles.error }>{ errorMessage }</div>
-					) }
-				</form>
-				{ mode === MODE_EDITION && (
-					<button
-						className={ styles.buttonDelete }
-						onClick={ () => handleDelete() }>
-						Delete
-					</button>
+
+				</div>
+
+				{ areas && areas.length > 0 && (
+					<div>
+						{ areas.map((area) => (
+							<div key={ area } className={ styles.areaQualifContainer } onClick={ () => {
+								setAreas(areas.filter((a) => a !== area));
+								areas.filter((a) => a !== area);
+							} }>
+								<div className={ styles.smalltext } >{ area }</div>
+								<div
+									className={ styles.remove }
+									onClick={ () => {
+										setAreas(areas.filter((a) => a !== area));
+										areas.filter((a) => a !== area);
+									} }>
+									x
+								</div>
+							</div>
+						)) }
+					</div>
 				) }
-			</div>
+
+				<div className={ styles.inputContainer }>
+					<div className={ styles.inputTitle }>Qualifications</div>
+
+					<div className={ styles.selectContainer }>
+						<select
+							id='qualifications'
+							onChange={ (e) => setSelectedQualif(e.target.value) } className={ styles.select }>
+							<option key='' value=''>
+								-- Choose a qualification --
+							</option>
+
+							{ QUALIFICATIONS.map((qualif) => (
+								<option key={ qualif } value={ qualif }>
+									{ qualif }
+								</option>
+							)) }
+						</select>
+						<div onClick={ () => addQualif() } className={ styles.add }>
+							+{ " " }
+						</div>
+					</div>
+
+				</div>
+
+				{ qualifications && qualifications.length > 0 && (
+					<div>
+						{ qualifications.map((qualif) => (
+							<div className={ styles.areaQualifContainer } key={ qualif } onClick={ () => {
+								setQualifications(
+									qualifications.filter((a) => a !== qualif)
+								);
+								qualifications.filter((a) => a !== qualif);
+							} }>
+								<div className={ styles.smalltext } >{ qualif }</div>
+								<div
+									className={ styles.remove }
+									onClick={ () => {
+										setQualifications(
+											qualifications.filter((a) => a !== qualif)
+										);
+										qualifications.filter((a) => a !== qualif);
+									} }>
+									x
+								</div>
+							</div>
+						)) }
+					</div>
+				) }
+
+				<h5>Expected graduation</h5>
+				<div className={ styles.inputContainer }>
+					<div className={ styles.inputTitle }>Year</div>
+					<input
+						name='expected_grad_year'
+						type='number'
+						value={ formData ? formData.expected_grad_year : "" }
+						onChange={ handleChange }
+						className={ styles.input }
+					/>
+					<div className={ styles.inputTitle }>Semester</div>
+					<select
+						name='expected_grad_semester'
+						onChange={ handleChange }
+						value={ formData ? formData.expected_grad_semester : "Spring" } className={ styles.smallSelect }>
+						<option value='Spring'>Spring</option>
+
+						<option value='Summer'>Summer</option>
+
+						<option value='Fall'>Fall</option>
+						<option value='Winter'>Winter</option>
+					</select>
+				</div>
+				<div className={ styles.inputContainer }>
+
+					<div className={ styles.inputTitle }>T.A. available</div>
+
+					<input
+						name='ta_available'
+						type='number'
+						value={ formData ? formData.ta_available : "" }
+						onChange={ handleChange }
+						placeholder='Number of T.A. available'
+						className={ styles.input }
+					/>
+					<div className={ styles.inputTitle }>Student available</div>
+					<input
+						name='available'
+						type='checkbox'
+						checked={ formData ? formData.available : true }
+						onChange={ handleChange } className={ styles.inputCheck }>
+
+
+					</input>
+				</div>
+				{ errorMessage.length > 0 && <div className={ styles.error }>{ errorMessage }</div> }
+
+				<div className={ styles.buttonContainer }>
+					<button className={ styles.buttonCancel } onClick={ () => handleCancel() }>
+						Discard Changes
+					</button>
+					{ mode === MODE_EDITION && (
+						<button className={ styles.buttonDelete } onClick={ () => handleDelete() }>
+							Delete
+						</button>
+					) }
+					<button className={ styles.buttonSave } type='submit'>
+						Save Changes
+					</button>
+
+				</div>
+
+			</form>
+
 		</div>
+
 	);
 };
 

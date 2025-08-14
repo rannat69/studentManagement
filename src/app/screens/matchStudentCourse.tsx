@@ -1036,128 +1036,137 @@ export default function MatchStudentCourse() {
 	};
 
 	return (
-		<div className={styles.pageTitle}>
-			<b>Year :</b>{" "}
-			<input type='number' onChange={handleChangeYear} value={year} />
-			<b>Semester :</b>
 
+		<div className={ styles.page }>
 
+			<div className={ styles.pageTitle }>
 
-			<select
-				name='semester'
-				onChange={handleChangeSemester}
-				value={semester ? semester : "Spring"}>
-				<option value={"Spring"}>Spring</option>
-				<option value={"Fall"}>Fall</option>
-				<option value={"Winter"}>Winter</option>
-			</select>
-
-
-			{errorMessage.length > 0 && (
-				<div className={styles.error}>{errorMessage}</div>
-			)}
-
-			{warningMessage.length > 0 && (
-				<div className={styles.warning}>{warningMessage}</div>
-			)}
-
-			<div className={styles.pageHoriz}>
-				<div className={styles.columns}>
-
-
-
-					{/* Column for available students */}
-					<div
-						className={styles.availableColumn}
-						onDrop={(event) => dropHandler(event, 0)}
-						onDragOver={handleDragOver}>
-						<h2>Students Available</h2>
-
-						<input type="text" placeholder="Search student" onChange={(e) => handleSearchStudent(e.target.value)}></input>
-
-
-						<div className={styles.dropArea}>
-							{studentListAvail.map((student) => (
-								<StudentBlock
-									key={student.id.toString()}
-									student={student}
-									studentQualification={studentQualification}
-									studentArea={studentArea}
-									onDragStart={handleDragStart}
-									hoveredStudent={hoveredStudent}
-									setHoveredStudent={setHoveredStudent}
-								/>
-							))}
-						</div>
-					</div>
-
-					{/* Columns for drop areas */}
-
-					<div className={styles.dropAreas}>
-						{courseListNeeded.map((course) => (
-							<div className={styles.courseBlockContainer} key={course.id}>
-								<CourseBlock
-									key={course.id.toString()}
-									course={course}
-									courseQualification={courseQualification}
-									courseArea={courseArea}
-								/>
-
-								<div className={styles.dropArea}>
-									<h3></h3>
-									<div
-										onDrop={(event) => dropHandler(event, course.id)}
-										onDragOver={handleDragOver}
-										className={styles.innerDropArea}>
-										{studentListAssigned
-											.filter((student) => student.dropZone === course.id)
-											.map((student) => (
-												<StudentBlock
-													key={student.id.toString()}
-													student={student}
-													studentQualification={studentQualification}
-													studentArea={studentArea}
-													onDragStart={handleDragStart}
-													hoveredStudent={hoveredStudent}
-													setHoveredStudent={setHoveredStudent}
-												/>
-											))}
-									</div>
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-
-				{autoMatchRunning ? (
+				<h1>Match</h1>
+				<h3>Drag available students to courses that need teaching assistants</h3>
+				<b>Year :</b>{ " " }
+				<input type='number' onChange={ handleChangeYear } value={ year } />
+				<b>Semester :</b>
+				<select
+					name='semester'
+					onChange={ handleChangeSemester }
+					value={ semester ? semester : "Spring" }>
+					<option value={ "Spring" }>Spring</option>
+					<option value={ "Fall" }>Fall</option>
+					<option value={ "Winter" }>Winter</option>
+				</select>
+				{ autoMatchRunning ? (
 					<Spinner />
 				) : (
-					<div className={styles.button} onClick={() => handleAutoMatch()}>
+					<div className={ styles.button } onClick={ () => handleAutoMatch() }>
 						Auto match
 					</div>
-				)}
+				) }
 
-				{autoMatchRunning ? (
+				{ autoMatchRunning ? (
 					<Spinner />
 				) : (
-					<div className={styles.buttonRed} onClick={() => handleAreYouSure()}>
+					<div className={ styles.buttonRed } onClick={ () => handleAreYouSure() }>
 						Clear all
 					</div>
-				)}
+				) }
 
-				{areYouSure &&
-					(
-						<div className={styles.modal}>
-							<div className={styles.modalContent}>
-								This will remove all students of all classes for the period {semester} {year}. Are you sure ?
-								<div className={styles.button} onClick={() => handleClearAll()}>
-									Clear all					</div>
-								<div className={styles.buttonRed} onClick={() => setAreYouSure(false)}>
-									Cancel					</div>	</div>
+
+
+
+				{ errorMessage.length > 0 && (
+					<div className={ styles.error }>{ errorMessage }</div>
+				) }
+
+				{ warningMessage.length > 0 && (
+					<div className={ styles.warning }>{ warningMessage }</div>
+				) }
+
+				<div className={ styles.pageHoriz }>
+					<div className={ styles.columns }>
+
+
+
+						{/* Columns for drop areas */ }
+
+						<div className={ styles.dropAreas }>
+							{ courseListNeeded.map((course) => (
+								<div className={ styles.courseBlockContainer } key={ course.id }>
+									<CourseBlock
+										key={ course.id.toString() }
+										course={ course }
+										courseQualification={ courseQualification }
+										courseArea={ courseArea }
+									/>
+
+									<div className={ styles.dropArea }>
+										<h3></h3>
+										<div
+											onDrop={ (event) => dropHandler(event, course.id) }
+											onDragOver={ handleDragOver }
+											className={ styles.innerDropArea }>
+											{ studentListAssigned
+												.filter((student) => student.dropZone === course.id)
+												.map((student) => (
+													<StudentBlock
+														key={ student.id.toString() }
+														student={ student }
+														studentQualification={ studentQualification }
+														studentArea={ studentArea }
+														onDragStart={ handleDragStart }
+														hoveredStudent={ hoveredStudent }
+														setHoveredStudent={ setHoveredStudent }
+													/>
+												)) }
+										</div>
+									</div>
+								</div>
+							)) }
 						</div>
-					)}
 
 
+
+						{/* Column for available students */ }
+						<div
+							className={ styles.availableColumn }
+							onDrop={ (event) => dropHandler(event, 0) }
+							onDragOver={ handleDragOver }>
+							<h2>Students Available</h2>
+
+							<input type="text" placeholder="Search student" onChange={ (e) => handleSearchStudent(e.target.value) }></input>
+
+
+							<div className={ styles.dropArea }>
+								{ studentListAvail.map((student) => (
+									<StudentBlock
+										key={ student.id.toString() }
+										student={ student }
+										studentQualification={ studentQualification }
+										studentArea={ studentArea }
+										onDragStart={ handleDragStart }
+										hoveredStudent={ hoveredStudent }
+										setHoveredStudent={ setHoveredStudent }
+									/>
+								)) }
+							</div>
+						</div>
+					</div>
+
+
+
+					{ areYouSure &&
+						(
+							<div className={ styles.modal }>
+								<div className={ styles.modalContent }>
+									This will remove all students of all classes for the period { semester } { year }. Are you sure ?
+									<div className={ styles.button } onClick={ () => handleClearAll() }>
+										Clear all					</div>
+									<div className={ styles.buttonRed } onClick={ () => setAreYouSure(false) }>
+										Cancel					</div>	</div>
+							</div>
+						) }
+
+
+				</div>
 			</div>
 		</div>
 	);

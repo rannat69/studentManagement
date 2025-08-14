@@ -14,6 +14,9 @@
 	padding: 80px;
 	gap: 64px;
 	font-family: var(--font-geist-sans);
+
+	background-color: white;
+
 }
 
 @media (prefers-color-scheme: dark) {
@@ -54,10 +57,16 @@
 	max-height: 5rem;
 }
 
+.logo {
+	height: 3rem;
+}
+
 .tab {
+	padding-left: 2rem;
 	display: flex;
-	justify-content: space-around;
-	background-color: #e1e6ff;
+	justify-content: flex-start;
+	align-items: center;
+	background-color: WHITE;
 	border-bottom: 2px solid #ccc;
 	position: fixed;
 	/* Makes the element fixed */
@@ -67,15 +76,18 @@
 	/* Sticks to the left edge */
 	right: 0;
 	/* Sticks to the right edge */
-	height: 2rem;
+	height: 5rem;
 	z-index: 1000;
 	/* Ensures it stays above other elements */
+	font-size: 1rem;
+	font-weight: bold;
 }
 
 .tab div {
 	padding: 10px 20px;
 	cursor: pointer;
 	transition: background-color 0.3s ease;
+	margin: 1rem;
 }
 
 .tab div:hover {
@@ -86,6 +98,35 @@
 	font-weight: bold;
 	border-bottom: 2px solid #007bff;
 	color: #007bff;
+}
+
+.center {
+
+
+	background-color: white;
+	border-radius: 20;
+
+	margin-top: 2rem;
+
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	/* Assurez-vous que le conteneur prend toute la largeur */
+	align-items: stretch;
+	/* Alignement des éléments enfants sur toute la largeur */
+}
+
+.header {
+	padding: 1rem;
+	display: flex;
+
+	justify-content: space-between;
+	/* Espace entre les éléments */
+	align-items: center;
+	/* Alignement vertical centré */
+	margin-bottom: 10px;
+	/* Espacement inférieur */
+
 }
 
 .main {
@@ -159,23 +200,22 @@
 
 .add {
 	padding: 1rem;
-	border: 0.3rem solid;
-	border-radius: 2rem;
+
+	border-radius: 1rem;
 	transition: background-color 0.3s, border-color 0.3s;
 	/* Optional: Smooth transition */
-	background-color: green;
+	background-color: blue;
 	width: 17rem;
 	color: #fff;
-	border-color: #1a1a1a;
+
 	margin: 1rem;
+	font-size: 1.5rem;
+	font-weight: 500;
 }
 
 .add:hover {
-	background-color: lightgreen;
-	/* Change to your desired hover background color */
-	border-color: #0a0186;
-	/* Change to your desired hover border color */
-	color: #1a1a1a;
+	background-color: darkblue;
+
 }
 
 .pageHoriz {
@@ -332,6 +372,12 @@ a.secondary {
 	flex-wrap: wrap;
 	width: 20rem;
 
+	border-width: 0.1rem;
+	border-color: lightgray;
+	border-style: solid;
+	border-radius: 1rem;
+	margin: 1rem;
+
 }
 
 .courseBlock {
@@ -468,36 +514,51 @@ a.secondary {
 }
 
 .tableStudent {
-	border-width: 2px;
+	border-width: 1px;
 	border-color: #000;
-	border-style: solid;
+	border-style: none;
+
+	width: 100%;
+	/* Assurez-vous que le tableau prend toute la largeur */
+	border-collapse: collapse;
+	/* Suppression des espaces entre les cellules */
 }
 
 .tableStudent thead {
-	background-color: lightblue;
+	background-color: white;
 }
 
 .tableStudent thead tr th {
 	padding: 0.5rem;
+	background-color: white;
+	border-top: 0.1rem solid grey;
+
+	font-weight: normal;
+	color: gray;
+
 }
 
 .tableStudent thead tr th:hover {
-	background-color: #6cb3ff;
+	background-color: #eaeaea;
 	cursor: pointer;
 }
 
 .tableStudent tbody tr {
 	border-width: 1px;
 	border-color: #000;
-	border-style: solid;
+	border-style: none;
+}
+
+.tableStudent tr {
+	background-color: #f5f5f5;
 }
 
 .tableStudent tr:nth-child(even) {
-	background-color: #f2f2f2;
+	background-color: white;
 }
 
 .tableStudent tbody :hover {
-	background-color: rgb(220, 246, 255);
+	background-color: #eaeaea;
 }
 
 .tableStudent tbody tr td {
@@ -567,4 +628,61 @@ a.secondary {
 	position: relative;
 	display: flex;
 	flex-direction: column;
+}
+
+.input {
+	border-radius: 0.3rem;
+	border-style: solid;
+	border-width: 0.1rem;
+	border-color: lightgray;
+	width: 50%;
+	height: 3rem;
+}
+
+.select {
+	background-color: white;
+	border-radius: 0.3rem;
+	border-style: ridge;
+	padding: 0.1rem;
+	border-color: lightgray;
+	border-width: 0.1rem;
+	text-align: center;
+	height: 3rem;
+	width: 10rem;
+}
+
+.semesterSpring {
+	padding: 0.2rem;
+	background-color: rgb(180, 247, 180);
+	width: 5rem;
+	border-radius: 1rem;
+	color: green;
+	text-align: center;
+}
+
+.semesterSummer {
+	padding: 0.2rem;
+	background-color: rgb(255, 255, 226);
+	width: 5rem;
+	border-radius: 1rem;
+	color: rgb(196, 196, 2);
+	text-align: center;
+}
+
+.semesterFall {
+	padding: 0.2rem;
+	background-color: rgb(255, 226, 173);
+	width: 5rem;
+	border-radius: 1rem;
+	color: orange;
+	text-align: center;
+}
+
+.semesterWinter {
+	padding: 0.2rem;
+	background-color: lightblue;
+	width: 5rem;
+	border-radius: 1rem;
+	color: blue;
+	text-align: center;
 }

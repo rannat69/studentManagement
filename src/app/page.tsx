@@ -116,6 +116,11 @@ export default function Home() {
 			{ userLoggedIn ? (
 				<>
 					<div className={ styles.tab }>
+
+				<img src="/logo.hkust.png" alt="Logo" className={ styles.logo } />
+
+				
+
 						<div
 							className={ activeTab === STUDENT_LIST ? styles.active : "" }
 							onClick={ () => changeTab(STUDENT_LIST) }>
