@@ -280,7 +280,7 @@
 }
 
 .dropArea {
-	border: 1px dashed #ccc;
+
 	padding: 10px;
 	margin-bottom: 10px;
 	/* Space between drop areas */
@@ -288,11 +288,27 @@
 }
 
 .innerDropArea {
-	border: 1px solid #aaa;
+	border-radius: 1rem;
+	background-color: white;
 	min-height: 5rem;
 	/* Minimum height for the drop area */
 	padding: 10px;
+	color: darkgray;
+	font-size: 1.5rem;
+
 }
+
+.emptyDropArea {
+	border-radius: 1rem;
+	background-color: lightgray;
+	min-height: 5rem;
+	/* Minimum height for the drop area */
+	padding: 10px;
+	color: darkgray;
+	font-size: 1.5rem;
+
+}
+
 
 .ctas {
 	display: flex;

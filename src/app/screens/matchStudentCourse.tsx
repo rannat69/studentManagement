@@ -17,6 +17,8 @@ import { CourseArea } from "../data/courseAreaData";
 import { CourseQualification } from "../data/courseQualificationData";
 import { Request } from "../data/requestData";
 
+import ProgressBar from 'react-bootstrap/ProgressBar';
+
 export default function MatchStudentCourse() {
 	// List students that have TA available
 
@@ -397,7 +399,7 @@ export default function MatchStudentCourse() {
 
 			if (courseIndex > -1) {
 				courseTemp = courseListNeeded[courseIndex];
-				courseTemp.ta_needed += 1;
+
 
 				courseTemp.ta_assigned -= 1;
 
@@ -546,7 +548,7 @@ export default function MatchStudentCourse() {
 				);
 				if (courseIndex > -1) {
 					courseTemp = courseListNeeded[courseIndex];
-					courseTemp.ta_needed += 1;
+
 
 					courseTemp.ta_assigned -= 1;
 
@@ -586,7 +588,7 @@ export default function MatchStudentCourse() {
 
 			if (courseIndex > -1) {
 				courseTemp = courseListNeeded[courseIndex];
-				courseTemp.ta_needed -= 1;
+
 
 				courseTemp.ta_assigned += 1;
 
@@ -923,7 +925,7 @@ export default function MatchStudentCourse() {
 					);
 
 					if (response) {
-						response.data.ta_needed = response.data.ta_needed - 1;
+
 						response.data.ta_assigned = response.data.ta_assigned + 1;
 						updateCourse(response.data);
 
@@ -934,7 +936,7 @@ export default function MatchStudentCourse() {
 							(course) => course.id === studentCourseToAdd.courseId
 						);
 						if (courseIndex > -1) {
-							courseListNeeded[courseIndex].ta_needed -= 1;
+
 							courseListNeeded[courseIndex].ta_assigned += 1;
 						}
 					}
@@ -977,7 +979,7 @@ export default function MatchStudentCourse() {
 
 			if (responseCourse.data) {
 				const courseTemp: Course = responseCourse.data;
-				courseTemp.ta_needed += 1;
+
 				courseTemp.ta_assigned -= 1;
 
 				updateCourse(courseTemp);
@@ -1103,6 +1105,13 @@ export default function MatchStudentCourse() {
 
 									<div className={ styles.dropArea }>
 										<h3>Assigned TAs</h3>
+
+									
+										<ProgressBar striped variant={ course.ta_needed === course.ta_assigned ? "success" : "danger" } now={ course.ta_needed && course.ta_needed > 0 && course.ta_assigned && course.ta_assigned > 0 ?
+											course.ta_assigned / course.ta_needed * 100 : 0 }
+											label={ `${course.ta_needed && course.ta_needed > 0 && course.ta_assigned && course.ta_assigned > 0 ?
+												course.ta_assigned.toString() + "/" + course.ta_needed.toString() : 0}` } />
+
 										<div
 											onDrop={ (event) => dropHandler(event, course.id) }
 											onDragOver={ handleDragOver }
@@ -1120,7 +1129,7 @@ export default function MatchStudentCourse() {
 															hoveredStudent={ hoveredStudent }
 															setHoveredStudent={ setHoveredStudent }
 														/>
-													)) : <div className={ styles.emptyDropArea }>Drop here</div> }
+													)) : <div className={ styles.emptyDropArea }>Drop a student here</div> }
 										</div>
 									</div>
 								</div>
