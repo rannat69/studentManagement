@@ -19,6 +19,28 @@
 
 }
 
+.page2 {
+	--gray-rgb: 0, 0, 0;
+	--gray-alpha-200: rgba(var(--gray-rgb), 0.08);
+	--gray-alpha-100: rgba(var(--gray-rgb), 0.05);
+
+	--button-primary-hover: #383838;
+	--button-secondary-hover: #f2f2f2;
+
+	display: block;
+	grid-template-rows: 20px 1fr 20px;
+	align-items: center;
+	justify-items: center;
+
+	padding: 80px;
+	gap: 64px;
+	font-family: var(--font-geist-sans);
+
+	background-color: white;
+
+}
+
+
 @media (prefers-color-scheme: dark) {
 	.page {
 		--gray-rgb: 255, 255, 255;
@@ -170,12 +192,12 @@
 
 .element {
 	padding: 0.2rem;
-	border: 0.3rem solid;
-	border-radius: 2rem;
+	border: 0.1rem solid lightgrey;
+	border-radius: 0.5rem;
 	transition: background-color 0.3s, border-color 0.3s;
 	/* Optional: Smooth transition */
 	font-size: x-small;
-	width: 10vw;
+	max-width: 45%;
 	margin: 0.1rem;
 }
 
@@ -187,7 +209,7 @@
 }
 
 .element h2 {
-	font-size: 1.2rem;
+	font-size: 0.8rem;
 }
 
 .element h4 {
@@ -233,6 +255,7 @@
 .columns {
 	display: flex;
 	flex-direction: row;
+	width: 100%;
 }
 
 .availableColumn {
@@ -240,7 +263,7 @@
 	/* Takes up space proportional to available space */
 	margin-right: 20px;
 	/* Space between columns */
-	max-height: 85vh;
+	height: 54vh;
 	overflow-y: scroll;
 	width: 20rem;
 }
@@ -252,7 +275,7 @@
 	flex-wrap: wrap;
 	flex: 2;
 	/* Takes up more space than available column */
-	max-height: 85vh;
+	height: 54vh;
 	overflow-y: scroll;
 }
 
@@ -266,7 +289,7 @@
 
 .innerDropArea {
 	border: 1px solid #aaa;
-	min-height: 15rem;
+	min-height: 5rem;
 	/* Minimum height for the drop area */
 	padding: 10px;
 }
@@ -397,55 +420,40 @@ a.secondary {
 	visibility: visible;
 }
 
-.button {
+.buttonMatch {
 	padding: 0.5rem;
-	border: 0.3rem solid;
-	border-radius: 2rem;
+	border: 0.1rem solid lightgray;
+	border-radius: 1rem;
 	transition: background-color 0.3s, border-color 0.3s;
 	/* Optional: Smooth transition */
-	font-size: x-small;
+
 	width: 7vw;
 	height: 3.5rem;
 	margin: 0.1rem;
-	background-color: lightgreen;
-
-
+	background-color: blue;
+	color: white;
 
 }
 
-.buttonRed {
+.buttonClear {
 	padding: 0.5rem;
-	border: 0.3rem solid;
-	border-radius: 2rem;
+	border: 0.1rem solid lightgray;
+	border-radius: 1rem;
 	transition: background-color 0.3s, border-color 0.3s;
 	/* Optional: Smooth transition */
-	font-size: x-small;
+
 	width: 7vw;
 	height: 3.5rem;
 	margin: 0.1rem;
-	background-color: rgb(255, 131, 48);
+
 }
 
-.button:hover {
-	background-color: rgb(27,
-			192,
-			27);
-	/* Change to your desired hover background color */
-	border-color: #0a0186;
-	/* Change to your desired hover border color */
-
-	.red {
-		background-color: rgb(255, 0, 0);
-	}
+.buttonMatch:hover {
+	background-color: darkblue
 }
 
-.buttonRed:hover {
-	background-color: rgb(255, 0, 0);
-	/* Change to your desired hover background color */
-	border-color: #0a0186;
-	/* Change to your desired hover border color */
-
-
+.buttonClear:hover {
+	background-color: lightgray
 }
 
 
