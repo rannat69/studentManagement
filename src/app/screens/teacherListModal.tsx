@@ -43,24 +43,29 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 		}
 	}, [teacher]); // Add teacher to the dependency array
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const { name, value } = e.target;
+	const handleChange = (
+		e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
+	) => {
+		const { name, type, value } = e.target;
+		let newValue;
+
+		console.log("value", value);
 
 		setFormData(prevFormData => {
 			const updatedData = {
 				...prevFormData,
 				[name]: value,
 			};
-	
+
 			// Assurez-vous que id est défini
 			if (updatedData.id === undefined) {
 				updatedData.id = 0; // ou une autre valeur par défaut
 			}
-	
+
 			return updatedData;
 		});
 
-	
+
 	};
 
 	const createTeacher = async (teacherData: Teacher) => {
@@ -180,61 +185,71 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 	if (!isOpen) return null;
 
 	return (
-		<div className={styles.modal}>
-			<div>
-				<span className={styles.close} onClick={onClose}>
-					&times;
-				</span>
+		<div className={ styles.modal }>
 
-				<button  className={styles.buttonCancel}  onClick={() => handleCancel()}>Cancel</button>
+			<span className={ styles.close } onClick={ onClose }>
+				&times;
+			</span>
 
-				<form onSubmit={handleSubmit} className={styles.modalContent}>
-					<div className={styles.modalContentColumn}>
-						{mode === MODE_EDITION ? (
-							<h2>Edit Teacher</h2>
-						) : (
-							<h2>Add Teacher</h2>
-						)}
-						Surname
+			<form onSubmit={ handleSubmit } className={ styles.modalContent }>
+				<div className={ styles.modalContentColumn }>
+					{ mode === MODE_EDITION ? (
+						<h2>Edit Teacher</h2>
+					) : (
+						<h2>Add Teacher</h2>
+					) }
+
+					<h5>Personal</h5>
+					<div className={ styles.inputContainer }>
+						<div className={ styles.inputTitle }>Surname</div>
 						<input
 							name='l_name'
-							value={formData ? formData.l_name : ""}
-							onChange={handleChange}
+							value={ formData ? formData.l_name : "" }
+							onChange={ handleChange }
 							placeholder='Surname'
 						/>
-						Other names{" "}
+						<div className={ styles.inputTitle }>Given name</div>
 						<input
 							name='f_names'
-							value={formData ? formData.f_names : ""}
-							onChange={handleChange}
+							value={ formData ? formData.f_names : "" }
+							onChange={ handleChange }
 							placeholder='Other names'
 						/>
-						Unofficial name
+					</div>
+					<div className={ styles.inputContainer }>
+						<div className={ styles.inputTitle }>Nickname</div>
 						<input
 							name='unoff_name'
-							value={formData ? formData.unoff_name : ""}
-							onChange={handleChange}
+							value={ formData ? formData.unoff_name : "" }
+							onChange={ handleChange }
 							placeholder='Unofficial name'
 						/>
-						Field
-						<input
-							name='field'
-							value={formData ? formData.field : ""}
-							onChange={handleChange}
-							placeholder='field'
-						/>
-						{/* Add more fields as needed */}
-						<button className={styles.buttonSave} type='submit'>Save</button>
-						{errorMessage.length > 0 && (
-							<div className={styles.error}>{errorMessage}</div>
-						)}
 					</div>
-				</form>
-				{mode === MODE_EDITION && (
-					<button className={styles.buttonDelete} onClick={() => handleDelete()}>Delete</button>
-				)}
-			</div>
+					<div className={ styles.inputTitle }>Field</div>
+					<input
+						name='field'
+						value={ formData ? formData.field : "" }
+						onChange={ handleChange }
+						placeholder='Field'
+					/>
+
+				</div>
+
+				{ errorMessage.length > 0 && (
+					<div className={ styles.error }>{ errorMessage }</div>
+				) }
+				<div className={ styles.buttonContainer }>
+					<button className={ styles.buttonCancel } onClick={ () => handleCancel() }>Cancel</button>
+					{ mode === MODE_EDITION && (
+						<button className={ styles.buttonDelete } onClick={ () => handleDelete() }>Delete</button>
+					) }
+					<button className={ styles.buttonSave } type='submit'>Save</button>
+				</div>
+
+			</form>
+
 		</div>
+
 	);
 };
 

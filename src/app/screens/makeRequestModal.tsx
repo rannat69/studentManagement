@@ -167,6 +167,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 			newValue = value;
 		}
 
+		console.log("name", name);
+		console.log("type", type);
+		console.log("value", value);
+
 		if (formData) {
 			setFormData({
 				...formData,
@@ -256,25 +260,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 	const handleSubmit = (e: React.FormEvent) => {
 		setErrorMessage("");
 
-		let studentId = 0;
-		let courseId = 0;
-		let teacherId = 0;
-
-		const student = document.getElementsByName("studentList") as NodeListOf<HTMLInputElement>;
-		if (student.length > 0) {
-			studentId = Number(student[0].value);
-		}
-
-		const teacher = document.getElementsByName("teacherList") as NodeListOf<HTMLInputElement>;
-		if (teacher.length > 0) {
-			teacherId = Number(teacher[0].value);
-		}
-
-		const course = document.getElementsByName("courseList") as NodeListOf<HTMLInputElement>;
-		if (course.length > 0) {
-			courseId = Number(course[0].value);
-		}
-
 		e.preventDefault();
 
 		if (formData) {
@@ -284,25 +269,22 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 				return null;
 			}
 
-			if (studentId === 0) {
+			console.log("formData", formData);
+
+			if (formData.student_id === 0) {
 				setErrorMessage("Please select a student.");
 				return null;
-			} else {
-				formData.student_id = studentId;
+
 			}
 
-			if (teacherId === 0) {
+			if (formData.teacher_id === 0) {
 				setErrorMessage("Please select a teacher.");
 				return null;
-			} else {
-				formData.teacher_id = teacherId;
 			}
 
-			if (courseId === 0) {
+			if (formData.course_id === 0) {
 				setErrorMessage("Please select a course.");
 				return null;
-			} else {
-				formData.course_id = courseId;
 			}
 
 			if (mode === MODE_CREATION) {
@@ -341,92 +323,127 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 
 	return (
 		<div className={ styles.modal }>
-			<div>
-				<span className={ styles.close } onClick={ onClose }>
-					&times;
-				</span>
 
-				<button className={ styles.buttonCancel } onClick={ () => handleCancel() }>Cancel</button>
+			<span className={ styles.close } onClick={ onClose }>
+				&times;
+			</span>
 
-				<form onSubmit={ handleSubmit } className={ styles.modalContent }>
-					<div className={ styles.modalContentColumn }>
-						{ mode === MODE_EDITION ? (
-							<h2>Edit Request</h2>
-						) : (
-							<h2>Create Request</h2>
-						) }
-						Request made by{ " " }
+
+
+			<form onSubmit={ handleSubmit } className={ styles.modalContent }>
+				<div className={ styles.modalContentColumn }>
+					{ mode === MODE_EDITION ? (
+						<h2>Edit Request</h2>
+					) : (
+						<h2>Create Request</h2>
+					) }
+
+
+
+					<div className={ styles.inputContainer }>
+						<div className={ styles.inputTitle }>Teacher / Student 	</div>
+
 						<select
 							name='request_from'
 							onChange={ handleChange }
-							value={ formData ? formData.request_from : "" }>
+							value={ formData ? formData.request_from : "" } className={ styles.smallSelect }>
 							<option value={ "" }>-- Who made the request ? --</option>
 							<option value={ "Teacher" }>Teacher</option>
 							<option value={ "Student" }>Student</option>
 						</select>
+
+						<div className={ styles.inputTitle }>			Want / Do not want 	</div>
+
 						<select
 							name='want'
 							onChange={ handleChange }
-							value={ formData ? String(formData.want) : 1 }>
+							value={ formData ? String(formData.want) : 1 } className={ styles.smallSelect }>
 							<option value={ 1 }>Want</option>
 							<option value={ 0 }>Do not want</option>
 						</select>
-						Student list
+					</div>
 
-						<ReactSelect
-							name="studentList"
-							options={ studentsListState.map((student) => ({
-								value: student.id,
-								name: student.l_name + " " + student.f_names,
-							})) }
-							getOptionLabel={ (option) => option.name }
-							value={ selectedStudent }
-						/>
+					<div className={ styles.inputContainer }>
 
-						Teacher list
+						<div className={ styles.inputTitle }>Student list</div>
 
-						<ReactSelect
-							name="teacherList"
-							options={ teachersListState.map((teacher) => ({
-								value: teacher.id,
-								name: teacher.l_name + " " + teacher.f_names,
-							})) }
-							getOptionLabel={ (option) => option.name }
-							value={ selectedTeacher }
-						/>
 
-						Course list
+						<select
+							name='student_id'
+							onChange={ handleChange }
+							value={ formData && formData.student_id ? formData.student_id : 0 } className={ styles.smallSelect }>
+							<option value={ 0 }>None</option>
 
-						<ReactSelect
-							name="courseList"
-							options={ coursesListState.map((course) => ({
-								value: course.id,
-								name: course.hkust_identifier + " - " + course.name,
-							})) }
-							getOptionLabel={ (option) => option.name }
-							onChange={ (e) => console.log(e) } // Update the selected course
-							value={ selectedCourse }
-						/>
+							{ studentsListState.map((student) => (
+								<option key={ student.id } value={ student.id }>
+									{ student.f_names + " " + student.l_name }
+								</option>
+							)) }
+						</select>
 
-						Message
+
+
+						<div className={ styles.inputTitle }>Teacher list</div>
+
+
+						<select
+							name='teacher_id'
+							onChange={ handleChange }
+							value={ formData && formData.teacher_id ? formData.teacher_id : 0 } className={ styles.smallSelect }>
+							<option value={ 0 }>None</option>
+
+							{ teachersListState.map((teacher) => (
+								<option key={ teacher.id } value={ teacher.id }>
+									{ teacher.f_names + " " + teacher.l_name }
+								</option>
+							)) }
+						</select>
+					</div>
+
+					<div className={ styles.inputContainer }>
+						<div className={ styles.inputTitle }>Course list</div>
+
+						<select
+							name="course_id"
+							onChange={ handleChange }
+							value={ formData && formData.course_id ? formData.course_id : 0 } className={ styles.smallSelect }>
+							<option value={ 0 }>None</option>
+
+							{ coursesListState.map((course) => (
+								<option key={ course.id } value={ course.id }>
+									{ course.hkust_identifier + " " + course.name }
+								</option>
+							)) }
+						</select>
+					</div>
+
+					<div className={ styles.inputContainer }>
+						<div className={ styles.inputTitle }>Message</div>
 						<input
 							name='message'
 							value={ formData ? formData.message : "" }
 							onChange={ handleChange }
-							placeholder='Message'
+							placeholder='Message' className={ styles.input }
 						/>
 						{/* Add more fields as needed */ }
-						<button className={ styles.buttonSave } type='submit'>Save</button>
-						{ errorMessage.length > 0 && (
-							<div className={ styles.error }>{ errorMessage }</div>
-						) }
 					</div>
-				</form>
-				{ mode === MODE_EDITION && (
-					<button className={ styles.buttonDelete } onClick={ () => handleDelete() }>Delete</button>
+				</div>
+				{ errorMessage.length > 0 && (
+					<div className={ styles.error }>{ errorMessage }</div>
 				) }
-			</div>
+				<div className={ styles.buttonContainer }>
+					<button className={ styles.buttonCancel } onClick={ () => handleCancel() }>Cancel</button>
+					{ mode === MODE_EDITION && (
+						<button className={ styles.buttonDelete } onClick={ () => handleDelete() }>Delete</button>
+					) }
+					<button className={ styles.buttonSave } type='submit'>Save</button>
+
+
+
+				</div>
+			</form>
 		</div>
+
 	);
 };
 

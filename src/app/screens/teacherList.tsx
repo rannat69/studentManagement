@@ -115,9 +115,11 @@ export default function TeacherList() {
 
 	return (
 		<div className={ styles.page }>
-			Teacher list{ " " }
+			<h1>Teachers</h1>
+			<h4>Total { teacherListState?.length } teacher(s)</h4>
+			<br />
 			<div className={ styles.add } onClick={ () => handleClickTeacherNew() }>
-				Add teacher
+				+ Add teacher
 			</div>
 			<div className={ styles.main }>
 				<table className={ styles.tableStudent }>

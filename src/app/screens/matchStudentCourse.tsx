@@ -145,7 +145,7 @@ export default function MatchStudentCourse() {
 		});
 
 		studentListTemp = studentListTemp.filter(
-			(student: Student) => student.ta_available !== 0 && student.available
+			(student: Student) => student.available
 		);
 
 		const idCount: number[] = [];
@@ -447,6 +447,16 @@ export default function MatchStudentCourse() {
 				areas: [],
 				qualifications: [],
 			};
+
+			console.log("studentTemp", studentTemp);
+
+			if (studentTemp.ta_available === 0) {
+
+
+				setErrorMessage("This student is not available.");
+				return;
+
+			}
 
 			let courseIndex = courseListNeeded.findIndex(
 				(course) => course.id === dropZone
@@ -907,6 +917,8 @@ export default function MatchStudentCourse() {
 					studentListAssigned.push(studentClone);
 
 					// if TA = 0, remove from list
+					// 
+					/*
 					if (student.ta_available === 0) {
 						const index = studentListAvail.findIndex(
 							(s) => s.id === student.id
@@ -914,7 +926,7 @@ export default function MatchStudentCourse() {
 						if (index > -1) {
 							studentListAvail.splice(index, 1);
 						}
-					}
+					}*/
 
 					updateStudent(studentClone);
 
@@ -1045,10 +1057,12 @@ export default function MatchStudentCourse() {
 
 				<h1>Match</h1>
 				<h3>Drag available students to courses that need teaching assistants</h3>
-				<div className={ styles.columns }><b>Year :</b>{ " " }
-					<input type='number' onChange={ handleChangeYear } value={ year } />
+
+				<div className={ styles.columnsSpaced }>
+					<b>Year :</b>
+					<input type='number' className={ styles.smallInput } onChange={ handleChangeYear } value={ year } />
 					<b>Semester :</b>
-					<select
+					<select className={ styles.select }
 						name='semester'
 						onChange={ handleChangeSemester }
 						value={ semester ? semester : "Spring" }>
@@ -1073,8 +1087,8 @@ export default function MatchStudentCourse() {
 						</div>
 					) }
 
-
 				</div>
+
 
 
 
@@ -1106,11 +1120,11 @@ export default function MatchStudentCourse() {
 									<div className={ styles.dropArea }>
 										<h3>Assigned TAs</h3>
 
-									
+
 										<ProgressBar striped variant={ course.ta_needed === course.ta_assigned ? "success" : "danger" } now={ course.ta_needed && course.ta_needed > 0 && course.ta_assigned && course.ta_assigned > 0 ?
 											course.ta_assigned / course.ta_needed * 100 : 0 }
 											label={ `${course.ta_needed && course.ta_needed > 0 && course.ta_assigned && course.ta_assigned > 0 ?
-												course.ta_assigned.toString() + "/" + course.ta_needed.toString() : 0}` } />
+												course.ta_assigned.toString() + "/" + course.ta_needed.toString() :0}` } />
 
 										<div
 											onDrop={ (event) => dropHandler(event, course.id) }
@@ -1128,8 +1142,10 @@ export default function MatchStudentCourse() {
 															onDragStart={ handleDragStart }
 															hoveredStudent={ hoveredStudent }
 															setHoveredStudent={ setHoveredStudent }
+															big={ false }
 														/>
-													)) : <div className={ styles.emptyDropArea }>Drop a student here</div> }
+													)) : (course.ta_needed > 0 &&
+														<div className={ styles.emptyDropArea }>Drop a student here</div>) }
 										</div>
 									</div>
 								</div>
@@ -1145,10 +1161,10 @@ export default function MatchStudentCourse() {
 							onDragOver={ handleDragOver }>
 							<h2>Students Available</h2>
 
-							<input type="text" placeholder="Search student" onChange={ (e) => handleSearchStudent(e.target.value) }></input>
+							<input type="text" className={ styles.input } placeholder="&#128269;   Search students ..." onChange={ (e) => handleSearchStudent(e.target.value) }></input>
 
 
-							<div className={ styles.dropArea }>
+							<div className={ styles.dropAreaBig }>
 								{ studentListAvail.map((student) => (
 									<StudentBlock
 										key={ student.id.toString() }
@@ -1158,6 +1174,7 @@ export default function MatchStudentCourse() {
 										onDragStart={ handleDragStart }
 										hoveredStudent={ hoveredStudent }
 										setHoveredStudent={ setHoveredStudent }
+										big={ true }
 									/>
 								)) }
 							</div>
