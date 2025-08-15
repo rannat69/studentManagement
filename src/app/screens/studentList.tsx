@@ -19,7 +19,7 @@ export default function StudentList() {
 		"asc"
 	);
 
-	const [searchYear, setSearchYear] = useState<Number>(0);
+	const [searchYear, setSearchYear] = useState<number>(0);
 	const [searchSemester, setSearchSemester] = useState<string>("");
 	const [searchName, setSearchName] = useState<string>("");
 

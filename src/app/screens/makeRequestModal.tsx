@@ -7,18 +7,12 @@ import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "../constants";
 import { Teacher } from "../data/teacherListData";
 import { Student } from "../data/studentListData";
 import { Course } from "../data/courseListData";
-import ReactSelect from "react-select";
 
 interface ModalProps {
 	isOpen: boolean;
 	request: Request | null;
 	onClose: () => void;
 	onSave: (updatedRequest: Request) => void;
-}
-
-interface Dropbox {
-	value: number,
-	name: string
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
@@ -30,9 +24,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 	const [studentsListState, setStudentsListState] = useState<Student[]>([]);
 	const [coursesListState, setCoursesListState] = useState<Course[]>([]);
 
-	const [selectedCourse, setSelectedCourse] = useState<Dropbox>({ value: 0, name: "" });
-	const [selectedTeacher, setSelectedTeacher] = useState<Dropbox>({ value: 0, name: "" });
-	const [selectedStudent, setSelectedStudent] = useState<Dropbox>({ value: 0, name: "" });
 	useEffect(() => {
 
 
@@ -115,14 +106,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 				if (course.id == request?.course_id) {
 
 
-					setSelectedCourse({ value: course.id, name: course.hkust_identifier + " - " + course.name });
 				}
 			});
 
 			studentsListState.forEach((student: Student) => {
 				if (student.id == request?.student_id) {
 
-					setSelectedStudent({ value: student.id, name: student.l_name + " " + student.f_names });
 				}
 			});
 
@@ -130,7 +119,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 				if (teacher.id == request?.teacher_id) {
 
 
-					setSelectedTeacher({ value: teacher.id, name: teacher.l_name + " " + teacher.f_names });
 				}
 			});
 
@@ -166,10 +154,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, request, onClose, onSave }) => {
 		} else {
 			newValue = value;
 		}
-
-		console.log("name", name);
-		console.log("type", type);
-		console.log("value", value);
 
 		if (formData) {
 			setFormData({

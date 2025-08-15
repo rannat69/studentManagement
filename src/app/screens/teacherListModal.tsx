@@ -47,9 +47,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 		e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
 	) => {
 		const { name, type, value } = e.target;
-		let newValue;
 
-		console.log("value", value);
+		console.log("type", type);
 
 		setFormData(prevFormData => {
 			const updatedData = {

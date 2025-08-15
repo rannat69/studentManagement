@@ -100,7 +100,7 @@ export default function CourseList() {
 	const fetchCoursesUnfiltered = async () => {
 		const response = await axios.get("/api/course/all");
 
-		let courseList = response.data;
+		const courseList = response.data;
 		setCourseListStateUnfiltered(courseList);
 	}
 
