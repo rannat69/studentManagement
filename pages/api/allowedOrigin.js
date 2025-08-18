@@ -1,6 +1,6 @@
 
 export default async function allowedOrigin(req, res) {
-    const allowedOrigin = 'http://localhost:3000/';
+    const allowedOrigin = process.env.SITE_URL;
 
     if (req.method === 'OPTIONS') {
         res.setHeader('Access-Control-Allow-Origin', allowedOrigin);

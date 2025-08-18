@@ -227,6 +227,9 @@ export default function ImportExport() {
 									errors.push(`Error: Student with id ${item.id} not found`);
 								}
 							} else {
+
+								console.log("student create", )
+
 								// if id not present, create
 								createStudent(item);
 							}
