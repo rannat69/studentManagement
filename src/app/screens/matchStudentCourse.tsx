@@ -717,10 +717,12 @@ export default function MatchStudentCourse() {
 				minSemester = "Winter";
 		}
 
+		const courses = courseListNeeded.filter((course) => course.ta_needed > 0 && course.ta_assigned < course.ta_needed);
+
+		console.log("courses", courses);
+
 		// for each student, find a course with ta_needed > 0 and no dropZone
 		for (const student of students) {
-
-			const courses = courseListNeeded.filter((course) => course.ta_needed > 0 && course.ta_assigned < course.ta_needed);
 
 			// if a course is found, add the student to the course
 			if (courses.length > 0) {
@@ -867,7 +869,7 @@ export default function MatchStudentCourse() {
 
 					// Each student in one class only when auto match
 					// check if student is already present in studentCourseToAdd
-					const studentCourseToAddExists = studentCourseToAddList.some(
+					/*const studentCourseToAddExists = studentCourseToAddList.some(
 						(studentCourse) =>
 							studentCourse.studentId === student.id);
 
@@ -875,7 +877,10 @@ export default function MatchStudentCourse() {
 					if (!studentCourseToAddExists) {
 
 						studentCourseToAddList.push(studentCourseToAdd);
-					}
+					}*/
+
+					studentCourseToAddList.push(studentCourseToAdd);
+
 				}
 			} else {
 				// if no course is found, display a message
@@ -892,6 +897,8 @@ export default function MatchStudentCourse() {
 
 		console.log("studentcoursetoaddlist", studentCourseToAddList);
 
+		const studentIdListAlreadyAdded: number[] = [];
+
 		for (const studentCourseToAdd of studentCourseToAddList) {
 			// find the student and course in the lists
 			const student = studentListAvail.find(
@@ -904,6 +911,12 @@ export default function MatchStudentCourse() {
 				const course = courseListNeeded.find(
 					(c) => c.id === studentCourseToAdd.courseId
 				);
+
+				// Student only assigned once with automatch process, so put in list when matched\
+				// check if student.id already in list studentIdListAlreadyAdded
+				if (studentIdListAlreadyAdded.includes(student.id)) {
+					continue;
+				}
 
 				if (course && course?.ta_needed > 0 && course.ta_assigned < course.ta_needed) {
 					// -1 to his T.A. available
@@ -939,20 +952,23 @@ export default function MatchStudentCourse() {
 						}
 					}*/
 
+					// Student only assigned once with automatch process, so put in list when matched\
+					studentIdListAlreadyAdded.push(student.id);
+
 					updateStudent(studentClone);
 
 					// get course and update it
 
-					const response = await axios.get(
+					const responseCourseToUpdate = await axios.get(
 						"/api/course/" + studentCourseToAdd.courseId
 					);
 
-					if (response) {
+					if (responseCourseToUpdate) {
 
-						response.data.ta_assigned = response.data.ta_assigned + 1;
-						updateCourse(response.data);
+						responseCourseToUpdate.data.ta_assigned = responseCourseToUpdate.data.ta_assigned + 1;
+						updateCourse(responseCourseToUpdate.data);
 
-						addStudentCourse(student, response.data);
+						addStudentCourse(student, responseCourseToUpdate.data);
 
 						// also update same course in list courseListNeeded
 						const courseIndex = courseListNeeded.findIndex(
@@ -1083,7 +1099,7 @@ export default function MatchStudentCourse() {
 					</select>
 
 					{ autoMatchRunning ? (
-						<Spinner />
+						<>Operation in progress, please do not leave this page.</>
 					) : (
 						<div className={ styles.buttonClear } onClick={ () => handleAreYouSure() }>
 							Clear all
@@ -1135,7 +1151,7 @@ export default function MatchStudentCourse() {
 										<ProgressBar striped variant={ course.ta_needed === course.ta_assigned ? "success" : "danger" } now={ course.ta_needed && course.ta_needed > 0 && course.ta_assigned && course.ta_assigned > 0 ?
 											course.ta_assigned / course.ta_needed * 100 : 0 }
 											label={ `${course.ta_needed && course.ta_needed > 0 && course.ta_assigned && course.ta_assigned > 0 ?
-												course.ta_assigned.toString() + "/" + course.ta_needed.toString() :0}` } />
+												course.ta_assigned.toString() + "/" + course.ta_needed.toString() : 0}` } />
 
 										<div
 											onDrop={ (event) => dropHandler(event, course.id) }
@@ -1198,10 +1214,10 @@ export default function MatchStudentCourse() {
 						(
 							<div className={ styles.modal }>
 								<div className={ styles.modalContent }>
-									This will remove all students of all classes for the period { semester } { year }. Are you sure ?
-									<div className={ styles.button } onClick={ () => handleClearAll() }>
+									This will remove all students of all classes for the period { semester } { year }.<br/> Are you sure ?
+									<div className={ styles.buttonClear } onClick={ () => handleClearAll() }>
 										Clear all					</div>
-									<div className={ styles.buttonRed } onClick={ () => setAreYouSure(false) }>
+									<div className={ styles.buttonClear } onClick={ () => setAreYouSure(false) }>
 										Cancel					</div>	</div>
 							</div>
 						) }
