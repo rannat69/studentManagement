@@ -100,6 +100,17 @@ export default function MatchStudentCourse() {
 			return course.year === year && course.semester === semester;
 		});
 
+		// order courses by hkust_identifier, which is a string 
+		courseList = courseList.sort((a: Course, b: Course) => {
+			if (a.hkust_identifier < b.hkust_identifier) {
+				return -1;
+			}
+			if (a.hkust_identifier > b.hkust_identifier) {
+				return 1;
+			}
+			return 0;
+		});
+
 		setCourseListNeeded(courseList);
 	};
 
@@ -709,7 +720,7 @@ export default function MatchStudentCourse() {
 		// for each student, find a course with ta_needed > 0 and no dropZone
 		for (const student of students) {
 
-			const courses = courseListNeeded.filter((course) => course.ta_needed > 0);
+			const courses = courseListNeeded.filter((course) => course.ta_needed > 0 && course.ta_assigned < course.ta_needed);
 
 			// if a course is found, add the student to the course
 			if (courses.length > 0) {
@@ -894,7 +905,7 @@ export default function MatchStudentCourse() {
 					(c) => c.id === studentCourseToAdd.courseId
 				);
 
-				if (course && course?.ta_needed > 0) {
+				if (course && course?.ta_needed > 0 && course.ta_assigned < course.ta_needed) {
 					// -1 to his T.A. available
 					student.ta_available -= 1;
 
