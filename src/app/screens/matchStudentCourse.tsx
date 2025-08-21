@@ -670,9 +670,9 @@ export default function MatchStudentCourse() {
 		students = filteredStudents;
 
 		// randomise the students 
-		for (var i = students.length - 1; i > 0; i--) {
-			var j = Math.floor(Math.random() * (i + 1));
-			var temp = students[i];
+		for (let i = students.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			const temp = students[i];
 			students[i] = students[j];
 			students[j] = temp;
 		}
