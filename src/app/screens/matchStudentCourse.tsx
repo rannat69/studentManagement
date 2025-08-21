@@ -721,6 +721,28 @@ export default function MatchStudentCourse() {
 
 		console.log("courses", courses);
 
+		// get all positive requests from teachers
+		let requestTable = [];
+
+		const response = await axios.get(
+			"/api/request/teacherWant");
+
+		if (response.data) {
+			requestTable = response.data;
+		}
+
+		// get all course_qualif
+		let courseQualifTable = [];
+		const responseCourseQualif = await axios.get(
+			"/api/course_qualif/all"
+		);
+
+		if (responseCourseQualif.data) {
+			courseQualifTable = responseCourseQualif.data;
+		}
+
+		// get all student_qualif
+
 		// for each student, find a course with ta_needed > 0 and no dropZone
 		for (const student of students) {
 
@@ -736,35 +758,29 @@ export default function MatchStudentCourse() {
 						score: 0,
 					};
 
-					const response = await axios.get(
-						"/api/request/all");
+					//const response = await axios.get(
+					//	"/api/request/all");
 
-					if (response.data) {
-						// request for this student and course by a teacher found
+					//if (response.data) {
+					// request for this student and course by a teacher found
 
-						// check if request exists with student id, and course id
-						const request = response.data.find(
-							(request: Request) =>
-								request.student_id === student.id &&
-								request.course_id === course.id &&
-								request.request_from === "Teacher" &&
-								request.want === 1
-						)
-						if (request) {
-							studentCourseToAdd.score += 10000;
-						}
+					// check if request exists with student id, and course id
+					const request = requestTable.find(
+						(request: Request) =>
+							request.student_id === student.id &&
+							request.course_id === course.id &&
+							request.request_from === "Teacher" &&
+							request.want === 1
+					)
+					if (request) {
+						studentCourseToAdd.score += 10000;
 					}
+					//}
 
-					// Check student and course qualifs
-					let courseQualif = [];
-					const responseCourseQualif = await axios.get(
-						"/api/course_qualif/" + course.id
-					);
-
-					if (responseCourseQualif.data) {
-						// course qualifs found
-						courseQualif = responseCourseQualif.data;
-					}
+					// Get all records from courseQuali
+					let courseQualif = courseQualifTable.find((courseQualification: CourseQualification) =>
+						courseQualification.course_id === course.id 					
+					)
 
 					// get student's qualifs
 					let studentQualif = [];
@@ -872,10 +888,10 @@ export default function MatchStudentCourse() {
 					/*const studentCourseToAddExists = studentCourseToAddList.some(
 						(studentCourse) =>
 							studentCourse.studentId === student.id);
-
+				
 					// if already present, do not add. 
 					if (!studentCourseToAddExists) {
-
+				
 						studentCourseToAddList.push(studentCourseToAdd);
 					}*/
 
@@ -1214,7 +1230,7 @@ export default function MatchStudentCourse() {
 						(
 							<div className={ styles.modal }>
 								<div className={ styles.modalContent }>
-									This will remove all students of all classes for the period { semester } { year }.<br/> Are you sure ?
+									This will remove all students of all classes for the period { semester } { year }.<br /> Are you sure ?
 									<div className={ styles.buttonClear } onClick={ () => handleClearAll() }>
 										Clear all					</div>
 									<div className={ styles.buttonClear } onClick={ () => setAreYouSure(false) }>

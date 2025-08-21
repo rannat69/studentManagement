@@ -15,6 +15,14 @@ export default async function handler(req, res) {
         ta_assigned,
     } = req.body;
 
+    if (!ta_needed) {
+        ta_needed = 0;
+    }
+
+    if (!ta_assigned) {
+        ta_assigned = 0;
+    }
+
     allowedOrigin(req, res);
 
     const maxRetries = 5; // Maximum number of retry attempts
