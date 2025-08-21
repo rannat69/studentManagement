@@ -84,12 +84,12 @@ export default async function handler(req, res) {
                     }
 
                 );
-                console.log("record updated");
-                res.status(200).json({ message: 'Record updated' });
+                console.log("request updated");
+                res.status(200).json({ message: 'request updated' });
             };
 
             await updateRequest();
-            res.status(200).json({ message: 'Record updated' });
+            res.status(200).json({ message: 'request updated' });
 
         } catch (error) {
             console.log("record error", error);

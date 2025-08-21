@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         const { l_name, f_names, unoff_name, field } = req.body;
         try {
 
-            const updateCourse = async () => {
+            const updateTeacher = async () => {
                 await db.run(
                     `UPDATE teacher SET l_name = ?, f_names = ?, unoff_name = ?,  field = ? WHERE id = ?`,
                     [l_name, f_names, unoff_name, field, id],
@@ -67,12 +67,12 @@ export default async function handler(req, res) {
                     }
 
                 );
-                console.log("record updated")
-                res.status(200).json({ message: 'Record updated' });
+                console.log("teacher updated")
+                res.status(200).json({ message: 'teacher updated' });
             }
 
-            await updateCourse();
-            res.status(200).json({ message: 'Record updated' });
+            await updateTeacher();
+            res.status(200).json({ message: 'teacher updated' });
 
         } catch (error) {
             console.log("record error", error);

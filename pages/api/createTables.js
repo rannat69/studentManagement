@@ -113,6 +113,13 @@ FOREIGN KEY (course_id) REFERENCES course(id)
 
         )`);
 
+                db.run(`CREATE TABLE IF NOT EXISTS user (
+            login TEXT,
+            password TEXT,
+            type TEXT
+
+        )`);
+
         const user = "admin";
         const password = "123456"; // obfuscated
         const type = "admin";

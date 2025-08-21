@@ -3,7 +3,7 @@ import { open } from 'sqlite';
 import allowedOrigin from '../allowedOrigin';
 
 export default async function handler(req, res) {
-    const {
+    let {
         hkust_identifier,
         name,
         description,

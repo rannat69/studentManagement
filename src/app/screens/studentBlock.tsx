@@ -17,6 +17,7 @@ interface StudentBlockProps {
 	hoveredStudent: number;
 	setHoveredStudent: (id: number) => void;
 	big: boolean;
+	assigned: boolean
 }
 
 const StudentBlock: React.FC<StudentBlockProps> = ({
@@ -24,7 +25,8 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 	studentQualification,
 	studentArea,
 	onDragStart,
-	big
+	big,
+	assigned
 }) => {
 	return (
 		<OverlayTrigger
@@ -91,13 +93,17 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 
 						<h2 className={ styles.matchStudentName }>
 							{ student.l_name } { student.f_names }
-						</h2></>) :
+							<br/>
+							
+						</h2><h4 className={ styles.assigned }>{assigned ? "Assigned":""}</h4></>) :
 						(<>
 							<h1 className={ styles.grey }>{ student.l_name.slice(0, 2) }</h1>
 
 							<h2 className={ styles.matchStudentName }>
 								{ student.l_name } { student.f_names }
-							</h2></>) }
+								
+							</h2>		<br/>
+								<h4 className={ styles.assigned }>{assigned ? "Assigned":""}</h4></>) }
 				</div> : <div
 					draggable='true'
 					className={ styles.element }

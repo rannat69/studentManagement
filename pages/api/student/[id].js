@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         } = req.body; // Exemple de champs à modifier
         try {
 
-            const updateCourse = async () => {
+            const updateStudent = async () => {
                 await db.run(
                     `UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ?, available = ? WHERE id = ?`,
                     [
@@ -89,12 +89,12 @@ export default async function handler(req, res) {
                     }
 
                 );
-                console.log("record updated");
-                res.status(200).json({ message: 'Record updated' });
+                console.log("student updated");
+                res.status(200).json({ message: 'student updated' });
             };
 
-            await updateCourse();
-            res.status(200).json({ message: 'Record updated' });
+            await updateStudent();
+            res.status(200).json({ message: 'course updated' });
 
         } catch (error) {
             console.log("record error", error);

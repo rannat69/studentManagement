@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         }
     } else if (req.method === 'PUT') {
 
-        const { hkust_identifier,
+        let { hkust_identifier,
             name,
             description,
             semester,
@@ -43,6 +43,15 @@ export default async function handler(req, res) {
             ta_needed,
             ta_assigned,
         } = req.body; // Exemple de champs à modifier
+
+    if (!ta_needed) {
+        ta_needed = 0;
+    }
+
+    if (!ta_assigned) {
+        ta_assigned = 0;
+    }
+
         try {
 
             const updateCourse = async () => {
@@ -89,12 +98,12 @@ export default async function handler(req, res) {
                     }
 
                 );
-                console.log("record updated")
-                res.status(200).json({ message: 'Record updated' });
+                console.log("course updated")
+                res.status(200).json({ message: 'course updated' });
             }
 
             await updateCourse();
-            res.status(200).json({ message: 'Record updated' });
+            res.status(200).json({ message: 'course updated' });
 
         } catch (error) {
             console.log("record error", error);
