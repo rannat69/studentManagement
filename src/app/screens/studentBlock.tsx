@@ -82,6 +82,8 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 					</div>
 				</Tooltip>
 			}>
+
+
 			{ big ?
 				<div
 					draggable='true'
@@ -93,17 +95,19 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 
 						<h2 className={ styles.matchStudentName }>
 							{ student.l_name } { student.f_names }
-							<br/>
-							
-						</h2><h4 className={ styles.assigned }>{assigned ? "Assigned":""}</h4></>) :
-						(<>
-							<h1 className={ styles.grey }>{ student.l_name.slice(0, 2) }</h1>
+							<br />
 
-							<h2 className={ styles.matchStudentName }>
-								{ student.l_name } { student.f_names }
-								
-							</h2>		<br/>
-								<h4 className={ styles.assigned }>{assigned ? "Assigned":""}</h4></>) }
+						</h2></>) :
+						(<>
+
+							<h1 className={ styles.grey }>{ student.l_name.slice(0, 2) }</h1>
+							<div>
+								<h2 className={ styles.matchStudentName }>
+									{ student.l_name } { student.f_names }</h2>
+								<h4 className={ styles.assigned }>{ assigned ? "Assigned" : "" }</h4>
+							</div>
+							<br />
+						</>) }
 				</div> : <div
 					draggable='true'
 					className={ styles.element }
@@ -111,8 +115,14 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 					<h2 className={ styles.matchStudentName }>
 						{ student.l_name } { student.f_names }
 					</h2>
-				</div> }
-		</OverlayTrigger>
+
+
+
+				</div>
+			}
+
+
+		</OverlayTrigger >
 	);
 };
 

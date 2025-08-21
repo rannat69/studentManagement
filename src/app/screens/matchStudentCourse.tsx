@@ -659,6 +659,8 @@ export default function MatchStudentCourse() {
 			(student) => student.ta_available > 0
 		);
 
+
+
 		// Filter the students array to remove students already in studentListAssigned
 		const filteredStudents = students.filter((student) => {
 			return studentListAssigned.findIndex((s) => s.id === student.id) === -1;
@@ -666,6 +668,14 @@ export default function MatchStudentCourse() {
 
 		// Update the `students` array to the filtered result
 		students = filteredStudents;
+
+		// randomise the students 
+		for (var i = students.length - 1; i > 0; i--) {
+			var j = Math.floor(Math.random() * (i + 1));
+			var temp = students[i];
+			students[i] = students[j];
+			students[j] = temp;
+		}
 
 		let studentCourseToAddList: {
 			studentId: number;

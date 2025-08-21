@@ -228,7 +228,7 @@ export default function ImportExport() {
 								}
 							} else {
 
-								console.log("student create", )
+								console.log("student create",)
 
 								// if id not present, create
 								createStudent(item);
@@ -449,6 +449,12 @@ export default function ImportExport() {
 			return response.data;
 		};
 
+		const fetchStudentCourses = async () => {
+			const response = await axios.get("/api/student_course/allForImport");
+
+			return response.data;
+		};
+
 		/*const fetchStudentCourses = async () => {
 			const response = await axios.get("http://localhost:5000/student_course");
 
@@ -493,15 +499,15 @@ export default function ImportExport() {
 
 		const teachers: Teacher[] = await fetchTeachers();
 
-		/*const studentCourses = await fetchStudentCourses();
-
-		const studentAreas = await fetchStudentAreas();
-
-		const studentQualifications = await fetchStudentQualifications();
-
-		const courseQualifications = await fetchCourseQualifications();
-
-		const courseAreas = await fetchCourseAreas();*/
+		const studentCourses = await fetchStudentCourses();
+		/*
+				const studentAreas = await fetchStudentAreas();
+		
+				const studentQualifications = await fetchStudentQualifications();
+		
+				const courseQualifications = await fetchCourseQualifications();
+		
+				const courseAreas = await fetchCourseAreas();*/
 
 		// put students in an Excel file in a tab, and courses in another tab
 		const workbook = new ExcelJS.Workbook();
@@ -511,6 +517,8 @@ export default function ImportExport() {
 		createSheetStudent(workbook, students);
 
 		createSheetTeacher(workbook, teachers);
+
+		createSheetStudentCourse(workbook, studentCourses);
 		// Create a buffer and trigger download
 		const buffer = await workbook.xlsx.writeBuffer();
 		const blob = new Blob([buffer], { type: "application/octet-stream" });
@@ -854,6 +862,69 @@ export default function ImportExport() {
 					};
 				}
 			}
+		}
+	}
+
+	function createSheetStudentCourse(workbook: Workbook, studentCourses: {
+
+		l_name: string;
+		f_names: string;
+		hkust_identifier: string, name: string, year: number, semester: string
+	}[]) {
+		const worksheet = workbook.addWorksheet("StudentCourses");
+
+		// Define columns
+		worksheet.columns = [
+			{ header: "l_name", key: "l_name", width: 50 },
+			{ header: "f_names", key: "f_names", width: 50 },
+			{ header: "course id", key: "hkust_identifier", width: 30 },
+			{ header: "course name", key: "name", width: 30 },
+			{ header: "year", key: "year", width: 50 },
+			{ header: "semester", key: "semester", width: 50 },
+
+			// Add more columns as needed
+		];
+
+		// get student and courses 
+
+
+		// Add content of courses into worksheet
+		for (const item of studentCourses) {
+			worksheet.addRow({
+
+				l_name: item.l_name,
+				f_names: item.f_names,
+				hkust_identifier: item.hkust_identifier,
+				name: item.name,
+				year: item.name,
+				semester: item.semester
+			});
+		}
+
+		worksheet.addRow({
+
+			l_name: "Those fields are for export only. No effect on import.",
+			f_names: "",
+			hkust_identifier: "",
+			name: "",
+			year: "",
+			semester: ""
+		});
+
+		const headerRow = worksheet.getRow(1);
+
+		headerRow.eachCell((cell) => {
+			cell.fill = {
+				type: "pattern",
+				pattern: "solid",
+				fgColor: { argb: "FFCCCCCC" }, // Light gray color
+			};
+			cell.font = { bold: true };
+		});
+
+		// add 100 empty rows to have control fields 
+		for (let i = 0; i < 100; i++) {
+			worksheet.addRow({});
 		}
 	}
 
