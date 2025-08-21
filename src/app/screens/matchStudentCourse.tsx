@@ -1273,7 +1273,7 @@ export default function MatchStudentCourse() {
 										hoveredStudent={ hoveredStudent }
 										setHoveredStudent={ setHoveredStudent }
 										big={ true }
-										assigned={ (studentListAssigned.some((studentAss) => studentAss.id = student.id) ) }
+										assigned={ (studentListAssigned.some((studentAss) => studentAss.id === student.id) ) }
 									/>
 								)) }
 							</div>
