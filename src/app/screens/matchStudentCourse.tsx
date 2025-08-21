@@ -300,7 +300,7 @@ export default function MatchStudentCourse() {
 
 			if (!response.ok) {
 				throw new Error("Network response was not ok");
-			} 
+			}
 
 			const data = await response.json();
 
@@ -570,9 +570,9 @@ export default function MatchStudentCourse() {
 				if (courseIndex > -1) {
 					courseTemp = courseListNeeded[courseIndex];
 
-									if (courseTemp.ta_assigned > 0) {
-				 courseTemp.ta_assigned -= 1;
-				}
+					if (courseTemp.ta_assigned > 0) {
+						courseTemp.ta_assigned -= 1;
+					}
 
 					// Update the course in the list
 					const updatedCourseList = [...courseListNeeded];
@@ -737,18 +737,18 @@ export default function MatchStudentCourse() {
 			courseQualifTable = responseCourseQualif.data;
 		}
 
-			// get student's qualifs
-					let studentQualifTable = [];
-					const responseStudentQualif = await axios.get(
-						"/api/student_qualif/all" 
-					);
+		// get student's qualifs
+		let studentQualifTable = [];
+		const responseStudentQualif = await axios.get(
+			"/api/student_qualif/all"
+		);
 
-					if (responseStudentQualif.data) {
-						// course qualifs found
-						studentQualifTable = responseStudentQualif.data;
-					}
+		if (responseStudentQualif.data) {
+			// course qualifs found
+			studentQualifTable = responseStudentQualif.data;
+		}
 
-			// get all course_qualif
+		// get all course_qualif
 		let courseAreaTable = [];
 		const responseCourseArea = await axios.get(
 			"/api/course_area/all"
@@ -758,16 +758,16 @@ export default function MatchStudentCourse() {
 			courseAreaTable = responseCourseArea.data;
 		}
 
-			// get student's qualifs
-					let studentAreaTable = [];
-					const responseStudentArea = await axios.get(
-						"/api/student_area/all" 
-					);
+		// get student's qualifs
+		let studentAreaTable = [];
+		const responseStudentArea = await axios.get(
+			"/api/student_area/all"
+		);
 
-					if (responseStudentArea.data) {
-						// student area found
-						studentAreaTable = responseStudentArea.data;
-					}
+		if (responseStudentArea.data) {
+			// student area found
+			studentAreaTable = responseStudentArea.data;
+		}
 
 		// for each student, find a course with ta_needed > 0 and no dropZone
 		for (const student of students) {
@@ -804,16 +804,16 @@ export default function MatchStudentCourse() {
 					//}
 
 					// Get all records from courseQuali
-					let courseQualif = courseQualifTable.filter((courseQualification: CourseQualification) =>
-						courseQualification.course_id === course.id 					
+					const courseQualif = courseQualifTable.filter((courseQualification: CourseQualification) =>
+						courseQualification.course_id === course.id
 					)
 
 					// get student's qualifs
-					let studentQualif = studentQualifTable.filter((studentQualification: StudentQualification) =>
-						studentQualification.student_id === student.id					
+					const studentQualif = studentQualifTable.filter((studentQualification: StudentQualification) =>
+						studentQualification.student_id === student.id
 					)
 
-			
+
 
 					// Check how many common qualifications in studentQualif and courseQualif
 					// 1000pts per qualifs in common
@@ -863,15 +863,15 @@ export default function MatchStudentCourse() {
 					// Check if course and student have common area
 
 					// Check student and course areas
-							
-						// course areas found
-				
-					let courseArea = courseAreaTable.filter((courseArea: CourseArea) =>
-						courseArea.course_id === course.id					
+
+					// course areas found
+
+					const courseArea = courseAreaTable.filter((courseArea: CourseArea) =>
+						courseArea.course_id === course.id
 					)
 
-					let studentArea = studentAreaTable.filter((studentArea: StudentArea) =>
-						studentArea.student_id === student.id					
+					const studentArea = studentAreaTable.filter((studentArea: StudentArea) =>
+						studentArea.student_id === student.id
 					)
 
 					// Check how many common areas in studentArea and courseArea
@@ -994,7 +994,7 @@ export default function MatchStudentCourse() {
 					if (responseCourseToUpdate) {
 
 						responseCourseToUpdate.data.ta_assigned = responseCourseToUpdate.data.ta_assigned + 1;
-						
+
 						await updateCourse(responseCourseToUpdate.data);
 
 						await addStudentCourse(student, responseCourseToUpdate.data);
@@ -1014,41 +1014,41 @@ export default function MatchStudentCourse() {
 
 		// for each course, count how many students assigned to it.
 
-		for (const course of courseListNeeded) {	
-			
-				console.log("course end match", course);
+		for (const course of courseListNeeded) {
 
-		
+			console.log("course end match", course);
 
-		const responseStudentCourse = await fetch("/api/student_course/allForCourse", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
 
-			body: JSON.stringify({
-				courseId: course.id,
-				year: year,
-				semester: semester,  
-			
-			}),
-		});
 
-		let data = await responseStudentCourse.json();
+			const responseStudentCourse = await fetch("/api/student_course/allForCourse", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
 
-					if (data) {
-						console.log("data.length", data.length);
-					}			
+				body: JSON.stringify({
+					courseId: course.id,
+					year: year,
+					semester: semester,
 
-					const responseCourseToUpdate = await axios.get(
-						"/api/course/" + course.id
-					);
-		
-					responseCourseToUpdate.data.ta_assigned = data.length;
+				}),
+			});
 
-					console.log("responseCourseToUpdate.data.ta_assigned",responseCourseToUpdate.data.ta_assigned);
+			const data = await responseStudentCourse.json();
 
-					await updateCourse(responseCourseToUpdate.data);
+			if (data) {
+				console.log("data.length", data.length);
+			}
+
+			const responseCourseToUpdate = await axios.get(
+				"/api/course/" + course.id
+			);
+
+			responseCourseToUpdate.data.ta_assigned = data.length;
+
+			console.log("responseCourseToUpdate.data.ta_assigned", responseCourseToUpdate.data.ta_assigned);
+
+			await updateCourse(responseCourseToUpdate.data);
 		}
 
 
@@ -1068,7 +1068,7 @@ export default function MatchStudentCourse() {
 		setAreYouSure(false);
 
 		for (const student of studentListAssigned) {
-			
+
 			// read student with id = student.id
 			const response = await axios.get(
 				"/api/student/" + student.id);
@@ -1089,7 +1089,7 @@ export default function MatchStudentCourse() {
 				const courseTemp: Course = responseCourse.data;
 
 				if (courseTemp.ta_assigned > 0) {
-				 courseTemp.ta_assigned = 0;
+					courseTemp.ta_assigned = 0;
 				}
 				updateCourse(courseTemp);
 
@@ -1240,7 +1240,7 @@ export default function MatchStudentCourse() {
 															hoveredStudent={ hoveredStudent }
 															setHoveredStudent={ setHoveredStudent }
 															big={ false }
-															assigned={false}
+															assigned={ false }
 														/>
 													)) : (course.ta_needed > 0 &&
 														<div className={ styles.emptyDropArea }>Drop a student here</div>) }
@@ -1273,7 +1273,7 @@ export default function MatchStudentCourse() {
 										hoveredStudent={ hoveredStudent }
 										setHoveredStudent={ setHoveredStudent }
 										big={ true }
-										assigned={ (studentListAssigned.some((studentAss) => studentAss.id === student.id) ) }
+										assigned={ (studentListAssigned.some((studentAss) => studentAss.id === student.id)) }
 									/>
 								)) }
 							</div>
