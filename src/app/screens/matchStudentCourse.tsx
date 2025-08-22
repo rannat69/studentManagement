@@ -462,11 +462,8 @@ export default function MatchStudentCourse() {
 			console.log("studentTemp", studentTemp);
 
 			if (studentTemp.ta_available === 0) {
-
-
 				setErrorMessage("This student is not available.");
 				return;
-
 			}
 
 			let courseIndex = courseListNeeded.findIndex(
@@ -500,15 +497,16 @@ export default function MatchStudentCourse() {
 				// If from student available, ta available -  1
 				studentTemp.ta_available -= 1;
 				// if student no more available, remove from available list
-				if (studentTemp.ta_available < 1) {
-					// find the student in the available list and remove it
-					const index = studentListAvail.findIndex(
-						(s) => s.id === studentTemp.id
-					);
 
-					if (index > -1) {
-						studentListAvail.splice(index, 1);
-					}
+				// if still available, -1 from ta_available in the available list
+				const index = studentListAvail.findIndex(
+					(s) => s.id === studentTemp.id
+				);
+
+				if (index > -1) {
+					studentListAvail[index].ta_available -= 1;
+
+					setStudentListAvail([...studentListAvail]);
 
 					// Check all records in studentListAssigned for this student, and ta_available - 1
 					studentListAssigned.forEach((student) => {
@@ -516,25 +514,8 @@ export default function MatchStudentCourse() {
 							student.ta_available -= 1;
 						}
 					});
-				} else {
-					// if still available, -1 from ta_available in the available list
-					const index = studentListAvail.findIndex(
-						(s) => s.id === studentTemp.id
-					);
-
-					if (index > -1) {
-						studentListAvail[index].ta_available -= 1;
-
-						setStudentListAvail([...studentListAvail]);
-
-						// Check all records in studentListAssigned for this student, and ta_available - 1
-						studentListAssigned.forEach((student) => {
-							if (student.id === studentTemp.id) {
-								student.ta_available -= 1;
-							}
-						});
-					}
 				}
+
 
 				// check if student present multiple times in studentAssigned. If yes, display warning.
 				let count = 0;
@@ -1062,9 +1043,12 @@ export default function MatchStudentCourse() {
 		}
 
 
-		setCourseListNeeded([...courseListNeeded]);
-		setStudentListAssigned([...studentListAssigned]);
-		setStudentListAvail([...studentListAvail]);
+		//setCourseListNeeded([...courseListNeeded]);
+		//setStudentListAssigned([...studentListAssigned]);
+		//setStudentListAvail([...studentListAvail]);
+
+		await fetchCourses(year, semester);
+		await fetchStudents(year, semester);
 
 		setAutoMatchRunning(false);
 	};
@@ -1087,7 +1071,7 @@ export default function MatchStudentCourse() {
 				const studentTemp: Student = response.data;
 				studentTemp.ta_available += 1;
 
-				updateStudent(studentTemp);
+				await updateStudent(studentTemp);
 
 			}
 
@@ -1101,7 +1085,7 @@ export default function MatchStudentCourse() {
 				if (courseTemp.ta_assigned > 0) {
 					courseTemp.ta_assigned = 0;
 				}
-				updateCourse(courseTemp);
+				await updateCourse(courseTemp);
 
 			}
 
@@ -1124,7 +1108,8 @@ export default function MatchStudentCourse() {
 
 		setStudentListAssigned([]);
 
-		fetchCourses(year, semester);
+		await fetchCourses(year, semester);
+		await fetchStudents(year, semester);
 
 		setAutoMatchRunning(false);
 	}
@@ -1274,24 +1259,24 @@ export default function MatchStudentCourse() {
 
 							<div className={ styles.dropAreaBig }>
 								{ studentListAvail.map((student) => (
-									<StudentBlock
-										key={ student.id.toString() }
-										student={ student }
-										studentQualification={ studentQualification }
-										studentArea={ studentArea }
-										onDragStart={ handleDragStart }
-										hoveredStudent={ hoveredStudent }
-										setHoveredStudent={ setHoveredStudent }
-										big={ true }
-										assigned={ (studentListAssigned.some((studentAss) => studentAss.id === student.id)) }
-									/>
+									<>
+										<StudentBlock
+											key={ student.id.toString() }
+											student={ student }
+											studentQualification={ studentQualification }
+											studentArea={ studentArea }
+											onDragStart={ handleDragStart }
+											hoveredStudent={ hoveredStudent }
+											setHoveredStudent={ setHoveredStudent }
+											big={ true }
+											assigned={ (studentListAssigned.find((studentAss) => studentAss.id === student.id)) ? true : false }
+										/>
+
+									</>
 								)) }
 							</div>
 						</div>
-					</div>
-
-
-
+				</div>
 					{ areYouSure &&
 						(
 							<div className={ styles.modal }>

@@ -92,21 +92,27 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 
 					{ student.ta_available > 0 ? (<>
 						<h1 className={ styles.green }>{ student.l_name.slice(0, 2) }</h1>
-
-						<h2 className={ styles.matchStudentName }>
-							{ student.l_name } { student.f_names }
-							<br />
-
-						</h2></>) :
+						<div>
+							<h2 className={ styles.matchStudentName }>
+								{ student.l_name } { student.f_names }
+							</h2>
+							<div>
+								{ assigned ? <h4 className={ styles.assigned }>Assigned</h4> : <></> }
+							</div>
+						</div>
+					</>) :
 						(<>
 
 							<h1 className={ styles.grey }>{ student.l_name.slice(0, 2) }</h1>
 							<div>
 								<h2 className={ styles.matchStudentName }>
 									{ student.l_name } { student.f_names }</h2>
-								<h4 className={ styles.assigned }>{ assigned ? "Assigned" : "" }</h4>
+								<div>
+									{ assigned ? <h4 className={ styles.assigned }>Assigned</h4> : <></> }
+								</div>
+
 							</div>
-							<br />
+
 						</>) }
 				</div> : <div
 					draggable='true'

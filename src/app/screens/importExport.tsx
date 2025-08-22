@@ -992,6 +992,7 @@ export default function ImportExport() {
 					<div className={ styles.success }>{ successMessage } </div>
 				) }
 			</footer>
+			v1.2
 		</div>
 	);
 }
