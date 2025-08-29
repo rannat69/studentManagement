@@ -720,7 +720,7 @@ export default function ImportExport() {
 
       // get teachers from student
 
-      let teachersList: Teacher[] = [];
+      const teachersList: Teacher[] = [];
 
       for (const studentTeacher of studentTeachers) {
         if (studentTeacher.student_id === item.id) {
@@ -737,11 +737,6 @@ export default function ImportExport() {
           }
         }
       }
-
-      console.log("studentTeachers", studentTeachers);
-      console.log("teachers", teachers);
-
-      console.log("teachersList", teachersList);
 
       let teachersListString = "";
 
