@@ -10,6 +10,7 @@ import {
 	MODE_EDITION,
 	QUALIFICATIONS,
 } from "../constants";
+import { Teacher } from "../data/teacherListData";
 
 interface ModalProps {
 	isOpen: boolean;
@@ -29,7 +30,20 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 	const [selectedQualification, setSelectedQualification] =
 		useState<string>("");
 
+	const [teachersList, setTeachersList] = useState<Teacher[]>([]);
+	const [teachers, setTeachers] = useState<Teacher[]>([]);
+	const [selectedTeacher, setSelectedTeacher] = useState<Teacher>();
+
 	useEffect(() => {
+
+		const fetchTeachersList = async () => {
+			const response = await axios.get("/api/teacher/all/");
+
+			setTeachersList(response.data);
+		};
+
+		fetchTeachersList();
+
 		if (course) {
 			setMode(MODE_EDITION);
 			setFormData(course);
@@ -95,6 +109,45 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			};
 
 			fetchQualifications();
+
+			const fetchTeachers = async () => {
+				try {
+					if (course != null) {
+						const response = await axios.get(
+							`/api/course_teacher/${course.id}`
+						);
+
+						const teachers: Teacher[] = [];
+
+						for (const courseTeacher of response.data) {
+							// get record from teachersList where courseTeacher.teacher_id matches id
+							teachers.push(
+								teachersList.find(
+									(teacher) => teacher.id === courseTeacher.teacher_id
+								) as Teacher
+							);
+						}
+
+						setTeachers(teachers);
+						return response.data;
+					} else {
+						return null;
+					}
+				} catch (error: unknown) {
+
+					if (axios.isAxiosError(error)) {
+						// Gérer les erreurs d'axios
+						console.error("Axios Error:", error.message);
+					} else {
+						// Gérer les autres erreurs
+						console.error("Error:", error);
+					}
+
+					return false;
+				}
+			};
+			fetchTeachers();
+
 		} else {
 			// We are in creation mode
 
@@ -134,6 +187,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			});
 			setAreas([]);
 			setQualifications([]);
+			setTeachers([]);
 			setMode(MODE_CREATION);
 		}
 	}, [course]); // Add course to the dependency array
@@ -216,6 +270,26 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 				});
 			}
 
+			// Add teachers
+			if (teachers && teachers.length > 0) {
+				teachers.forEach(async (teacher) => {
+					const courseTeacher = {
+						courseId: data.id,
+						teacherId: teacher.id,
+					};
+					response = await fetch(
+						"/api/course_teacher/create",
+						{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify(courseTeacher),
+						}
+					);
+				});
+			}
+
 			if (!response.ok) {
 				throw new Error("Network response was not ok");
 			}
@@ -251,6 +325,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			// Delete all qualifs for course first
 			responseCourse = await fetch(
 				`/api/course_qualif/${id}`,
+				{
+					method: "DELETE",
+				}
+			);
+
+			if (!responseCourse.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			// Delete all teachers for course first
+			responseCourse = await fetch(
+				`/api/course_teacher/${id}`,
 				{
 					method: "DELETE",
 				}
@@ -296,6 +382,27 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 					);
 				});
 			}
+
+			// Add teachers
+			if (teachers && teachers.length > 0) {
+				teachers.forEach(async (teacher) => {
+					const courseTeacher = {
+						courseId: id,
+						teacherId: teacher.id,
+					};
+					responseCourse = await fetch(
+						"/api/course_teacher/create",
+						{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify(courseTeacher),
+						}
+					);
+				});
+			}
+
 		} catch (error) {
 			console.error("Error updating course:", error);
 		}
@@ -323,6 +430,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 			// Delete all qualifs for course first
 			response = await fetch(
 				`/api/course_qualif/${id}`,
+				{
+					method: "DELETE",
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			// Delete all teachers for course first
+			response = await fetch(
+				`/api/course_teacher/${id}`,
 				{
 					method: "DELETE",
 				}
@@ -476,6 +595,34 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 		}
 	}
 
+	function addTeacher(): void {
+		// get the currently selected area and add it to the areas array
+		//in the formData
+
+		setErrorMessage("");
+
+		// the currently selected area is in the select whose idea is "area"
+
+		if (!selectedTeacher || selectedTeacher?.id === 0) {
+			setErrorMessage("Please select a qualification");
+			return;
+		}
+
+		// check if teachers contains an object where id = teacher.id 
+		teachers.forEach((teacher) => {
+			if (teacher.id === selectedTeacher.id) {
+				setErrorMessage("Teacher already added");
+				return;
+			}
+		});
+
+		if (areas) {
+			setTeachers([...teachers, selectedTeacher]);
+		} else {
+			setTeachers([selectedTeacher]);
+		}
+	}
+
 	function addQualification(): void {
 		// get the currently selected area and add it to the areas array
 		//in the formData
@@ -499,6 +646,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 		} else {
 			setQualifications([selectedQualification]);
 		}
+	}
+
+	const handleChangeTeacher = async (teacherId: number) => {
+
+
+		const response = await axios.get(
+			`/api/teacher/${teacherId}`
+		);
+
+
+
+		setSelectedTeacher(response.data);
 	}
 
 	return (
@@ -688,6 +847,54 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 											qualifications.filter((a) => a !== qualification)
 										);
 										qualifications.filter((a) => a !== qualification);
+									} }>
+									x
+								</div>
+							</div>
+						)) }
+					</div>
+				) }
+
+
+				<div className={ styles.inputContainer }>
+					<div className={ styles.inputTitle }>Teachers</div>
+
+					<div className={ styles.selectContainer }>
+						<select
+							id='teachers'
+							onChange={ (e) => handleChangeTeacher(Number(e.target.value)) } className={ styles.select }>
+							<option key='' value=''>
+								-- Choose a teacher --
+							</option>
+
+							{ teachersList.map((teacher) => (
+								<option key={ teacher.id } value={ teacher.id }>
+									{ teacher.l_name + " " + teacher.f_names }
+								</option>
+							)) }
+						</select>
+					</div>
+					<div className={ styles.add } onClick={ () => addTeacher() }>
+						+{ " " }
+					</div>
+				</div>
+				{ teachers && teachers.length > 0 && (
+					<div>
+						{ teachers.map((teacher) => (
+							<div className={ styles.areaQualifContainer } key={ teacher.id } onClick={ () => {
+								setTeachers(
+									teachers.filter((a) => a !== teacher)
+								);
+								teachers.filter((a) => a !== teacher);
+							} }>
+								<div className={ styles.smalltext }>{ teacher.l_name + " " + teacher.f_names }</div>
+								<div
+									className={ styles.remove }
+									onClick={ () => {
+										setTeachers(
+											teachers.filter((a) => a !== teacher)
+										);
+										teachers.filter((a) => a !== teacher);
 									} }>
 									x
 								</div>

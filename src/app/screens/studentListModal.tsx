@@ -11,6 +11,7 @@ import {
 	PROGRAMS,
 	QUALIFICATIONS,
 } from "../constants";
+import { Teacher } from "../data/teacherListData";
 
 interface ModalProps {
 	isOpen: boolean;
@@ -30,12 +31,28 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 	const [areas, setAreas] = useState<string[]>();
 	const [selectedArea, setSelectedArea] = useState<string>("");
 
+	const [teachersList, setTeachersList] = useState<Teacher[]>([]);
+	const [teachers, setTeachers] = useState<Teacher[]>([]);
+	const [selectedTeacher, setSelectedTeacher] = useState<Teacher>();
+
 	useEffect(() => {
-		console.log("useEffect", student);
+
+
+		const fetchTeachersList = async () => {
+			const response = await axios.get("/api/teacher/all/");
+
+
+
+			setTeachersList(response.data);
+		};
+
+		fetchTeachersList();
+
 
 		if (student) {
 			setQualifications([]);
 			setAreas([]);
+			setTeachers([]);
 
 			setMode(MODE_EDITION);
 			setFormData(student);
@@ -76,8 +93,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						const response = await axios.get(
 							`/api/student_area/${student.id}`
 						);
-						console.log("student areas", response);
-						console.log("student areas", response.data);
 
 						for (let i = 0; i < response.data.length; i++) {
 							response.data[i] = response.data[i].area;
@@ -102,6 +117,45 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				}
 			};
 			fetchAreas();
+
+			const fetchTeachers = async () => {
+				try {
+					if (student != null) {
+						const response = await axios.get(
+							`/api/student_teacher/${student.id}`
+						);
+
+						const teachers: Teacher[] = [];
+
+						for (const studentTeacher of response.data) {
+							// get record from teachersList where studentTeacher.teacher_id matches id
+							teachers.push(
+								teachersList.find(
+									(teacher) => teacher.id === studentTeacher.teacher_id
+								) as Teacher
+							);
+						}
+
+						setTeachers(teachers);
+						return response.data;
+					} else {
+						return null;
+					}
+				} catch (error: unknown) {
+
+					if (axios.isAxiosError(error)) {
+						// Gérer les erreurs d'axios
+						console.error("Axios Error:", error.message);
+					} else {
+						// Gérer les autres erreurs
+						console.error("Error:", error);
+					}
+
+					return false;
+				}
+			};
+			fetchTeachers();
+
 		} else {
 			// We are in creation mode
 
@@ -112,6 +166,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				f_names: "",
 				unoff_name: "",
 				program: "",
+				email: "",
 				date_joined: new Date(),
 				expected_grad_year: 0,
 				expected_grad_semester: "Spring",
@@ -196,6 +251,34 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 		}
 	}
 
+	function addTeacher(): void {
+		// get the currently selected area and add it to the areas array
+		//in the formData
+
+		setErrorMessage("");
+
+		// the currently selected area is in the select whose idea is "area"
+
+		if (!selectedTeacher || selectedTeacher?.id === 0) {
+			setErrorMessage("Please select a qualification");
+			return;
+		}
+
+		// check if teachers contains an object where id = teacher.id 
+		teachers.forEach((teacher) => {
+			if (teacher.id === selectedTeacher.id) {
+				setErrorMessage("Teacher already added");
+				return;
+			}
+		});
+
+		if (areas) {
+			setTeachers([...teachers, selectedTeacher]);
+		} else {
+			setTeachers([selectedTeacher]);
+		}
+	}
+
 	const createStudent = async (studentData: Student) => {
 		try {
 			let response = await fetch("/api/student/create", {
@@ -234,6 +317,19 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			if (!response.ok) {
 				throw new Error("Network response was not ok");
 			}
+
+			// Delete all teachers for student first
+			response = await fetch(
+				`/api/student_teacher/${studentData.id}`,
+				{
+					method: "DELETE",
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
 
 			// Add qualifications
 			if (qualifications && qualifications.length > 0) {
@@ -276,6 +372,24 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				});
 			}
 
+			// Add teachers
+			if (teachers && teachers.length > 0) {
+				teachers.forEach(async (teacher) => {
+					const areaTeacher = {
+						studentId: data.id,
+						teacherId: teacher.id,
+					};
+
+					await fetch("/api/student_teacher/create", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(areaTeacher),
+					});
+				});
+			}
+
 			if (!response.ok) {
 				throw new Error("Network response was not ok");
 			}
@@ -303,6 +417,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			await fetch(`/api/student_area/${id}`, {
 				method: "DELETE",
 			});
+
+			// Delete all areas for student first
+			await fetch(`/api/student_teacher/${id}`, {
+				method: "DELETE",
+			});
+
 
 			// Add qualifs
 			if (qualifications && qualifications.length > 0) {
@@ -335,6 +455,27 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 							"Content-Type": "application/json",
 						},
 						body: JSON.stringify(areaStudent),
+					});
+				});
+			}
+
+			// Add teachers
+			if (teachers && teachers.length > 0) {
+				teachers.forEach(async (teacher) => {
+
+					console.log("teacher update", teacher);
+
+					const areaTeacher = {
+						studentId: id,
+						teacherId: teacher.id,
+					};
+
+					await fetch("/api/student_teacher/create", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(areaTeacher),
 					});
 				});
 			}
@@ -403,6 +544,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 				f_names: "",
 				unoff_name: "",
 				program: "",
+				email: "",
 				date_joined: new Date(),
 				expected_grad_year: 0,
 				expected_grad_semester: "Spring",
@@ -416,6 +558,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 			onSave(student);
 		}
 	};
+
+	const handleChangeTeacher = async (teacherId: number) => {
+
+
+		const response = await axios.get(
+			`/api/teacher/${teacherId}`
+		);
+
+
+
+		setSelectedTeacher(response.data);
+	}
 
 	const handleSubmit = (e: React.FormEvent) => {
 		setErrorMessage("");
@@ -502,6 +656,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						placeholder='Other names'
 						className={ styles.input }
 					/>
+
 				</div>
 				<div className={ styles.inputContainer }>
 					<div className={ styles.inputTitle }>Nickname	</div>							<input
@@ -526,6 +681,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 						placeholder='Student number'
 						className={ styles.input }
 
+					/>
+
+					<div className={ styles.inputTitle }>Email</div>
+					<input
+						name='email'
+						value={ formData && formData.email ? formData.email : "" }
+						onChange={ handleChange }
+						placeholder='Email'
+						className={ styles.input }
 					/>
 				</div>
 
@@ -647,6 +811,55 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 											qualifications.filter((a) => a !== qualif)
 										);
 										qualifications.filter((a) => a !== qualif);
+									} }>
+									x
+								</div>
+							</div>
+						)) }
+					</div>
+				) }
+
+				<div className={ styles.inputContainer }>
+					<div className={ styles.inputTitle }>Teachers</div>
+
+					<div className={ styles.selectContainer }>
+						<select
+							id='teachers'
+							onChange={ (e) => handleChangeTeacher(Number(e.target.value)) } className={ styles.select }>
+							<option key='' value=''>
+								-- Choose a teacher --
+							</option>
+
+							{ teachersList.map((teacher) => (
+								<option key={ teacher.id } value={ teacher.id }>
+									{ teacher.l_name + " " + teacher.f_names }
+								</option>
+							)) }
+						</select>
+						<div onClick={ () => addTeacher() } className={ styles.add }>
+							+{ " " }
+						</div>
+					</div>
+
+				</div>
+
+				{ teachers && teachers.length > 0 && (
+					<div>
+						{ teachers.map((teacher) => (
+							<div className={ styles.areaQualifContainer } key={ teacher.id } onClick={ () => {
+								setTeachers(
+									teachers.filter((a) => a !== teacher)
+								);
+								teachers.filter((a) => a !== teacher);
+							} }>
+								<div className={ styles.smalltext } >				{ teacher.l_name + " " + teacher.f_names }</div>
+								<div
+									className={ styles.remove }
+									onClick={ () => {
+										setTeachers(
+											teachers.filter((a) => a !== teacher)
+										);
+										teachers.filter((a) => a !== teacher);
 									} }>
 									x
 								</div>

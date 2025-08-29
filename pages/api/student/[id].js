@@ -39,6 +39,7 @@ export default async function handler(req, res) {
             f_names,
             unoff_name,
             program,
+            email,
             date_joined,
             expected_grad_year,
             expected_grad_semester,
@@ -49,13 +50,14 @@ export default async function handler(req, res) {
 
             const updateStudent = async () => {
                 await db.run(
-                    `UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ?, available = ? WHERE id = ?`,
+                    `UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, email = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ?, available = ? WHERE id = ?`,
                     [
                         student_number,
                         l_name,
                         f_names,
                         unoff_name,
                         program,
+                        email,
                         date_joined,
                         expected_grad_year,
                         expected_grad_semester,

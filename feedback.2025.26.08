@@ -1,0 +1,22 @@
+Link teacher to student (as advisor(s)), and course. One teacher, many students, many courses. One student, up to 2 advisors. DONE 
+
+Display advisor,  and areas visibly on student name the matching page. DONE 
+
+Display available or not on student page 
+
+Have a way to force a non available student in the matching (maybe a separate page/popup?).
+
+Add student email DONE
+
+Add email, areas, qualifications and advisor to excel DONE
+
+Allow update of course matching through excel
+
+Add drag and drop on the whole course card 
+
+Display the progress bar in red if more students are assigned than required
+
+Display student name in orange if: (1) assigned to more than 1 course; (2) assigned despite not being available; (3) assigned more courses than remaining
+
+Default TA available : PHD 4, MPhil 2 
+Count by looking in student course.

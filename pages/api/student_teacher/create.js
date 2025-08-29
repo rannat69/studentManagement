@@ -1,20 +1,9 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import allowedOrigin from '../allowedOrigin';
+
 export default async function handler(req, res) {
-    const {
-        student_number,
-        l_name,
-        f_names,
-        unoff_name,
-        program,
-        email,
-        date_joined,
-        expected_grad_year,
-        expected_grad_semester,
-        ta_available,
-        available,
-    } = req.body;
+    const { studentId, teacherId } = req.body;
 
     allowedOrigin(req, res);
 
@@ -29,25 +18,14 @@ export default async function handler(req, res) {
         });
     }
 
-    const createStudent = async () => {
+    const createStudentTeacher = async () => {
 
         const db = await openDb();
 
         const result = await db.run(
-            `INSERT INTO student (student_number, l_name, f_names, unoff_name, program, email, date_joined, expected_grad_year, expected_grad_semester, ta_available, available) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                student_number,
-                l_name,
-                f_names,
-                unoff_name,
-                program,
-                email,
-                date_joined,
-                expected_grad_year,
-                expected_grad_semester,
-                ta_available,
-                available,
-            ],
+            `INSERT INTO student_teacher
+		(student_id , teacher_id ) VALUES (?, ?)`,
+            [studentId, teacherId],
 
             function (err) {
                 console.log("function");
@@ -55,7 +33,7 @@ export default async function handler(req, res) {
                 if (err) {
                     if (err.code === "SQLITE_BUSY" && retryCount < maxRetries) {
                         retryCount++;
-                        setTimeout(createStudent, delay);
+                        setTimeout(createStudentQualif, delay);
                         delay *= 2;
                     } else {
                         console.error("Error insert:", err);
@@ -73,7 +51,7 @@ export default async function handler(req, res) {
     };
 
     try {
-        const result = await createStudent(); // Wait création
+        const result = await createStudentTeacher(); // Wait création
         res.status(200).json({ message: 'Record created', id: result });
     } catch (err) {
         console.error("Error insert :", err);

@@ -23,6 +23,7 @@ export function createTables(db, bcrypt) {
             f_names TEXT,
             unoff_name TEXT,
             program TEXT, 
+            email TEXT,
             date_joined DATE, 
         expected_grad_year INTEGER,
         expected_grad_semester TEXT,
@@ -107,13 +108,27 @@ FOREIGN KEY (course_id) REFERENCES course(id)
 
         )`);
 
+        db.run(`CREATE TABLE IF NOT EXISTS student_teacher (
+            student_id INTEGER,
+            teacher_id INTEGER,
+FOREIGN KEY (student_id) REFERENCES student(id),
+FOREIGN KEY (teacher_id) REFERENCES teacher(id)
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS course_teacher (
+            course_id INTEGER,
+            teacher_id INTEGER,
+FOREIGN KEY (course_id) REFERENCES course(id),
+FOREIGN KEY (teacher_id) REFERENCES teacher(id)
+        )`);
+
         db.run(`CREATE TABLE IF NOT EXISTS session (
             session TEXT,
             login TEXT
 
         )`);
 
-                db.run(`CREATE TABLE IF NOT EXISTS user (
+        db.run(`CREATE TABLE IF NOT EXISTS user (
             login TEXT,
             password TEXT,
             type TEXT

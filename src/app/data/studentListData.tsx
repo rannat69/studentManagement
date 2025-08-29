@@ -5,6 +5,7 @@ export interface Student {
 	f_names: string;
 	unoff_name: string;
 	program: string;
+	email: string;
 	date_joined: Date;
 	expected_grad_year: number;
 	expected_grad_semester: string;
