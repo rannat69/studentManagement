@@ -160,9 +160,10 @@ export default function MatchStudentCourse() {
       );
     });
 
-    studentListTemp = studentListTemp.filter(
+    // Non available students can still be forced to a course
+    /*studentListTemp = studentListTemp.filter(
       (student: Student) => student.available
-    );
+    );*/
 
     const idCount: number[] = [];
 
@@ -226,10 +227,12 @@ export default function MatchStudentCourse() {
   ) => {
     event.dataTransfer.setData("student", JSON.stringify(student));
     setErrorMessage("");
+    setWarningMessage("");
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     setErrorMessage("");
+    setWarningMessage("");
     event.preventDefault(); // Prevent default to allow drop
   };
 
@@ -330,7 +333,7 @@ export default function MatchStudentCourse() {
   ) => {
     setErrorMessage("");
     setWarningMessage("");
-
+    let warningMessageTemp = "";
     event.preventDefault();
     const student = event.dataTransfer.getData("student");
 
@@ -473,9 +476,21 @@ export default function MatchStudentCourse() {
 
       console.log("studentTemp", studentTemp);
 
-      if (studentTemp.ta_available === 0) {
-        setErrorMessage("This student is not available.");
-        return;
+      if (studentTemp.ta_available <= 0) {
+        //  setErrorMessage("This student is not available.");
+        // return;
+        warningMessageTemp += " " + "Student is overbooked.";
+        console.log("warningMessageTemp", warningMessageTemp);
+        setWarningMessage(warningMessageTemp);
+      }
+
+      if (!studentTemp.available) {
+        //  setErrorMessage("This student is not available.");
+        // return;
+
+        warningMessageTemp += " " + "Student is spposed to be unavailable.";
+
+        setWarningMessage(warningMessageTemp);
       }
 
       let courseIndex = courseListNeeded.findIndex(
@@ -508,6 +523,7 @@ export default function MatchStudentCourse() {
       ) {
         // If from student available, ta available -  1
         studentTemp.ta_available -= 1;
+
         // if student no more available, remove from available list
 
         // if still available, -1 from ta_available in the available list
@@ -537,9 +553,12 @@ export default function MatchStudentCourse() {
             if (count > 0) {
               studentTemp.multiCourses = true;
               item.multiCourses = true;
-              setWarningMessage(
-                "Student is already assigned to another course."
-              );
+
+              warningMessageTemp +=
+                " " + "Student is already assigned to another course.";
+
+              setWarningMessage(warningMessageTemp);
+              break;
             }
           }
         }
@@ -623,6 +642,9 @@ export default function MatchStudentCourse() {
   const handleChangeSemester = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
+    setWarningMessage("");
+    setErrorMessage("");
+
     setSemester(event.target.value);
 
     fetchCourses(year, event.target.value);
@@ -630,6 +652,9 @@ export default function MatchStudentCourse() {
   };
 
   const handleChangeYear = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setWarningMessage("");
+    setErrorMessage("");
+
     setYear(parseInt(event.target.value));
 
     fetchCourses(parseInt(event.target.value), semester);
@@ -638,7 +663,8 @@ export default function MatchStudentCourse() {
 
   const handleAutoMatch = async () => {
     setAutoMatchRunning(true);
-
+    setWarningMessage("");
+    setErrorMessage("");
     // Being requested by a teacher : 10 000 pts
     // Having the right qualifications 1000 pts per qualif
     // Already been TA for same course before 100 pts
@@ -1061,6 +1087,9 @@ export default function MatchStudentCourse() {
     setAutoMatchRunning(true);
     setAreYouSure(false);
 
+    setWarningMessage("");
+    setErrorMessage("");
+
     for (const student of studentListAssigned) {
       // read student with id = student.id
       const response = await axios.get("/api/student/" + student.id);
@@ -1200,7 +1229,12 @@ export default function MatchStudentCourse() {
 
             <div className={styles.dropAreas}>
               {courseListNeeded.map((course) => (
-                <div className={styles.courseBlockContainer} key={course.id}>
+                <div
+                  className={styles.courseBlockContainer}
+                  key={course.id}
+                  onDrop={(event) => dropHandler(event, course.id)}
+                  onDragOver={handleDragOver}
+                >
                   <CourseBlock
                     key={course.id.toString()}
                     course={course}
@@ -1238,11 +1272,7 @@ export default function MatchStudentCourse() {
                       }`}
                     />
 
-                    <div
-                      onDrop={(event) => dropHandler(event, course.id)}
-                      onDragOver={handleDragOver}
-                      className={styles.innerDropArea}
-                    >
+                    <div className={styles.innerDropArea}>
                       {studentListAssigned.filter(
                         (student) => student.dropZone === course.id
                       ).length > 0
@@ -1255,6 +1285,7 @@ export default function MatchStudentCourse() {
                                 studentQualification={studentQualification}
                                 studentArea={studentArea}
                                 studentTeacher={studentTeacher}
+                                studentListAssigned={studentListAssigned}
                                 teachers={teachers}
                                 onDragStart={handleDragStart}
                                 hoveredStudent={hoveredStudent}
@@ -1297,6 +1328,7 @@ export default function MatchStudentCourse() {
                     studentQualification={studentQualification}
                     studentArea={studentArea}
                     studentTeacher={studentTeacher}
+                    studentListAssigned={studentListAssigned}
                     teachers={teachers}
                     onDragStart={handleDragStart}
                     hoveredStudent={hoveredStudent}

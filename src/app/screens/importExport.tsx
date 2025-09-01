@@ -330,6 +330,8 @@ export default function ImportExport() {
 
   const createCourse = async (courseData: Course) => {
     try {
+      console.log("create course, ", courseData);
+
       const response = await fetch("/api/course/create", {
         method: "POST",
         headers: {
@@ -1121,7 +1123,7 @@ export default function ImportExport() {
           <div className={styles.success}>{successMessage} </div>
         )}
       </footer>
-      v1.2
+      v1.4
     </div>
   );
 }

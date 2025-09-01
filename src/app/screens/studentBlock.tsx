@@ -13,6 +13,7 @@ interface StudentBlockProps {
   studentQualification: StudentQualification[];
   studentArea: StudentArea[];
   studentTeacher: StudentTeacher[];
+  studentListAssigned: Student[];
   teachers: Teacher[];
   onDragStart: (
     event: React.DragEvent<HTMLDivElement>,
@@ -29,13 +30,12 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
   studentQualification,
   studentArea,
   studentTeacher,
+  studentListAssigned,
   teachers,
   onDragStart,
   big,
   assigned,
 }) => {
-  console.log("studentTeacher", studentTeacher);
-
   return (
     <OverlayTrigger
       placement="bottom"
@@ -122,79 +122,74 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
           className={styles.elementBig}
           onDragStart={(event) => onDragStart(event, student)}
         >
-          {student.ta_available > 0 ? (
-            <>
-              <h1 className={styles.green}>{student.l_name.slice(0, 2)}</h1>
-              <div>
-                <div className={styles.studentInfo}>
-                  <h2 className={styles.matchStudentName}>
-                    {student.l_name} {student.f_names}
-                  </h2>
-
-                  {studentTeacher.some(
-                    (st) => st.student_id === student.id
-                  ) && (
-                    <div className={styles.advisors}>
-                      <h4>Advisors</h4>
-                      <div>
-                        {teachers.map(
-                          (teacher) =>
-                            studentTeacher.find(
-                              (studentTeacher) =>
-                                studentTeacher.teacher_id === teacher.id &&
-                                studentTeacher.student_id === student.id
-                            ) && (
-                              <div
-                                key={teacher.id}
-                                className={styles.smallText}
-                              >
-                                {teacher.l_name} {teacher.f_names}
-                              </div>
-                            )
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {studentArea.filter((area) => area.student_id === student.id)
-                    .length > 0 && (
-                    <div>
-                      <h4>Areas</h4>
-                      {studentArea
-                        .filter((area) => area.student_id === student.id)
-                        .map((area) => (
-                          <div className={styles.smallText} key={area.area}>{area.area}</div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  {assigned ? (
-                    <h4 className={styles.assigned}>Assigned</h4>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <h1 className={styles.grey}>{student.l_name.slice(0, 2)}</h1>
-              <div>
+          <>
+            <h1
+              className={
+                student.ta_available > 0 &&
+                student.available &&
+                studentListAssigned.filter((sa) => sa.id === student.id)
+                  .length < 2
+                  ? styles.green
+                  : studentListAssigned.filter((sa) => sa.id === student.id)
+                      .length > 1 ||
+                    (studentListAssigned.some((sa) => sa.id === student.id) &&
+                      !student.available) ||
+                    student.ta_available < 0
+                  ? styles.orange
+                  : styles.grey
+              }
+            >
+              {student.l_name.slice(0, 2)}
+            </h1>
+            <div>
+              <div className={styles.studentInfo}>
                 <h2 className={styles.matchStudentName}>
                   {student.l_name} {student.f_names}
                 </h2>
-                <div>
-                  {assigned ? (
-                    <h4 className={styles.assigned}>Assigned</h4>
-                  ) : (
-                    <></>
-                  )}
-                </div>
+
+                {studentTeacher.some((st) => st.student_id === student.id) && (
+                  <div className={styles.advisors}>
+                    <h4>Advisors</h4>
+                    <div>
+                      {teachers.map(
+                        (teacher) =>
+                          studentTeacher.find(
+                            (studentTeacher) =>
+                              studentTeacher.teacher_id === teacher.id &&
+                              studentTeacher.student_id === student.id
+                          ) && (
+                            <div key={teacher.id} className={styles.smallText}>
+                              {teacher.l_name} {teacher.f_names}
+                            </div>
+                          )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {studentArea.filter((area) => area.student_id === student.id)
+                  .length > 0 && (
+                  <div>
+                    <h4>Areas</h4>
+                    {studentArea
+                      .filter((area) => area.student_id === student.id)
+                      .map((area) => (
+                        <div className={styles.smallText} key={area.area}>
+                          {area.area}
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
-            </>
-          )}
+              <div>
+                {assigned ? (
+                  <h4 className={styles.assigned}>Assigned</h4>
+                ) : (
+                  <></>
+                )}
+              </div>
+            </div>
+          </>
         </div>
       ) : (
         <div
