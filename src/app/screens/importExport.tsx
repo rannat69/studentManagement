@@ -22,6 +22,8 @@ export default function ImportExport() {
   const [isImportStudents, setIsImportStudents] = useState<boolean>(true);
   const [isImportCourses, setIsImportCourses] = useState<boolean>(true);
   const [isImportTeachers, setIsImportTeachers] = useState<boolean>(true);
+  const [isImportStudentCourse, setIsImportStudentCourse] =
+    useState<boolean>(true);
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsImporting(true);
     setSuccessMessage("");
@@ -118,6 +120,49 @@ export default function ImportExport() {
       // Check for missing required fields
       if (!item.l_name || !item.field) {
         errors.push("Error: Missing required fields for a teacher");
+        return false;
+      }
+
+      // Check for invalid properties
+      const courseKeys = Object.keys(item);
+      for (const key of courseKeys) {
+        if (!validKeys.includes(key)) {
+          errors.push(
+            `Error: Invalid property "${key}" found in teacher object.`
+          );
+          return false;
+        }
+      }
+      return true;
+    };
+
+    const validateStudentCourse = (item: any): boolean => {
+      const validKeys = [
+        "student_id",
+        "l_name",
+        "f_names",
+        "course_id",
+        "course_hkust_identifier",
+        "course_name",
+        "year",
+        "semester",
+      ];
+
+      // Check for missing required fields
+      if (!item.student_id) {
+        errors.push("Error: Missing required student id for a student/course");
+        return false;
+      }
+      if (!item.course_id) {
+        errors.push("Error: Missing required course id for a student/course");
+        return false;
+      }
+      if (!item.year) {
+        errors.push("Error: Missing required year for a student/course");
+        return false;
+      }
+      if (!item.semester) {
+        errors.push("Error: Missing required semester for a student/course");
         return false;
       }
 
@@ -289,6 +334,108 @@ export default function ImportExport() {
           }
         }
 
+        // StudentCourse import
+        sheetName = workbook.SheetNames[3];
+        sheet = workbook.Sheets[sheetName];
+        const sheetDataStudentCourse: any[] = XLSX.utils.sheet_to_json(sheet);
+
+        if (isImportStudentCourse) {
+          for (const item of sheetDataStudentCourse) {
+            // if id is present, update
+            if (validateStudentCourse(item)) {
+              if (
+                item.student_id &&
+                item.student_id > 0 &&
+                item.course_id &&
+                item.course_id > 0
+              ) {
+                // check item properties, at least l_name, ta_available, and expected_grad_year have to be present
+
+                // read record
+                // if not found, error
+                const fetchStudentCourse = async () => {
+                  try {
+                    const responseStudentCourse = await axios.get(
+                      "/api/student_course/" +
+                        item.student_id +
+                        "/" +
+                        item.course_id
+                    );
+
+                    return responseStudentCourse.data;
+                  } catch (error: unknown) {
+                    if (axios.isAxiosError(error)) {
+                      // Gérer les erreurs d'axios
+                      console.error("Axios Error:", error.message);
+                    } else {
+                      // Gérer les autres erreurs
+                      console.error("Error:", error);
+                    }
+                  }
+                };
+                // Check if student exists
+
+                const responseStudent = await axios.get(
+                  `/api/student/${item.student_id}`
+                );
+                if (responseStudent.data) {
+                  console.log("responseStudent.data", responseStudent.data);
+                } else {
+                  errors.push(`Error: student id not found`);
+                  break;
+                }
+
+                // Check if course exists
+                const responseCourse = await axios.get(
+                  `/api/course/${item.course_id}`
+                );
+                if (responseCourse.data) {
+                  //check if course exists for year/semester
+                  if (
+                    responseCourse.data.year != item.year ||
+                    responseCourse.data.semester != item.semester
+                  ) {
+                    errors.push(`Error: course is not for this year/semester`);
+                    break;
+                  }
+                } else {
+                  errors.push(`Error: course id not found`);
+                  break;
+                }
+
+                const fetchStudentCourseResponse = await fetchStudentCourse();
+                if (fetchStudentCourseResponse) {
+                  console.log(
+                    "fetchStudentCourseResponse",
+                    fetchStudentCourseResponse
+                  );
+
+                  // Check if student/course exists for year/semester
+
+                  if (
+                    fetchStudentCourseResponse.find(
+                      (s: any) =>
+                        s.year === item.year && s.semester === item.semester
+                    )
+                  ) {
+                    // record already exists, no need to create
+                  } else {
+                    // update record
+                    createStudentCourse(item);
+                  }
+                } else {
+                  // create new record in  studentCourse
+                  createStudentCourse(item);
+                }
+              } else {
+                errors.push(`Error: course id or student id not found`);
+              }
+            } else {
+              break;
+            }
+          }
+        }
+
         if (errors.length > 0) {
           setErrorMessage(errors.join("\n")); // Display all errors
         } else {
@@ -365,6 +512,35 @@ export default function ImportExport() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(teacherData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        setErrorMessage(data.error);
+      }
+
+      return data; // Return the newly created course ID or object
+    } catch (error) {
+      console.error("Error adding course:", error);
+      throw error; // Rethrow the error for handling in the caller
+    }
+  };
+
+  const createStudentCourse = async (studentCourseData: any) => {
+    console.log("studentCourseData", studentCourseData);
+
+    try {
+      const response = await fetch("/api/student_course/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(studentCourseData),
       });
 
       if (!response.ok) {
@@ -992,8 +1168,10 @@ export default function ImportExport() {
   function createSheetStudentCourse(
     workbook: Workbook,
     studentCourses: {
+      student_id: number;
       l_name: string;
       f_names: string;
+      course_id: number;
       hkust_identifier: string;
       name: string;
       year: number;
@@ -1004,11 +1182,13 @@ export default function ImportExport() {
 
     // Define columns
     worksheet.columns = [
+      { header: "student_id", key: "student_id", width: 20 },
       { header: "l_name", key: "l_name", width: 50 },
       { header: "f_names", key: "f_names", width: 50 },
-      { header: "course id", key: "hkust_identifier", width: 30 },
-      { header: "course name", key: "name", width: 30 },
-      { header: "year", key: "year", width: 50 },
+      { header: "course_id", key: "course_id", width: 20 },
+      { header: "course_hkust_identifier", key: "hkust_identifier", width: 30 },
+      { header: "course_name", key: "name", width: 30 },
+      { header: "year", key: "year", width: 20 },
       { header: "semester", key: "semester", width: 50 },
 
       // Add more columns as needed
@@ -1016,23 +1196,16 @@ export default function ImportExport() {
 
     // get student and courses
 
-    worksheet.addRow({
-      l_name: "Those fields are for export only. No effect on import.",
-      f_names: "",
-      hkust_identifier: "",
-      name: "",
-      year: "",
-      semester: "",
-    });
-
     // Add content of courses into worksheet
     for (const item of studentCourses) {
       worksheet.addRow({
+        student_id: item.student_id,
         l_name: item.l_name,
         f_names: item.f_names,
+        course_id: item.course_id,
         hkust_identifier: item.hkust_identifier,
         name: item.name,
-        year: item.name,
+        year: item.year,
         semester: item.semester,
       });
     }
@@ -1051,6 +1224,125 @@ export default function ImportExport() {
     // add 100 empty rows to have control fields
     for (let i = 0; i < 100; i++) {
       worksheet.addRow({});
+    }
+
+    const rows = worksheet.getRows(
+      0,
+      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
+    );
+
+    if (rows) {
+      for (const row of rows) {
+        if (row.number && row.number > 1) {
+          row.getCell("A").dataValidation = {
+            type: "whole",
+            operator: "between",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: [0, 999999],
+            promptTitle: "ID",
+            prompt: "Student ID, use same as the one in Students tab. ",
+            errorStyle: "error",
+            errorTitle: "Student ID",
+            error: "Enter a number.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("B").dataValidation = {
+            type: "textLength",
+            operator: "notEqual",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: ["xxxxxxxxxxxxxxxxx"],
+            promptTitle: "Name",
+            prompt: "Names not needed, will be entered automatically.",
+            errorStyle: "error",
+            errorTitle: "Name",
+            error: "Not needed.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("C").dataValidation = {
+            type: "textLength",
+            operator: "notEqual",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: ["xxxxxxxxxxxxxxxxx"],
+            promptTitle: "Name",
+            prompt: "Names not needed, will be entered automatically.",
+            errorStyle: "error",
+            errorTitle: "Name",
+            error: "Not needed.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("D").dataValidation = {
+            type: "whole",
+            operator: "between",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: [0, 999999],
+            promptTitle: "ID",
+            prompt: "Course ID, use same as the one in Courses tab. ",
+            errorStyle: "error",
+            errorTitle: "Student ID",
+            error: "Enter a number.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("E").dataValidation = {
+            type: "textLength",
+            operator: "notEqual",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: ["xxxxxxxxxxxxxxxxx"],
+            promptTitle: "Name",
+            prompt: "Names not needed, will be entered automatically.",
+            errorStyle: "error",
+            errorTitle: "Name",
+            error: "Not needed.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("F").dataValidation = {
+            type: "textLength",
+            operator: "notEqual",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: ["xxxxxxxxxxxxxxxxx"],
+            promptTitle: "Name",
+            prompt: "Names not needed, will be entered automatically.",
+            errorStyle: "error",
+            errorTitle: "Name",
+            error: "Not needed.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("G").dataValidation = {
+            type: "decimal",
+            operator: "between",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: [2000, 3000],
+            promptTitle: "Year",
+            prompt: "The value must a number between 2000 and 3000",
+            errorStyle: "error",
+            errorTitle: "Year",
+            error: "The value must be a year",
+            showErrorMessage: true,
+          };
+
+          row.getCell("H").dataValidation = {
+            type: "list",
+            allowBlank: true,
+            formulae: ['"Spring,Summer,Fall,Winter"'],
+            errorStyle: "error",
+            errorTitle: "Semester",
+            error: "The value must be a semester",
+            showErrorMessage: true,
+          };
+        }
+      }
     }
   }
 
@@ -1112,6 +1404,22 @@ export default function ImportExport() {
             onClick={() => setIsImportTeachers(!isImportTeachers)}
           >
             Teachers
+          </div>
+        )}
+
+        {!isImportStudentCourse ? (
+          <div
+            className={styles.buttonUnclicked}
+            onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
+          >
+            Match Students/courses
+          </div>
+        ) : (
+          <div
+            className={styles.buttonClicked}
+            onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
+          >
+            Match Students/courses
           </div>
         )}
       </div>

@@ -659,8 +659,8 @@ a.secondary {
 
 .importExport {
   padding: 0.7rem;
-  border: 0.3rem solid;
-  border-radius: 2rem;
+  border: 0.1rem solid lightgrey;
+  border-radius: 0.8rem;
   transition: background-color 0.3s, border-color 0.3s;
   /* Optional: Smooth transition */
   font-size: 1rem;
@@ -679,8 +679,8 @@ a.secondary {
 .buttonClicked {
   background-color: greenyellow;
   padding: 0.7rem;
-  border: 0.3rem solid;
-  border-radius: 2rem;
+  border: 0.1rem solid lightgrey;
+  border-radius: 0.8rem;
   transition: background-color 0.3s, border-color 0.3s;
   /* Optional: Smooth transition */
   font-size: 0.8rem;
@@ -691,8 +691,8 @@ a.secondary {
 .buttonUnclicked {
   background-color: lightgray;
   padding: 0.7rem;
-  border: 0.3rem solid;
-  border-radius: 2rem;
+  border: 0.1rem solid lightgrey;
+  border-radius: 0.8rem;
   transition: background-color 0.3s, border-color 0.3s;
   /* Optional: Smooth transition */
   font-size: 0.8rem;
@@ -802,10 +802,10 @@ a.secondary {
 }
 
 .studentInfo h4 {
-	margin-left: 0.5rem;
+  margin-left: 0.5rem;
 }
 
-.smallText { 
+.smallText {
   text-align: center;
   font-size: 10;
 }
