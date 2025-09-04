@@ -20,6 +20,7 @@ import { Request } from "../data/requestData";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import { StudentTeacher } from "../data/studentTeacherData";
 import { Teacher } from "../data/teacherListData";
+import { StudentCourse } from "../data/studentCourseData";
 
 export default function MatchStudentCourse() {
   // List students that have TA available
@@ -102,6 +103,10 @@ export default function MatchStudentCourse() {
 
     let courseList = response.data;
 
+    const responseStudentCourse = await axios.get("/api/student_course/all");
+
+    const studentCourseList = responseStudentCourse.data;
+
     // filter elements of studentCourseList : only take those with year and semester
     courseList = courseList.filter((course: Course) => {
       return course.year === year && course.semester === semester;
@@ -117,6 +122,24 @@ export default function MatchStudentCourse() {
       }
       return 0;
     });
+
+    for (const course of courseList) {
+      if (course.ta_available === null) {
+        course.ta_available = 0;
+      }
+
+      // only take records of  responseStudentCourse.data where course_id = id
+
+      const taAssigned = studentCourseList.filter((r: StudentCourse) => {
+        return (
+          Number(r.course_id) === Number(course.id) &&
+          r.year === course.year &&
+          r.semester === course.semester
+        );
+      });
+
+      course.ta_assigned = taAssigned.length;
+    }
 
     setCourseListNeeded(courseList);
   };
@@ -389,7 +412,7 @@ export default function MatchStudentCourse() {
 
       // If back to student available, ta available again
       studentTemp.dropZone = 0;
-      studentTemp.ta_available += 1;
+      //studentTemp.ta_available += 1;
 
       // check if student already in studentListAvail
       const studentExists = studentListAvail.some(
@@ -440,7 +463,7 @@ export default function MatchStudentCourse() {
 
       // Update student and course record
       if (courseTemp.id) {
-        updateCourse(courseTemp);
+        //updateCourse(courseTemp);
 
         if (studentTemp.id) {
           deleteStudentCourse(studentTemp, courseTemp);
@@ -448,7 +471,7 @@ export default function MatchStudentCourse() {
       }
 
       // Update student and course record
-      updateStudent(studentTemp);
+      //updateStudent(studentTemp);
 
       // Remove student from course
     } else {
@@ -474,13 +497,10 @@ export default function MatchStudentCourse() {
         qualifications: [],
       };
 
-      console.log("studentTemp", studentTemp);
-
       if (studentTemp.ta_available <= 0) {
         //  setErrorMessage("This student is not available.");
         // return;
         warningMessageTemp += " " + "Student is overbooked.";
-        console.log("warningMessageTemp", warningMessageTemp);
         setWarningMessage(warningMessageTemp);
       }
 
@@ -522,7 +542,7 @@ export default function MatchStudentCourse() {
         studentTemp.dropZone === 0
       ) {
         // If from student available, ta available -  1
-        studentTemp.ta_available -= 1;
+        //studentTemp.ta_available -= 1;
 
         // if student no more available, remove from available list
 
@@ -532,14 +552,14 @@ export default function MatchStudentCourse() {
         );
 
         if (index > -1) {
-          studentListAvail[index].ta_available -= 1;
+          //studentListAvail[index].ta_available -= 1;
 
           setStudentListAvail([...studentListAvail]);
 
           // Check all records in studentListAssigned for this student, and ta_available - 1
           studentListAssigned.forEach((student) => {
             if (student.id === studentTemp.id) {
-              student.ta_available -= 1;
+              // student.ta_available -= 1;
             }
           });
         }
@@ -592,7 +612,7 @@ export default function MatchStudentCourse() {
           setCourseListNeeded(updatedCourseList);
 
           // Update course record
-          updateCourse(courseTemp);
+          // updateCourse(courseTemp);
 
           // Remove student from course
           deleteStudentCourse(studentTemp, courseTemp);
@@ -631,7 +651,7 @@ export default function MatchStudentCourse() {
         setCourseListNeeded(updatedCourseList);
 
         // Update course record
-        updateCourse(courseTemp);
+        //updateCourse(courseTemp);
 
         addStudentCourse(studentTemp, courseTemp);
       }
@@ -787,8 +807,27 @@ export default function MatchStudentCourse() {
       studentAreaTable = responseStudentArea.data;
     }
 
+    const responseStudentCourse = await axios.get("/api/student_course/all");
+
+    const studentCourseList = responseStudentCourse.data;
+
     // for each student, find a course with ta_needed > 0 and no dropZone
     for (const student of students) {
+      // only available students
+      if (!student.available || student.ta_available <= 0) {
+        continue;
+      }
+
+      const taAssigned = studentCourseList.filter((r: StudentCourse) => {
+        return Number(r.student_id) === Number(student.id);
+      });
+
+      student.ta_assigned = taAssigned.length;
+
+      if (student.ta_assigned >= student.ta_available) {
+        continue;
+      }
+
       // if a course is found, add the student to the course
       if (courses.length > 0) {
         // Check for requests
@@ -965,7 +1004,7 @@ export default function MatchStudentCourse() {
           course.ta_assigned < course.ta_needed
         ) {
           // -1 to his T.A. available
-          student.ta_available -= 1;
+          //student.ta_available -= 1;
 
           // trick to not modify the one in studentListAvail
           const studentClone = JSON.parse(JSON.stringify(student));
@@ -974,14 +1013,6 @@ export default function MatchStudentCourse() {
           studentClone.dropZone = studentCourseToAdd.courseId;
 
           // get all students with same id in studentListAssigned and give them TA available -1
-          const studentListAssignedClone = studentListAssigned.filter(
-            (s) => s.id === student.id
-          );
-          if (studentListAssignedClone.length > 0) {
-            studentListAssignedClone.forEach((s) => {
-              s.ta_available -= 1;
-            });
-          }
 
           studentListAssigned.push(studentClone);
 
@@ -1009,10 +1040,9 @@ export default function MatchStudentCourse() {
           );
 
           if (responseCourseToUpdate) {
-            responseCourseToUpdate.data.ta_assigned =
-              responseCourseToUpdate.data.ta_assigned + 1;
+            responseCourseToUpdate.data.ta_assigned += 1;
 
-            await updateCourse(responseCourseToUpdate.data);
+            //await updateCourse(responseCourseToUpdate.data);
 
             await addStudentCourse(student, responseCourseToUpdate.data);
 
@@ -1029,7 +1059,7 @@ export default function MatchStudentCourse() {
     }
 
     // for each course, count how many students assigned to it.
-
+    /*
     for (const course of courseListNeeded) {
       console.log("course end match", course);
 
@@ -1052,22 +1082,15 @@ export default function MatchStudentCourse() {
       const data = await responseStudentCourse.json();
 
       if (data) {
-        console.log("data.length", data.length);
+        const responseCourseToUpdate = await axios.get(
+          "/api/course/" + course.id
+        );
+
+        //responseCourseToUpdate.data.ta_assigned = data.length;
+
+        //await updateCourse(responseCourseToUpdate.data);
       }
-
-      const responseCourseToUpdate = await axios.get(
-        "/api/course/" + course.id
-      );
-
-      responseCourseToUpdate.data.ta_assigned = data.length;
-
-      console.log(
-        "responseCourseToUpdate.data.ta_assigned",
-        responseCourseToUpdate.data.ta_assigned
-      );
-
-      await updateCourse(responseCourseToUpdate.data);
-    }
+    }*/
 
     //setCourseListNeeded([...courseListNeeded]);
     //setStudentListAssigned([...studentListAssigned]);
@@ -1095,10 +1118,9 @@ export default function MatchStudentCourse() {
       const response = await axios.get("/api/student/" + student.id);
 
       if (response.data) {
-        const studentTemp: Student = response.data;
-        studentTemp.ta_available += 1;
-
-        await updateStudent(studentTemp);
+        // const studentTemp: Student = response.data;
+        //   studentTemp.ta_available += 1;
+        // await updateStudent(studentTemp);
       }
 
       // read course with id=  student.dropZone
@@ -1107,9 +1129,9 @@ export default function MatchStudentCourse() {
       if (responseCourse.data) {
         const courseTemp: Course = responseCourse.data;
 
-        if (courseTemp.ta_assigned > 0) {
-          courseTemp.ta_assigned = 0;
-        }
+        //if (courseTemp.ta_assigned > 0) {
+        //  courseTemp.ta_assigned = 0;
+        //}
         await updateCourse(courseTemp);
       }
     }

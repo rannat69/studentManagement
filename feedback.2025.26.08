@@ -19,4 +19,4 @@ Display the progress bar in red if more students are assigned than required ALRE
 Display student name in orange if: (1) assigned to more than 1 course; (2) assigned despite not being available; (3) assigned more courses than remaining DONE 
 
 Default TA available : PHD 4, MPhil 2 
-Count by looking in student course.
+Count by looking in student course.  DONE

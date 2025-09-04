@@ -14,6 +14,7 @@ import { Spinner } from "react-bootstrap";
 import { StudentQualification } from "../data/studentQualificationData";
 import { StudentArea } from "../data/studentAreaData";
 import { StudentTeacher } from "../data/studentTeacherData";
+import { StudentCourse } from "../data/studentCourseData";
 
 export default function ImportExport() {
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -136,7 +137,7 @@ export default function ImportExport() {
       return true;
     };
 
-    const validateStudentCourse = (item: any): boolean => {
+    const validateStudentCourse = (item: StudentCourse): boolean => {
       const validKeys = [
         "student_id",
         "l_name",
@@ -337,7 +338,8 @@ export default function ImportExport() {
         // StudentCourse import
         sheetName = workbook.SheetNames[3];
         sheet = workbook.Sheets[sheetName];
-        const sheetDataStudentCourse: any[] = XLSX.utils.sheet_to_json(sheet);
+        const sheetDataStudentCourse: StudentCourse[] =
+          XLSX.utils.sheet_to_json(sheet);
 
         if (isImportStudentCourse) {
           for (const item of sheetDataStudentCourse) {
@@ -414,7 +416,7 @@ export default function ImportExport() {
 
                   if (
                     fetchStudentCourseResponse.find(
-                      (s: any) =>
+                      (s: StudentCourse) =>
                         s.year === item.year && s.semester === item.semester
                     )
                   ) {
@@ -531,7 +533,7 @@ export default function ImportExport() {
     }
   };
 
-  const createStudentCourse = async (studentCourseData: any) => {
+  const createStudentCourse = async (studentCourseData: StudentCourse) => {
     console.log("studentCourseData", studentCourseData);
 
     try {

@@ -7,6 +7,7 @@ import { Student } from "../data/studentListData";
 import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "./styles/page.module.css";
 import axios from "axios";
+import { StudentCourse } from "../data/studentCourseData";
 
 export default function StudentList() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -25,6 +26,9 @@ export default function StudentList() {
 
   useEffect(() => {
     const fetchStudents = async () => {
+      // For each student, read student_course, count records to obtain ta_assigned.
+      const responseStudentCourse = await axios.get("/api/student_course/all");
+
       const response = await axios.get("/api/student/all");
 
       for (let i = 0; i < response.data.length; i++) {
@@ -35,6 +39,14 @@ export default function StudentList() {
           response.data[i].unoff_name != undefined
             ? response.data[i].unoff_name
             : "";
+
+        // only take records of  responseStudentCourse.data where student_id = id
+
+        const taAssigned = responseStudentCourse.data.filter((r: StudentCourse) => {
+          return Number(r.student_id) === Number(response.data[i].id);
+        });
+
+        response.data[i].ta_assigned = taAssigned.length;
       }
 
       setStudentListStateUnfiltered(response.data);
@@ -59,8 +71,6 @@ export default function StudentList() {
     if (!studentListState) {
       return;
     }
-
-    console.log("updatedStudent", updatedStudent);
 
     let updatedList;
 
@@ -92,8 +102,6 @@ export default function StudentList() {
       return;
     }
 
-    console.log("column", column);
-
     let orderByDirectionTemp = "asc";
 
     // Check if the current column is the same as the previous one
@@ -116,14 +124,12 @@ export default function StudentList() {
         return aValue > bValue ? 1 : -1;
       } else if (typeof aValue === "number" && typeof bValue === "number") {
         return aValue - bValue;
-	  } else if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+      } else if (typeof aValue === "boolean" && typeof bValue === "boolean") {
         return aValue === bValue ? 0 : aValue ? -1 : 1;
       } else {
         return 0;
       }
     });
-
-    console.log(orderByDirectionTemp);
 
     // Reverse the list if the order direction is 'desc'
     if (orderByDirectionTemp === "desc") {
@@ -158,9 +164,6 @@ export default function StudentList() {
       currentSearchSemester = searchTerm;
       setSearchSemester(searchTerm);
     }
-
-    console.log("property", property);
-    console.log("searchTerm", searchTerm);
 
     // Si tous les termes de recherche sont vides, réinitialiser la liste
     if (
@@ -268,7 +271,7 @@ export default function StudentList() {
                   Graduation semester
                 </th>
                 <th onClick={() => handleOrderBy("ta_available")}>
-                  T.A. available
+                  T.A. assigned
                 </th>
                 <th onClick={() => handleOrderBy("available")}>Available</th>
               </tr>
@@ -318,7 +321,9 @@ export default function StudentList() {
                         </div>
                       )}
                     </td>
-                    <td>{student.ta_available}</td>
+                    <td>
+                      {student.ta_assigned + " / " + student.ta_available}
+                    </td>
                     <td>
                       {student.available && (
                         <div className={styles.semesterSpring}>Yes</div>
