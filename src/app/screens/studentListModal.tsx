@@ -186,6 +186,31 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
       newValue = value;
     }
 
+    // MPhil default 2 ta available
+    // PhD default 4 ta available
+    if (name === "program") {
+      console.log("value", value);
+      if (value === "ISD MPhil") {
+        const  formDataTemp = formData;
+
+        if (formDataTemp) {
+          formDataTemp.ta_available = 2;
+        }
+
+        setFormData(formDataTemp);
+      }
+
+      if (value === "ISD PhD") {
+        const formDataTemp = formData;
+
+        if (formDataTemp) {
+          formDataTemp.ta_available = 4;
+        }
+
+        setFormData(formDataTemp);
+      }
+    }
+
     if (formData) {
       setFormData({
         ...formData,

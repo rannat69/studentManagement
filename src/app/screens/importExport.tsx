@@ -1433,7 +1433,7 @@ export default function ImportExport() {
           <div className={styles.success}>{successMessage} </div>
         )}
       </footer>
-      v1.4
+      v1.5
     </div>
   );
 }
