@@ -797,8 +797,21 @@ a.secondary {
   text-align: left;
 }
 
+.studentInfoContainer {
+  display: flex;
+  width: 100%;
+}
+
 .studentInfo {
   display: flex;
+  flex: 1;
+
+  justify-content: space-between;
+}
+
+.matchStudentName {
+  width: 70%;
+  text-align: justify;
 }
 
 .studentInfo h4 {
@@ -813,4 +826,16 @@ a.secondary {
 .advisors {
   margin-left: 1rem;
   margin-right: 1rem;
+  width: 15%;
+
+  align-self: flex-start; /* Aligne les sections en haut */
+  text-align: right; /* Aligne le texte à droite */
+}
+
+.areas {
+  margin-left: 1rem;
+  margin-right: 1rem;
+  width: 15%;
+  align-self: flex-start; /* Aligne les sections en haut */
+  text-align: right; /* Aligne le texte à droite */
 }

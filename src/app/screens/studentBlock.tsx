@@ -141,45 +141,40 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
             >
               {student.l_name.slice(0, 2)}
             </h1>
-            <div>
+            <div className={styles.studentInfoContainer}>
               <div className={styles.studentInfo}>
                 <h2 className={styles.matchStudentName}>
                   {student.l_name} {student.f_names}
                 </h2>
 
-                {studentTeacher.some((st) => st.student_id === student.id) && (
-                  <div className={styles.advisors}>
-                    <h4>Advisors</h4>
-                    <div>
-                      {teachers.map(
-                        (teacher) =>
-                          studentTeacher.find(
-                            (studentTeacher) =>
-                              studentTeacher.teacher_id === teacher.id &&
-                              studentTeacher.student_id === student.id
-                          ) && (
-                            <div key={teacher.id} className={styles.smallText}>
-                              {teacher.l_name} {teacher.f_names}
-                            </div>
-                          )
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {studentArea.filter((area) => area.student_id === student.id)
-                  .length > 0 && (
+                <div className={styles.advisors}>
+                  <h4>Advisors</h4>
                   <div>
-                    <h4>Areas</h4>
-                    {studentArea
-                      .filter((area) => area.student_id === student.id)
-                      .map((area) => (
-                        <div className={styles.smallText} key={area.area}>
-                          {area.area}
-                        </div>
-                      ))}
+                    {teachers.map(
+                      (teacher) =>
+                        studentTeacher.find(
+                          (studentTeacher) =>
+                            studentTeacher.teacher_id === teacher.id &&
+                            studentTeacher.student_id === student.id
+                        ) && (
+                          <div key={teacher.id} className={styles.smallText}>
+                            {teacher.l_name} {teacher.f_names}
+                          </div>
+                        )
+                    )}
                   </div>
-                )}
+                </div>
+
+                <div className={styles.areas}>
+                  <h4>Areas</h4>
+                  {studentArea
+                    .filter((area) => area.student_id === student.id)
+                    .map((area) => (
+                      <div className={styles.smallText} key={area.area}>
+                        {area.area}
+                      </div>
+                    ))}
+                </div>
               </div>
               <div>
                 {assigned ? (

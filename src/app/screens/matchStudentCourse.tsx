@@ -22,6 +22,8 @@ import { StudentTeacher } from "../data/studentTeacherData";
 import { Teacher } from "../data/teacherListData";
 import { StudentCourse } from "../data/studentCourseData";
 
+import { AREAS } from "../constants";
+
 export default function MatchStudentCourse() {
   // List students that have TA available
 
@@ -59,7 +61,23 @@ export default function MatchStudentCourse() {
 
   const [autoMatchRunning, setAutoMatchRunning] = useState<boolean>(false);
   const [areYouSure, setAreYouSure] = useState<boolean>(false);
+
+  const [teachersList, setTeachersList] = useState<Teacher[]>([]);
+
+  const [selectedTeacher, setSelectedTeacher] = useState<number>();
+  const [searchStudent, setSearchStudent] = useState<string>("");
+
+  const [areas, setAreas] = useState<string[]>();
+  const [selectedArea, setSelectedArea] = useState<string>("");
+
   useEffect(() => {
+    const fetchTeachersList = async () => {
+      const response = await axios.get("/api/teacher/all/");
+
+      setTeachersList(response.data);
+    };
+    fetchTeachersList();
+
     // get current year
     let currentYear = new Date().getFullYear();
     setYear(currentYear);
@@ -89,6 +107,43 @@ export default function MatchStudentCourse() {
 
     fetchCourses(currentYear, semester);
   }, []);
+
+  const handleChangeSearchStudent = (searchStudentTemp: string) => {
+    setSearchStudent(searchStudentTemp);
+
+    handleSearchStudent(
+      searchStudentTemp,
+      selectedTeacher ? selectedTeacher : 0,
+      selectedArea
+    );
+  };
+
+  const handleChangeAdvisor = async (teacherId: number) => {
+    if (teacherId === 0) {
+      setSelectedTeacher(undefined);
+    } else {
+      const response = await axios.get(`/api/teacher/${teacherId}`);
+
+      setSelectedTeacher(response.data.id);
+    }
+
+    console.log(searchStudent, teacherId, selectedArea);
+
+    handleSearchStudent(searchStudent, teacherId, selectedArea);
+  };
+
+  const handleChangeArea = async (area: string) => {
+    if (area === "") {
+      setSelectedArea("");
+    } else {
+      setSelectedArea(area);
+    }
+    handleSearchStudent(
+      searchStudent,
+      selectedTeacher ? selectedTeacher : 0,
+      area
+    );
+  };
 
   // list of students with at least 1 T.A.
   const fetchStudents = async (year: number, semester: string) => {
@@ -1159,31 +1214,56 @@ export default function MatchStudentCourse() {
     setAutoMatchRunning(false);
   };
 
-  const handleSearchStudent = (searchTerm: string) => {
-    if (searchTerm === "") {
-      setStudentListAvail(studentListAvailUnfiltered);
-
-      return;
-    }
-
+  const handleSearchStudent = (
+    searchTerm: string,
+    teacherId: number,
+    area: string
+  ) => {
     if (!studentListAvailUnfiltered) {
       return;
     }
 
-    const filteredList = studentListAvailUnfiltered.filter((student) => {
-      // Check if the search term matches any of the student's properties
-      return (
-        (student.l_name &&
-          student.l_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (student.f_names &&
-          student.f_names.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (student.unoff_name &&
-          student.unoff_name.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    });
+    let filteredList = studentListAvailUnfiltered;
+    if (searchTerm != "") {
+      filteredList = studentListAvailUnfiltered.filter((student) => {
+        // Check if the search term matches any of the student's properties
+        return (
+          (student.l_name &&
+            student.l_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (student.f_names &&
+            student.f_names.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (student.unoff_name &&
+            student.unoff_name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+      });
+      // Update the state with the filtered list
+      setStudentListAvail(filteredList);
+    }
 
-    // Update the state with the filtered list
-    setStudentListAvail(filteredList);
+    if (teacherId > 0) {
+      filteredList = filteredList.filter((student) => {
+        // Check if the search term matches any of the student's properties
+        return studentTeacher.some(
+          (studentTeacher) =>
+            studentTeacher.teacher_id === teacherId &&
+            studentTeacher.student_id === student.id
+        );
+      });
+
+      setStudentListAvail(filteredList);
+    }
+
+    if (area != "") {
+      filteredList = filteredList.filter((student) => {
+        // Check if the search term matches any of the student's properties
+        return studentArea.some(
+          (studentArea) =>
+            studentArea.area === area && studentArea.student_id === student.id
+        );
+      });
+
+      setStudentListAvail(filteredList);
+    }
   };
 
   return (
@@ -1339,8 +1419,46 @@ export default function MatchStudentCourse() {
                 type="text"
                 className={styles.input}
                 placeholder="&#128269;   Search students ..."
-                onChange={(e) => handleSearchStudent(e.target.value)}
+                onChange={(e) => handleChangeSearchStudent(e.target.value)}
               ></input>
+
+              <div className={styles.selectContainer}>
+                Filter by advisor
+                <select
+                  id="teachers"
+                  onChange={(e) => handleChangeAdvisor(Number(e.target.value))}
+                  className={styles.select}
+                >
+                  <option key="" value="">
+                    -- Choose a teacher --
+                  </option>
+
+                  {teachersList.map((teacher) => (
+                    <option key={teacher.id} value={teacher.id}>
+                      {teacher.l_name + " " + teacher.f_names}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.selectContainer}>
+                Filter by area
+                <select
+                  id="areas"
+                  onChange={(e) => handleChangeArea(e.target.value)}
+                  className={styles.select}
+                >
+                  <option key="" value="">
+                    -- Choose an area --
+                  </option>
+
+                  {AREAS.map((area) => (
+                    <option key={area} value={area}>
+                      {area}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div className={styles.dropAreaBig}>
                 {studentListAvail.map((student) => (
