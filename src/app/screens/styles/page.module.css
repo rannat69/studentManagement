@@ -839,3 +839,15 @@ a.secondary {
   align-self: flex-start; /* Aligne les sections en haut */
   text-align: right; /* Aligne le texte à droite */
 }
+
+.selectContainer {
+  display: flex;
+  align-items: center;
+  width: 80%;
+  margin: 1rem;
+}
+
+.selectContainer h4 {
+  text-align: justify;
+  width: 80%;
+}

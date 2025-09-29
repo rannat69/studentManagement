@@ -1423,7 +1423,7 @@ export default function MatchStudentCourse() {
               ></input>
 
               <div className={styles.selectContainer}>
-                Filter by advisor
+                <h4>Filter by advisor</h4>
                 <select
                   id="teachers"
                   onChange={(e) => handleChangeAdvisor(Number(e.target.value))}
@@ -1442,7 +1442,7 @@ export default function MatchStudentCourse() {
               </div>
 
               <div className={styles.selectContainer}>
-                Filter by area
+                <h4>Filter by area</h4>
                 <select
                   id="areas"
                   onChange={(e) => handleChangeArea(e.target.value)}
