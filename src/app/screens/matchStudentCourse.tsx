@@ -67,7 +67,6 @@ export default function MatchStudentCourse() {
   const [selectedTeacher, setSelectedTeacher] = useState<number>();
   const [searchStudent, setSearchStudent] = useState<string>("");
 
-  const [areas, setAreas] = useState<string[]>();
   const [selectedArea, setSelectedArea] = useState<string>("");
 
   useEffect(() => {
