@@ -144,7 +144,12 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
             <div className={styles.studentInfoContainer}>
               <div className={styles.studentInfo}>
                 <h2 className={styles.matchStudentName}>
-                  {student.l_name} {student.f_names}
+                  {student.l_name} {student.f_names} <br />
+                  {assigned ? (
+                    <div className={styles.assigned}>Assigned</div>
+                  ) : (
+                    <></>
+                  )}
                 </h2>
 
                 <div className={styles.advisors}>
@@ -176,15 +181,9 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
                     ))}
                 </div>
               </div>
-              <div>
-                {assigned ? (
-                  <h4 className={styles.assigned}>Assigned</h4>
-                ) : (
-                  <></>
-                )}
-              </div>
             </div>
           </>
+          <div></div>
         </div>
       ) : (
         <div

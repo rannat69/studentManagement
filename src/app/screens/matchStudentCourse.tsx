@@ -119,7 +119,7 @@ export default function MatchStudentCourse() {
 
   const handleChangeAdvisor = async (teacherId: number) => {
     if (teacherId === 0) {
-      setSelectedTeacher(undefined);
+      setSelectedTeacher(0);
     } else {
       const response = await axios.get(`/api/teacher/${teacherId}`);
 
@@ -1236,7 +1236,6 @@ export default function MatchStudentCourse() {
         );
       });
       // Update the state with the filtered list
-      setStudentListAvail(filteredList);
     }
 
     if (teacherId > 0) {
@@ -1248,8 +1247,6 @@ export default function MatchStudentCourse() {
             studentTeacher.student_id === student.id
         );
       });
-
-      setStudentListAvail(filteredList);
     }
 
     if (area != "") {
@@ -1260,9 +1257,9 @@ export default function MatchStudentCourse() {
             studentArea.area === area && studentArea.student_id === student.id
         );
       });
-
-      setStudentListAvail(filteredList);
     }
+
+    setStudentListAvail(filteredList);
   };
 
   return (
@@ -1429,7 +1426,7 @@ export default function MatchStudentCourse() {
                   className={styles.select}
                 >
                   <option key="" value="">
-                    -- Choose a teacher --
+                    -- Choose an advisor --
                   </option>
 
                   {teachersList.map((teacher) => (
