@@ -221,6 +221,7 @@ export default function ImportExport() {
                 };
 
                 const fetchCourseResponse = await fetchCourse(item.id);
+
                 if (fetchCourseResponse) {
                   updateCourse(item.id, item);
                 } else {
@@ -323,7 +324,7 @@ export default function ImportExport() {
                 if (fetchCourseResponse) {
                   updateTeacher(item.id, item);
                 } else {
-                  errors.push(`Error: Course with id ${item.id} not found`);
+                  errors.push(`Error: Teacher with id ${item.id} not found`);
                 }
               } else {
                 // if id not present, create
@@ -641,44 +642,6 @@ export default function ImportExport() {
 
       return response.data;
     };
-
-    /*const fetchStudentCourses = async () => {
-			const response = await axios.get("http://localhost:5000/student_course");
-
-			return response.data;
-		};
-
-		// fetch student areas
-		const fetchStudentAreas = async () => {
-			const response = await axios.get("http://localhost:5000/student_areas");
-
-			return response.data;
-		};
-
-		// fetch student qualification
-		const fetchStudentQualifications = async () => {
-			const response = await axios.get(
-				"http://localhost:5000/student_qualifications"
-			);
-
-			return response.data;
-		};
-
-		// fetch course qualification
-		const fetchCourseQualifications = async () => {
-			const response = await axios.get(
-				"http://localhost:5000/course_qualifications"
-			);
-
-			return response.data;
-		};
-
-		// fetch course areas
-		const fetchCourseAreas = async () => {
-			const response = await axios.get("http://localhost:5000/course_areas");
-
-			return response.data;
-		};*/
 
     const courses: Course[] = await fetchCourses();
 
@@ -1369,6 +1332,11 @@ export default function ImportExport() {
             onClick={() => setIsImportStudents(!isImportStudents)}
           >
             Students
+            <input
+              type="checkbox"
+              checked={false}
+              onClick={() => setIsImportStudents(!isImportStudents)}
+            ></input>
           </div>
         ) : (
           <div
@@ -1376,6 +1344,11 @@ export default function ImportExport() {
             onClick={() => setIsImportStudents(!isImportStudents)}
           >
             Students
+            <input
+              type="checkbox"
+              checked
+              onClick={() => setIsImportStudents(!isImportStudents)}
+            ></input>
           </div>
         )}
         {!isImportCourses ? (
@@ -1384,6 +1357,11 @@ export default function ImportExport() {
             onClick={() => setIsImportCourses(!isImportCourses)}
           >
             Courses
+            <input
+              type="checkbox"
+              checked={false}
+              onClick={() => setIsImportCourses(!isImportCourses)}
+            ></input>
           </div>
         ) : (
           <div
@@ -1391,6 +1369,11 @@ export default function ImportExport() {
             onClick={() => setIsImportCourses(!isImportCourses)}
           >
             Courses
+            <input
+              type="checkbox"
+              checked
+              onClick={() => setIsImportCourses(!isImportCourses)}
+            ></input>
           </div>
         )}
         {!isImportTeachers ? (
@@ -1399,6 +1382,11 @@ export default function ImportExport() {
             onClick={() => setIsImportTeachers(!isImportTeachers)}
           >
             Teachers
+            <input
+              type="checkbox"
+              checked={false}
+              onClick={() => setIsImportTeachers(!isImportTeachers)}
+            ></input>
           </div>
         ) : (
           <div
@@ -1406,6 +1394,11 @@ export default function ImportExport() {
             onClick={() => setIsImportTeachers(!isImportTeachers)}
           >
             Teachers
+            <input
+              type="checkbox"
+              checked
+              onClick={() => setIsImportTeachers(!isImportTeachers)}
+            ></input>
           </div>
         )}
 
@@ -1415,6 +1408,11 @@ export default function ImportExport() {
             onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
           >
             Match Students/courses
+            <input
+              type="checkbox"
+              checked={false}
+              onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
+            ></input>
           </div>
         ) : (
           <div
@@ -1422,6 +1420,11 @@ export default function ImportExport() {
             onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
           >
             Match Students/courses
+            <input
+              type="checkbox"
+              checked
+              onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
+            ></input>
           </div>
         )}
       </div>
@@ -1433,7 +1436,7 @@ export default function ImportExport() {
           <div className={styles.success}>{successMessage} </div>
         )}
       </footer>
-      v1.6
+      v1.7
     </div>
   );
 }
