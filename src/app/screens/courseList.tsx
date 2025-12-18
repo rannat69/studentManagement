@@ -28,8 +28,7 @@ export default function CourseList() {
   useEffect(() => {
     const fetchCourses = async () => {
       // get current year
-      const currentYear = new Date().getFullYear();
-      setYear(currentYear);
+      let currentYear = new Date().getFullYear();
 
       // get current semester + 1
       // if between february and august, it is spring
@@ -46,8 +45,10 @@ export default function CourseList() {
         // current semester is winter, assign students for spring of next year
         semester = "Spring";
         setSemester("Spring");
-        setYear(currentYear + 1);
+        currentYear++;
       }
+
+      setYear(currentYear);
 
       // We use it to fill courseListUnfiltered
       fetchCoursesUnfiltered();
@@ -69,34 +70,56 @@ export default function CourseList() {
   };
 
   const handleSaveCourse = (updatedCourse: Course) => {
-    // Update the course list with the new data
+    // Check if courseListState is defined
     if (!courseListState) {
       return;
     }
 
+    if (!courseListStateUnfiltered) {
+      return;
+    }
+
     let updatedList;
+    let updatedUnfilteredList;
 
     // Check if the course is marked for deletion
     if (updatedCourse.deleted) {
-      // Remove the course from the list
+      // Remove the course from both lists
       updatedList = courseListState.filter(
         (course) => course.id !== updatedCourse.id
       );
+
+      updatedUnfilteredList = courseListStateUnfiltered.filter(
+        (course) => course.id !== updatedCourse.id
+      );
     } else {
-      // Check if the course exists in the list
+      // Check if the course exists in the filtered list
       const courseExists = courseListState.some(
         (course) => course.id === updatedCourse.id
       );
 
+      // Update the filtered course list
       updatedList = courseExists
         ? courseListState.map((course) =>
             course.id === updatedCourse.id ? updatedCourse : course
           )
         : [...courseListState, updatedCourse];
+
+      // Similarly check in the unfiltered list
+      const unfilteredCourseExists = courseListStateUnfiltered.some(
+        (course) => course.id === updatedCourse.id
+      );
+
+      updatedUnfilteredList = unfilteredCourseExists
+        ? courseListStateUnfiltered.map((course) =>
+            course.id === updatedCourse.id ? updatedCourse : course
+          )
+        : [...courseListStateUnfiltered, updatedCourse];
     }
 
-    // Update the state with the new course list
+    // Update the state with the new course lists
     setCourseListState(updatedList);
+    setCourseListStateUnfiltered(updatedUnfilteredList);
   };
 
   const fetchCoursesUnfiltered = async () => {
@@ -276,7 +299,7 @@ export default function CourseList() {
           <select
             name="semester"
             onChange={(e) => handleSearchCourse("semester", e.target.value)}
-            value={semester ? semester : "Spring"}
+            value={semester ? semester : ""}
             className={styles.select}
           >
             <option value={""}>-</option>
