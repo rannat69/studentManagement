@@ -1335,7 +1335,7 @@ export default function ImportExport() {
             <input
               type="checkbox"
               checked={false}
-              onClick={() => setIsImportStudents(!isImportStudents)}
+              onChange={() => setIsImportStudents(!isImportStudents)}
             ></input>
           </div>
         ) : (
@@ -1347,7 +1347,7 @@ export default function ImportExport() {
             <input
               type="checkbox"
               checked
-              onClick={() => setIsImportStudents(!isImportStudents)}
+              onChange={() => setIsImportStudents(!isImportStudents)}
             ></input>
           </div>
         )}
@@ -1360,7 +1360,7 @@ export default function ImportExport() {
             <input
               type="checkbox"
               checked={false}
-              onClick={() => setIsImportCourses(!isImportCourses)}
+              onChange={() => setIsImportCourses(!isImportCourses)}
             ></input>
           </div>
         ) : (
@@ -1372,7 +1372,7 @@ export default function ImportExport() {
             <input
               type="checkbox"
               checked
-              onClick={() => setIsImportCourses(!isImportCourses)}
+              onChange={() => setIsImportCourses(!isImportCourses)}
             ></input>
           </div>
         )}
@@ -1385,7 +1385,7 @@ export default function ImportExport() {
             <input
               type="checkbox"
               checked={false}
-              onClick={() => setIsImportTeachers(!isImportTeachers)}
+              onChange={() => setIsImportTeachers(!isImportTeachers)}
             ></input>
           </div>
         ) : (
@@ -1397,7 +1397,7 @@ export default function ImportExport() {
             <input
               type="checkbox"
               checked
-              onClick={() => setIsImportTeachers(!isImportTeachers)}
+              onChange={() => setIsImportTeachers(!isImportTeachers)}
             ></input>
           </div>
         )}
@@ -1411,7 +1411,7 @@ export default function ImportExport() {
             <input
               type="checkbox"
               checked={false}
-              onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
+              onChange={() => setIsImportStudentCourse(!isImportStudentCourse)}
             ></input>
           </div>
         ) : (
@@ -1423,7 +1423,7 @@ export default function ImportExport() {
             <input
               type="checkbox"
               checked
-              onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
+              onChange={() => setIsImportStudentCourse(!isImportStudentCourse)}
             ></input>
           </div>
         )}
