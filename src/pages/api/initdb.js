@@ -1,0 +1,11 @@
+import sqlite3 from "sqlite3";
+
+import { createTables } from "./createTables";
+import bcrypt from "bcrypt";
+export function initdb() {
+  console.log("initDB");
+
+  const db = new sqlite3.Database("src/pages/api/sql.db"); // Use a file instead for persistent storage
+
+  createTables(db, bcrypt);
+}
