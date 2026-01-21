@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       if (teacherId === 0) {
         const data = await db.all(
           "SELECT * FROM course_teacher  WHERE course_id = ?",
-          courseId
+          courseId,
         );
         if (data) {
           res.status(200).json(data);
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
         if (courseId === 0) {
           const data = await db.all(
             "SELECT * FROM course_teacher  WHERE  teacher_id = ?",
-            teacherId
+            teacherId,
           );
           if (data) {
             res.status(200).json(data);
@@ -48,12 +48,14 @@ export default async function handler(req, res) {
             res.status(200).json([]);
           }
         } else {
+
           const data = await db.all(
             "SELECT * FROM course_teacher  WHERE  teacher_id = ? AND course_id = ?",
             teacherId,
-            courseId
+            courseId,
           );
           if (data) {
+      
             res.status(200).json(data);
           } else {
             res.status(200).json([]);

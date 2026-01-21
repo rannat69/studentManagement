@@ -15,6 +15,7 @@ import { StudentQualification } from "../data/studentQualificationData";
 import { StudentArea } from "../data/studentAreaData";
 import { StudentTeacher } from "../data/studentTeacherData";
 import { StudentCourse } from "../data/studentCourseData";
+import { TeacherCourse } from "../data/teacherCourseData";
 
 export default function ImportExport() {
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -24,6 +25,8 @@ export default function ImportExport() {
   const [isImportCourses, setIsImportCourses] = useState<boolean>(true);
   const [isImportTeachers, setIsImportTeachers] = useState<boolean>(true);
   const [isImportStudentCourse, setIsImportStudentCourse] =
+    useState<boolean>(true);
+  const [isImportTeacherCourse, setIsImportTeacherCourse] =
     useState<boolean>(true);
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsImporting(true);
@@ -66,7 +69,7 @@ export default function ImportExport() {
       for (const key of courseKeys) {
         if (!validKeys.includes(key)) {
           errors.push(
-            `Error: Invalid property "${key}" found in course object.`
+            `Error: Invalid property "${key}" found in course object.`,
           );
           return false;
         }
@@ -107,7 +110,7 @@ export default function ImportExport() {
       for (const key of studentKeys) {
         if (!validKeys.includes(key)) {
           errors.push(
-            `Error: Invalid property "${key}" found in student object.`
+            `Error: Invalid property "${key}" found in student object.`,
           );
           return false;
         }
@@ -129,7 +132,7 @@ export default function ImportExport() {
       for (const key of courseKeys) {
         if (!validKeys.includes(key)) {
           errors.push(
-            `Error: Invalid property "${key}" found in teacher object.`
+            `Error: Invalid property "${key}" found in teacher object.`,
           );
           return false;
         }
@@ -172,7 +175,35 @@ export default function ImportExport() {
       for (const key of courseKeys) {
         if (!validKeys.includes(key)) {
           errors.push(
-            `Error: Invalid property "${key}" found in teacher object.`
+            `Error: Invalid property "${key}" found in teacher object.`,
+          );
+          return false;
+        }
+      }
+      return true;
+    };
+
+    const validateTeacherCourse = (item: TeacherCourse): boolean => {
+      const validKeys = ["course_id", "teacher_id"];
+
+      console.log("validateTeacherCourse item", item);
+
+      // Check for missing required fields
+      if (!item.teacher_id) {
+        errors.push("Error: Missing required teacher id for a teacher/course");
+        return false;
+      }
+      if (!item.course_id) {
+        errors.push("Error: Missing required course id for a teacher/course");
+        return false;
+      }
+
+      // Check for invalid properties
+      const courseKeys = Object.keys(item);
+      for (const key of courseKeys) {
+        if (!validKeys.includes(key)) {
+          errors.push(
+            `Error: Invalid property "${key}" found in teacher course object.`,
           );
           return false;
         }
@@ -362,7 +393,7 @@ export default function ImportExport() {
                       "/api/student_course/" +
                         item.student_id +
                         "/" +
-                        item.course_id
+                        item.course_id,
                     );
 
                     return responseStudentCourse.data;
@@ -379,7 +410,7 @@ export default function ImportExport() {
                 // Check if student exists
 
                 const responseStudent = await axios.get(
-                  `/api/student/${item.student_id}`
+                  `/api/student/${item.student_id}`,
                 );
                 if (responseStudent.data) {
                   console.log("responseStudent.data", responseStudent.data);
@@ -390,7 +421,7 @@ export default function ImportExport() {
 
                 // Check if course exists
                 const responseCourse = await axios.get(
-                  `/api/course/${item.course_id}`
+                  `/api/course/${item.course_id}`,
                 );
                 if (responseCourse.data) {
                   //check if course exists for year/semester
@@ -408,17 +439,14 @@ export default function ImportExport() {
 
                 const fetchStudentCourseResponse = await fetchStudentCourse();
                 if (fetchStudentCourseResponse) {
-                  console.log(
-                    "fetchStudentCourseResponse",
-                    fetchStudentCourseResponse
-                  );
+            
 
                   // Check if student/course exists for year/semester
 
                   if (
                     fetchStudentCourseResponse.find(
                       (s: StudentCourse) =>
-                        s.year === item.year && s.semester === item.semester
+                        s.year === item.year && s.semester === item.semester,
                     )
                   ) {
                     // record already exists, no need to create
@@ -432,6 +460,99 @@ export default function ImportExport() {
                 }
               } else {
                 errors.push(`Error: course id or student id not found`);
+              }
+            } else {
+              break;
+            }
+          }
+        }
+
+        // TeacherCourse import
+        sheetName = workbook.SheetNames[4];
+        sheet = workbook.Sheets[sheetName];
+        const sheetDataTeacherCourse: TeacherCourse[] =
+          XLSX.utils.sheet_to_json(sheet);
+
+        if (isImportTeacherCourse) {
+          for (const item of sheetDataTeacherCourse) {
+            // if id is present, update
+            if (validateTeacherCourse(item)) {
+              if (
+                item.teacher_id &&
+                item.teacher_id > 0 &&
+                item.course_id &&
+                item.course_id > 0
+              ) {
+                // check item properties, at least l_name, ta_available, and expected_grad_year have to be present
+
+                // read record
+                // if not found, error
+                const fetchTeacherCourse = async () => {
+                  try {
+                    const responseTeacherCourse = await axios.get(
+                      "/api/course_teacher/" +
+                        item.course_id +
+                        "/" +
+                        item.teacher_id,
+                    );
+
+                    return responseTeacherCourse.data;
+                  } catch (error: unknown) {
+                    if (axios.isAxiosError(error)) {
+                      // Gérer les erreurs d'axios
+                      console.error("Axios Error:", error.message);
+                    } else {
+                      // Gérer les autres erreurs
+                      console.error("Error:", error);
+                    }
+                  }
+                };
+                // Check if teacher exists
+
+                const responseTeacher = await axios.get(
+                  `/api/teacher/${item.teacher_id}`,
+                );
+                if (responseTeacher.data) {
+                } else {
+                  errors.push(`Error: student id not found`);
+                  break;
+                }
+
+                // Check if course exists
+                const responseCourse = await axios.get(
+                  `/api/course/${item.course_id}`,
+                );
+                if (responseCourse.data) {
+                } else {
+                  errors.push(`Error: course id not found`);
+                  break;
+                }
+
+                const fetchTeacherCourseResponse = await fetchTeacherCourse();
+                if (fetchTeacherCourseResponse) {
+            
+
+                  // Check if teacher/course exists
+
+                  if (
+                    fetchTeacherCourseResponse.length > 0 &&
+                    fetchTeacherCourseResponse.find(
+                      (s: TeacherCourse) =>
+                        s.course_id === item.course_id &&
+                        s.teacher_id === item.teacher_id,
+                    )
+                  ) {
+                    // record already exists, no need to create
+                  } else {
+                    // update record
+                    createTeacherCourse(item);
+                  }
+                } else {
+                  // create new record in  studentCourse
+                  createTeacherCourse(item);
+                }
+              } else {
+                errors.push(`Error: course id or teacher id not found`);
               }
             } else {
               break;
@@ -563,6 +684,35 @@ export default function ImportExport() {
     }
   };
 
+  const createTeacherCourse = async (teacherCourseData: TeacherCourse) => {
+    console.log("teacherCourseData", teacherCourseData);
+
+    try {
+      const response = await fetch("/api/course_teacher/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(teacherCourseData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        setErrorMessage(data.error);
+      }
+
+      return data; // Return the newly created course ID or object
+    } catch (error) {
+      console.error("Error adding course:", error);
+      throw error; // Rethrow the error for handling in the caller
+    }
+  };
+
   const updateStudent = async (id: number, updatedData: Student) => {
     try {
       const response = await axios.put(`/api/student/${id}`, updatedData);
@@ -619,6 +769,12 @@ export default function ImportExport() {
       return response.data;
     };
 
+    const fetchTeacherCourse = async () => {
+      const response = await axios.get("/api/course_teacher/all");
+
+      return response.data;
+    };
+
     const fetchStudentAreas = async () => {
       const response = await axios.get("/api/student_area/all");
 
@@ -656,6 +812,7 @@ export default function ImportExport() {
     const studentQualifications = await fetchStudentQualif();
 
     const studentTeachers = await fetchStudentTeacher();
+    const teacherCourse = await fetchTeacherCourse();
     /*
 				const studentAreas = await fetchStudentAreas();
 		
@@ -676,12 +833,13 @@ export default function ImportExport() {
       teachers,
       studentAreas,
       studentQualifications,
-      studentTeachers
+      studentTeachers,
     );
 
     createSheetTeacher(workbook, teachers);
 
     createSheetStudentCourse(workbook, studentCourses);
+    createSheetTeacherCourse(workbook, teacherCourse);
     // Create a buffer and trigger download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
@@ -740,7 +898,7 @@ export default function ImportExport() {
 
     const rows = worksheet.getRows(
       0,
-      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
+      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0,
     );
 
     if (rows) {
@@ -809,7 +967,7 @@ export default function ImportExport() {
     teachers: Teacher[],
     studentAreas: StudentArea[],
     studentQualifications: StudentQualification[],
-    studentTeachers: StudentTeacher[]
+    studentTeachers: StudentTeacher[],
   ) {
     const worksheet = workbook.addWorksheet("Students");
 
@@ -868,14 +1026,14 @@ export default function ImportExport() {
       for (const studentTeacher of studentTeachers) {
         if (studentTeacher.student_id === item.id) {
           const teacher = teachers.find(
-            (teacher) => teacher.id === studentTeacher.teacher_id
+            (teacher) => teacher.id === studentTeacher.teacher_id,
           );
 
           if (teacher) {
             teachersList.push(
               teachers.find(
-                (teacher) => teacher.id === studentTeacher.teacher_id
-              ) as Teacher
+                (teacher) => teacher.id === studentTeacher.teacher_id,
+              ) as Teacher,
             );
           }
         }
@@ -930,7 +1088,7 @@ export default function ImportExport() {
 
     const rows = worksheet.getRows(
       0,
-      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
+      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0,
     );
 
     if (rows) {
@@ -1105,7 +1263,7 @@ export default function ImportExport() {
 
     const rows = worksheet.getRows(
       0,
-      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
+      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0,
     );
 
     if (rows) {
@@ -1130,6 +1288,89 @@ export default function ImportExport() {
     }
   }
 
+  function createSheetTeacherCourse(
+    workbook: Workbook,
+    studentCourses: {
+      teacher_id: number;
+      course_id: number;
+    }[],
+  ) {
+    const worksheet = workbook.addWorksheet("TeacherCourses");
+
+    // Define columns
+    worksheet.columns = [
+      { header: "course_id", key: "course_id", width: 20 },
+      { header: "teacher_id", key: "teacher_id", width: 20 },
+
+      // Add more columns as needed
+    ];
+
+    // get student and courses
+
+    // Add content of courses into worksheet
+    for (const item of studentCourses) {
+      worksheet.addRow({
+        course_id: item.course_id,
+        teacher_id: item.teacher_id,
+      });
+    }
+
+    const headerRow = worksheet.getRow(1);
+
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFCCCCCC" }, // Light gray color
+      };
+      cell.font = { bold: true };
+    });
+
+    // add 100 empty rows to have control fields
+    for (let i = 0; i < 100; i++) {
+      worksheet.addRow({});
+    }
+
+    const rows = worksheet.getRows(
+      0,
+      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0,
+    );
+
+    if (rows) {
+      for (const row of rows) {
+        if (row.number && row.number > 1) {
+          row.getCell("A").dataValidation = {
+            type: "whole",
+            operator: "between",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: [0, 999999],
+            promptTitle: "ID",
+            prompt: "Course ID, use same as the one in Course tab. ",
+            errorStyle: "error",
+            errorTitle: "Student ID",
+            error: "Enter a number.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("B").dataValidation = {
+            type: "whole",
+            operator: "between",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: [0, 999999],
+            promptTitle: "ID",
+            prompt: "Teacher ID, use same as the one in Teacher tab. ",
+            errorStyle: "error",
+            errorTitle: "Student ID",
+            error: "Enter a number.",
+            showErrorMessage: true,
+          };
+        }
+      }
+    }
+  }
+
   function createSheetStudentCourse(
     workbook: Workbook,
     studentCourses: {
@@ -1141,7 +1382,7 @@ export default function ImportExport() {
       name: string;
       year: number;
       semester: string;
-    }[]
+    }[],
   ) {
     const worksheet = workbook.addWorksheet("StudentCourses");
 
@@ -1193,7 +1434,7 @@ export default function ImportExport() {
 
     const rows = worksheet.getRows(
       0,
-      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0
+      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0,
     );
 
     if (rows) {
@@ -1424,6 +1665,32 @@ export default function ImportExport() {
               type="checkbox"
               checked
               onChange={() => setIsImportStudentCourse(!isImportStudentCourse)}
+            ></input>
+          </div>
+        )}
+
+        {!isImportTeacherCourse ? (
+          <div
+            className={styles.buttonUnclicked}
+            onClick={() => setIsImportTeacherCourse(!isImportStudentCourse)}
+          >
+            Match Teachers/courses
+            <input
+              type="checkbox"
+              checked={false}
+              onChange={() => setIsImportTeacherCourse(!isImportStudentCourse)}
+            ></input>
+          </div>
+        ) : (
+          <div
+            className={styles.buttonClicked}
+            onClick={() => setIsImportTeacherCourse(!isImportStudentCourse)}
+          >
+            Match Teachers/courses
+            <input
+              type="checkbox"
+              checked
+              onChange={() => setIsImportTeacherCourse(!isImportStudentCourse)}
             ></input>
           </div>
         )}
