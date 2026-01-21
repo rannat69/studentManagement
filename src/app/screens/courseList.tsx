@@ -22,7 +22,7 @@ export default function CourseList() {
 
   const [orderByField, setOrderByField] = useState<string | null>(null);
   const [orderByDirection, setOrderByDirection] = useState<"asc" | "desc">(
-    "asc"
+    "asc",
   );
 
   useEffect(() => {
@@ -86,33 +86,33 @@ export default function CourseList() {
     if (updatedCourse.deleted) {
       // Remove the course from both lists
       updatedList = courseListState.filter(
-        (course) => course.id !== updatedCourse.id
+        (course) => course.id !== updatedCourse.id,
       );
 
       updatedUnfilteredList = courseListStateUnfiltered.filter(
-        (course) => course.id !== updatedCourse.id
+        (course) => course.id !== updatedCourse.id,
       );
     } else {
       // Check if the course exists in the filtered list
       const courseExists = courseListState.some(
-        (course) => course.id === updatedCourse.id
+        (course) => course.id === updatedCourse.id,
       );
 
       // Update the filtered course list
       updatedList = courseExists
         ? courseListState.map((course) =>
-            course.id === updatedCourse.id ? updatedCourse : course
+            course.id === updatedCourse.id ? updatedCourse : course,
           )
         : [...courseListState, updatedCourse];
 
       // Similarly check in the unfiltered list
       const unfilteredCourseExists = courseListStateUnfiltered.some(
-        (course) => course.id === updatedCourse.id
+        (course) => course.id === updatedCourse.id,
       );
 
       updatedUnfilteredList = unfilteredCourseExists
         ? courseListStateUnfiltered.map((course) =>
-            course.id === updatedCourse.id ? updatedCourse : course
+            course.id === updatedCourse.id ? updatedCourse : course,
           )
         : [...courseListStateUnfiltered, updatedCourse];
     }
@@ -144,7 +144,7 @@ export default function CourseList() {
           (isNaN(year) || course.year === year) &&
           (semester === "" || course.semester === semester)
         );
-      }
+      },
     );
 
     for (const course of courseList) {
@@ -161,7 +161,7 @@ export default function CourseList() {
             r.year === course.year &&
             r.semester === course.semester
           );
-        }
+        },
       );
 
       course.ta_assigned = taAssigned.length;
@@ -304,6 +304,7 @@ export default function CourseList() {
           >
             <option value={""}>-</option>
             <option value={"Spring"}>Spring</option>
+            <option value={"Summer"}>Summer</option>
             <option value={"Fall"}>Fall</option>
             <option value={"Winter"}>Winter</option>
           </select>
