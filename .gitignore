@@ -44,3 +44,4 @@ pages/api/allowedOrigin.js
 pages/api/sql.db
 pages/api/sql.db-journal
 ISDStdMgmt2026.txt
+src/pages/api/sql.db

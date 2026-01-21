@@ -6,250 +6,255 @@ import axios from "axios";
 import { MODE_CREATION, MODE_DELETE, MODE_EDITION } from "../constants";
 
 interface ModalProps {
-	isOpen: boolean;
-	teacher: Teacher | null;
-	onClose: () => void;
-	onSave: (updatedTeacher: Teacher) => void;
+  isOpen: boolean;
+  teacher: Teacher | null;
+  onClose: () => void;
+  onSave: (updatedTeacher: Teacher) => void;
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
-	const [formData, setFormData] = useState<Teacher>({
-		id: 0, // ou une autre valeur par défaut
-		l_name: '',
-		f_names: '',
-		unoff_name: '',
-		field: '',
-		deleted: false,
-	});
-	const [mode, setMode] = useState<string>("");
-	const [errorMessage, setErrorMessage] = useState<string>("");
+  const [formData, setFormData] = useState<Teacher>({
+    id: 0, // ou une autre valeur par défaut
+    l_name: "",
+    f_names: "",
+    unoff_name: "",
+    field: "",
+    deleted: false,
+  });
+  const [mode, setMode] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-	useEffect(() => {
-		if (teacher) {
-			setMode(MODE_EDITION);
-			setFormData(teacher);
-		} else {
-			// We are in creation mode
+  useEffect(() => {
+    if (teacher) {
+      setMode(MODE_EDITION);
+      setFormData(teacher);
+    } else {
+      // We are in creation mode
 
-			setFormData({
-				id: 0,
-				l_name: "",
-				f_names: "",
-				unoff_name: "",
-				field: "",
-				deleted: false,
-			});
-			setMode(MODE_CREATION);
-		}
-	}, [teacher]); // Add teacher to the dependency array
+      setFormData({
+        id: 0,
+        l_name: "",
+        f_names: "",
+        unoff_name: "",
+        field: "",
+        deleted: false,
+      });
+      setMode(MODE_CREATION);
+    }
+  }, [teacher]); // Add teacher to the dependency array
 
-	const handleChange = (
-		e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
-	) => {
-		const { name, type, value } = e.target;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
+  ) => {
+    const { name, type, value } = e.target;
 
-		console.log("type", type);
+    console.log("type", type);
 
-		setFormData(prevFormData => {
-			const updatedData = {
-				...prevFormData,
-				[name]: value,
-			};
+    setFormData((prevFormData) => {
+      const updatedData = {
+        ...prevFormData,
+        [name]: value,
+      };
 
-			// Assurez-vous que id est défini
-			if (updatedData.id === undefined) {
-				updatedData.id = 0; // ou une autre valeur par défaut
-			}
+      // Assurez-vous que id est défini
+      if (updatedData.id === undefined) {
+        updatedData.id = 0; // ou une autre valeur par défaut
+      }
 
-			return updatedData;
-		});
+      return updatedData;
+    });
+  };
 
+  const createTeacher = async (teacherData: Teacher) => {
+    try {
+      const response = await fetch("/api/teacher/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(teacherData),
+      });
 
-	};
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
 
-	const createTeacher = async (teacherData: Teacher) => {
-		try {
-			const response = await fetch("/api/teacher/create", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(teacherData),
-			});
+      const data = await response.json();
 
-			if (!response.ok) {
-				throw new Error("Network response was not ok");
-			}
+      return data; // Return the newly created teacher ID or object
+    } catch (error) {
+      console.error("Error adding teacher:", error);
+      throw error; // Rethrow the error for handling in the caller
+    }
+  };
 
-			const data = await response.json();
+  const updateTeacher = async (id: number, updatedData: Teacher) => {
+    try {
+      await axios.put(`/api/teacher/${id}`, updatedData);
+    } catch (error) {
+      console.error("Error updating teacher:", error);
+    }
+  };
 
-			return data; // Return the newly created teacher ID or object
-		} catch (error) {
-			console.error("Error adding teacher:", error);
-			throw error; // Rethrow the error for handling in the caller
-		}
-	};
+  const deleteTeacher = async (id: number) => {
+    try {
+      const response = await fetch(`/api/teacher/${id}`, {
+        method: "DELETE",
+      });
 
-	const updateTeacher = async (id: number, updatedData: Teacher) => {
-		try {
-			await axios.put(`/api/teacher/${id}`, updatedData);
-		} catch (error) {
-			console.error("Error updating teacher:", error);
-		}
-	};
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
 
-	const deleteTeacher = async (id: number) => {
-		try {
-			const response = await fetch(`/api/teacher/${id}`, {
-				method: "DELETE",
-			});
+      const data = await response.json();
+      console.log("Teacher deleted:", data);
+      return data; // Return the deleted teacher ID or any other info
+    } catch (error) {
+      console.error("Error deleting teacher:", error);
+      throw error; // Rethrow the error for handling in the caller
+    }
+  };
 
-			if (!response.ok) {
-				throw new Error("Network response was not ok");
-			}
+  const handleCancel = () => {
+    setErrorMessage("");
+    onClose();
+  };
 
-			const data = await response.json();
-			console.log("Teacher deleted:", data);
-			return data; // Return the deleted teacher ID or any other info
-		} catch (error) {
-			console.error("Error deleting teacher:", error);
-			throw error; // Rethrow the error for handling in the caller
-		}
-	};
+  const handleDelete = () => {
+    if (teacher) {
+      setMode(MODE_DELETE);
 
-	const handleCancel = () => {
-		setErrorMessage("");
-		onClose();
-	};
+      setErrorMessage("");
+      onClose();
+      deleteTeacher(teacher.id);
 
-	const handleDelete = () => {
-		if (teacher) {
-			setMode(MODE_DELETE);
+      teacher.deleted = true;
 
-			setErrorMessage("");
-			onClose();
-			deleteTeacher(teacher.id);
+      onSave(teacher);
+    }
+  };
 
-			teacher.deleted = true;
+  const handleSubmit = (e: React.FormEvent) => {
+    setErrorMessage("");
 
-			onSave(teacher);
-		}
-	};
+    if (formData) {
+      e.preventDefault();
 
-	const handleSubmit = (e: React.FormEvent) => {
-		setErrorMessage("");
+      if (!formData.l_name || formData.l_name.length === 0) {
+        setErrorMessage("Please enter a surname");
+        return;
+      }
 
-		if (formData) {
-			e.preventDefault();
+      if (!formData.field || formData.field.length === 0) {
+        setErrorMessage("Please enter a field");
+        return;
+      }
 
-			if (!formData.l_name || formData.l_name.length === 0) {
-				setErrorMessage("Please enter a surname");
-				return;
-			}
+      if (mode === MODE_CREATION) {
+        createTeacher(formData).then((newTeacher) => {
+          // Update the state with the new teacher
+          formData.id = newTeacher.id;
 
-			if (!formData.field || formData.field.length === 0) {
-				setErrorMessage("Please enter a field");
-				return;
-			}
+          onSave(formData);
+        });
+      } else {
+        if (mode === MODE_DELETE) {
+          formData.deleted = true;
+        } else {
+          updateTeacher(formData.id, formData);
+        }
+        onSave(formData);
+      }
 
-			if (mode === MODE_CREATION) {
-				createTeacher(formData).then((newTeacher) => {
-					// Update the state with the new teacher
-					formData.id = newTeacher.id;
+      setFormData({
+        id: 0,
+        l_name: "",
+        f_names: "",
+        unoff_name: "",
+        field: "",
+        deleted: false,
+      });
 
-					onSave(formData);
-				});
-			} else {
-				if (mode === MODE_DELETE) {
-					formData.deleted = true;
-				} else {
-					updateTeacher(formData.id, formData);
-				}
-				onSave(formData);
-			}
+      onClose();
+    }
+  };
 
-			setFormData({
-				id: 0,
-				l_name: "",
-				f_names: "",
-				unoff_name: "",
-				field: "",
-				deleted: false,
-			});
+  if (!isOpen) return null;
 
-			onClose();
-		}
-	};
+  return (
+    <div className={styles.modal}>
+      <span className={styles.close} onClick={onClose}>
+        &times;
+      </span>
 
-	if (!isOpen) return null;
+      <form onSubmit={handleSubmit} className={styles.modalContent}>
+        <div className={styles.modalContentColumn}>
+          {mode === MODE_EDITION ? <h2>Edit Teacher</h2> : <h2>Add Teacher</h2>}
 
-	return (
-		<div className={ styles.modal }>
+          <h5>Personal</h5>
+          <div className={styles.inputContainer}>
+            <div className={styles.inputTitle}>Surname</div>
+            <input
+              name="l_name"
+              value={formData ? formData.l_name : ""}
+              onChange={handleChange}
+              placeholder="Surname"
+              className={styles.input}
+            />
+            <div className={styles.inputTitle}>Given name</div>
+            <input
+              name="f_names"
+              value={formData ? formData.f_names : ""}
+              onChange={handleChange}
+              placeholder="Other names"
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.inputContainer}>
+            <div className={styles.inputTitle}>Nickname</div>
+            <input
+              name="unoff_name"
+              value={formData ? formData.unoff_name : ""}
+              onChange={handleChange}
+              placeholder="Unofficial name"
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.inputTitle}>Field</div>
+          <input
+            name="field"
+            value={formData ? formData.field : ""}
+            onChange={handleChange}
+            placeholder="Field"
+            className={styles.input}
+          />
+        </div>
 
-			<span className={ styles.close } onClick={ onClose }>
-				&times;
-			</span>
-
-			<form onSubmit={ handleSubmit } className={ styles.modalContent }>
-				<div className={ styles.modalContentColumn }>
-					{ mode === MODE_EDITION ? (
-						<h2>Edit Teacher</h2>
-					) : (
-						<h2>Add Teacher</h2>
-					) }
-
-					<h5>Personal</h5>
-					<div className={ styles.inputContainer }>
-						<div className={ styles.inputTitle }>Surname</div>
-						<input
-							name='l_name'
-							value={ formData ? formData.l_name : "" }
-							onChange={ handleChange }
-							placeholder='Surname'
-						/>
-						<div className={ styles.inputTitle }>Given name</div>
-						<input
-							name='f_names'
-							value={ formData ? formData.f_names : "" }
-							onChange={ handleChange }
-							placeholder='Other names'
-						/>
-					</div>
-					<div className={ styles.inputContainer }>
-						<div className={ styles.inputTitle }>Nickname</div>
-						<input
-							name='unoff_name'
-							value={ formData ? formData.unoff_name : "" }
-							onChange={ handleChange }
-							placeholder='Unofficial name'
-						/>
-					</div>
-					<div className={ styles.inputTitle }>Field</div>
-					<input
-						name='field'
-						value={ formData ? formData.field : "" }
-						onChange={ handleChange }
-						placeholder='Field'
-					/>
-
-				</div>
-
-				{ errorMessage.length > 0 && (
-					<div className={ styles.error }>{ errorMessage }</div>
-				) }
-				<div className={ styles.buttonContainer }>
-					<button className={ styles.buttonCancel } onClick={ () => handleCancel() }>Cancel</button>
-					{ mode === MODE_EDITION && (
-						<button className={ styles.buttonDelete } onClick={ () => handleDelete() }>Delete</button>
-					) }
-					<button className={ styles.buttonSave } type='submit'>Save</button>
-				</div>
-
-			</form>
-
-		</div>
-
-	);
+        {errorMessage.length > 0 && (
+          <div className={styles.error}>{errorMessage}</div>
+        )}
+        <div className={styles.buttonContainer}>
+          <button
+            className={styles.buttonCancel}
+            onClick={() => handleCancel()}
+          >
+            Cancel
+          </button>
+          {mode === MODE_EDITION && (
+            <button
+              className={styles.buttonDelete}
+              onClick={() => handleDelete()}
+            >
+              Delete
+            </button>
+          )}
+          <button className={styles.buttonSave} type="submit">
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 };
 
 export default Modal;

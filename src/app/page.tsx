@@ -105,9 +105,9 @@ export default function Home() {
   }
 
   return (
-    <>
+    <div>
       {userLoggedIn ? (
-        <>
+        <div>
           <div className={styles.tab}>
             <img src="/logo.hkust.png" alt="Logo" className={styles.logo} />
 
@@ -175,7 +175,7 @@ export default function Home() {
           <div>
             {activeTab && activeTab === IMPORT_EXPORT && <ImportExport />}
           </div>
-        </>
+        </div>
       ) : (
         <form>
           <div className={styles.login}>
@@ -188,6 +188,7 @@ export default function Home() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleLogin();
               }}
+              className={styles.input}
             />
             <br />
             Password
@@ -199,6 +200,7 @@ export default function Home() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleLogin();
               }}
+              className={styles.input}
             />
             <div className={styles.add} onClick={() => handleLogin()}>
               Login
@@ -209,6 +211,6 @@ export default function Home() {
           </div>
         </form>
       )}
-    </>
+    </div>
   );
 }

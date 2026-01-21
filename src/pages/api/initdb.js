@@ -1,6 +1,7 @@
 import sqlite3 from "sqlite3";
 
 import { createTables } from "./createTables";
+import { createTriggers } from "./createTriggers";
 import bcrypt from "bcrypt";
 export function initdb() {
   console.log("initDB");
@@ -8,4 +9,5 @@ export function initdb() {
   const db = new sqlite3.Database("src/pages/api/sql.db"); // Use a file instead for persistent storage
 
   createTables(db, bcrypt);
+  createTriggers(db, bcrypt);
 }

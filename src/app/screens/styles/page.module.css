@@ -199,7 +199,9 @@
   padding: 0.2rem;
   border: 0.1rem solid lightgrey;
   border-radius: 0.5rem;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
   /* Optional: Smooth transition */
   font-size: x-small;
   max-width: 45%;
@@ -229,7 +231,9 @@
   padding: 0.2rem;
   border: 0.1rem solid lightgrey;
   border-radius: 0.5rem;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
   /* Optional: Smooth transition */
   font-size: x-small;
   max-width: 100%;
@@ -305,7 +309,9 @@
   padding: 1rem;
 
   border-radius: 1rem;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
   /* Optional: Smooth transition */
   background-color: blue;
   width: 17rem;
@@ -404,7 +410,10 @@
   padding: 0 20px;
   border: none;
   border: 1px solid transparent;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -464,7 +473,9 @@ a.secondary {
   background: #e8f3ff;
   color: #000;
 
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
   /* Smooth transition */
   width: 17rem;
 
@@ -513,7 +524,9 @@ a.secondary {
   padding: 0.5rem;
   border: 0.1rem solid lightgray;
   border-radius: 1rem;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
   /* Optional: Smooth transition */
 
   width: 7vw;
@@ -527,7 +540,9 @@ a.secondary {
   padding: 0.5rem;
   border: 0.1rem solid lightgray;
   border-radius: 1rem;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
   /* Optional: Smooth transition */
 
   width: 7vw;
@@ -661,7 +676,9 @@ a.secondary {
   padding: 0.7rem;
   border: 0.1rem solid lightgrey;
   border-radius: 0.8rem;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
   /* Optional: Smooth transition */
   font-size: 1rem;
   width: 50vh;
@@ -681,7 +698,9 @@ a.secondary {
   padding: 0.7rem;
   border: 0.1rem solid lightgrey;
   border-radius: 0.8rem;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
   /* Optional: Smooth transition */
   font-size: 0.8rem;
   width: 6rem;
@@ -693,7 +712,9 @@ a.secondary {
   padding: 0.7rem;
   border: 0.1rem solid lightgrey;
   border-radius: 0.8rem;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
   /* Optional: Smooth transition */
   font-size: 0.8rem;
   width: 6rem;
@@ -729,6 +750,8 @@ a.secondary {
   border-color: lightgray;
   width: 50%;
   height: 3rem;
+  background-color: lightgray;
+  color: black;
 }
 
 .smallInput {
@@ -738,10 +761,13 @@ a.secondary {
   border-color: lightgray;
   width: 5%;
   height: 3rem;
+  background-color: lightgray;
+  color: black;
 }
 
 .select {
   background-color: white;
+  color: black;
   border-radius: 0.3rem;
   border-style: ridge;
   padding: 0.1rem;
@@ -750,6 +776,17 @@ a.secondary {
   text-align: center;
   height: 3rem;
   width: 10rem;
+}
+
+.select::picker(select) {
+  appearance: base-select;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+}
+
+.select > option {
+  color: black;
+  border-color: lightgray;
 }
 
 .semesterSpring {

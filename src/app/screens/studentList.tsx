@@ -222,8 +222,8 @@ export default function StudentList() {
             className={styles.select}
           >
             <option value="">-</option>
-            {Array.from({ length: 2100 - 1990 }, (_, index) => {
-              const year = 1991 + index;
+            {Array.from({ length: 2100 - 2020 }, (_, index) => {
+              const year = 2020 + index;
               return (
                 <option key={year} value={year}>
                   {year}

@@ -56,7 +56,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         try {
           if (student != null) {
             const response = await axios.get(
-              `/api/student_qualif/${student.id}`
+              `/api/student_qualif/${student.id}`,
             );
 
             for (let i = 0; i < response.data.length; i++) {
@@ -114,7 +114,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         try {
           if (student != null) {
             const response = await axios.get(
-              `/api/student_teacher/${student.id}`
+              `/api/student_teacher/${student.id}`,
             );
 
             const teachers: Teacher[] = [];
@@ -123,8 +123,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
               // get record from teachersList where studentTeacher.teacher_id matches id
               teachers.push(
                 teachersList.find(
-                  (teacher) => teacher.id === studentTeacher.teacher_id
-                ) as Teacher
+                  (teacher) => teacher.id === studentTeacher.teacher_id,
+                ) as Teacher,
               );
             }
 
@@ -174,7 +174,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
   }, [student]); // Add student to the dependency array
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
   ) => {
     const { name, type, value } = e.target;
     let newValue;
@@ -191,7 +191,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
     if (name === "program") {
       console.log("value", value);
       if (value === "ISD MPhil") {
-        const  formDataTemp = formData;
+        const formDataTemp = formData;
 
         if (formDataTemp) {
           formDataTemp.ta_available = 2;
@@ -798,7 +798,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
                   className={styles.remove}
                   onClick={() => {
                     setQualifications(
-                      qualifications.filter((a) => a !== qualif)
+                      qualifications.filter((a) => a !== qualif),
                     );
                     qualifications.filter((a) => a !== qualif);
                   }}
@@ -840,15 +840,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
             {teachers.map((teacher) => (
               <div
                 className={styles.areaQualifContainer}
-                key={teacher.id}
+                key={teacher && teacher.id}
                 onClick={() => {
                   setTeachers(teachers.filter((a) => a !== teacher));
                   teachers.filter((a) => a !== teacher);
                 }}
               >
                 <div className={styles.smalltext}>
-                  {" "}
-                  {teacher.l_name + " " + teacher.f_names}
+                  {teacher && teacher.l_name + " " + teacher.f_names}
                 </div>
                 <div
                   className={styles.remove}
