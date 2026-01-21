@@ -357,8 +357,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       if (teachers && teachers.length > 0) {
         teachers.forEach(async (teacher) => {
           const courseTeacher = {
-            courseId: id,
-            teacherId: teacher.id,
+            course_id: id,
+            teacher_id: teacher.id,
           };
           responseCourse = await fetch("/api/course_teacher/create", {
             method: "POST",
