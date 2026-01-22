@@ -334,6 +334,7 @@
 }
 
 .pageTitle {
+  width: 100%;
   margin-top: 2rem;
   text-align: center;
 }
@@ -506,7 +507,7 @@ a.secondary {
 .courseBlock {
   margin-left: 1rem;
   margin-right: 1rem;
-  
+
   font-size: 1rem;
   height: 10rem;
 }
@@ -848,7 +849,6 @@ a.secondary {
 }
 
 .matchStudentName {
-
   text-align: justify;
 }
 
