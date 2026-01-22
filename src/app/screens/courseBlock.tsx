@@ -62,7 +62,7 @@ const CourseBlock: React.FC<CourseBlockProps> = ({
 
 				<h2 className={styles.matchStudentName}>{course.name}</h2>
 
-				<p>{"T.A. needed: " + course.ta_needed}</p>
+			
 			</div>
 		</OverlayTrigger>
 	);

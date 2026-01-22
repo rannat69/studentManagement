@@ -113,7 +113,7 @@ export default function MatchStudentCourse() {
     handleSearchStudent(
       searchStudentTemp,
       selectedTeacher ? selectedTeacher : 0,
-      selectedArea
+      selectedArea,
     );
   };
 
@@ -140,7 +140,7 @@ export default function MatchStudentCourse() {
     handleSearchStudent(
       searchStudent,
       selectedTeacher ? selectedTeacher : 0,
-      area
+      area,
     );
   };
 
@@ -200,7 +200,7 @@ export default function MatchStudentCourse() {
 
   const fetchStudentCourseForSemester = async (
     year: number,
-    semester: string
+    semester: string,
   ) => {
     let response = await axios.get("/api/student/all");
 
@@ -217,7 +217,7 @@ export default function MatchStudentCourse() {
         return (
           studentCourse.year === year && studentCourse.semester === semester
         );
-      }
+      },
     );
 
     studentListTemp.forEach((student: Student) => {
@@ -233,7 +233,7 @@ export default function MatchStudentCourse() {
 
             studentListAssignedTemp.push(studentTemp);
           }
-        }
+        },
       );
     });
 
@@ -300,7 +300,7 @@ export default function MatchStudentCourse() {
 
   const handleDragStart = (
     event: React.DragEvent<HTMLDivElement>,
-    student: Student
+    student: Student,
   ) => {
     event.dataTransfer.setData("student", JSON.stringify(student));
     setErrorMessage("");
@@ -318,7 +318,7 @@ export default function MatchStudentCourse() {
     try {
       const response = await axios.put(
         `/api/student/${updatedStudent.id}`,
-        updatedStudent
+        updatedStudent,
       );
 
       if (response.statusText != "OK") {
@@ -334,7 +334,7 @@ export default function MatchStudentCourse() {
     try {
       const response = await axios.put(
         `/api/course/${updatedCourse.id}`,
-        updatedCourse
+        updatedCourse,
       );
 
       if (response.statusText != "OK") {
@@ -348,7 +348,7 @@ export default function MatchStudentCourse() {
   // add student to course
   const addStudentCourse = async (
     updatedStudent: Student,
-    updatedCourse: Course
+    updatedCourse: Course,
   ) => {
     try {
       const response = await fetch("/api/student_course/create", {
@@ -381,14 +381,14 @@ export default function MatchStudentCourse() {
   // remove student from course
   const deleteStudentCourse = async (
     updatedStudent: Student,
-    updatedCourse: Course
+    updatedCourse: Course,
   ) => {
     try {
       const response = await fetch(
         `api/student_course/${updatedStudent.id}/${updatedCourse.id}`,
         {
           method: "DELETE",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -406,7 +406,7 @@ export default function MatchStudentCourse() {
 
   const dropHandler = (
     event: React.DragEvent<HTMLDivElement>,
-    dropZone: number
+    dropZone: number,
   ) => {
     setErrorMessage("");
     setWarningMessage("");
@@ -435,7 +435,7 @@ export default function MatchStudentCourse() {
 
       // find the student in the list and remove it
       const index = studentListAssigned.findIndex(
-        (s) => s.id === studentTemp.id && s.dropZone === studentTemp.dropZone
+        (s) => s.id === studentTemp.id && s.dropZone === studentTemp.dropZone,
       );
 
       if (index > -1) {
@@ -470,7 +470,7 @@ export default function MatchStudentCourse() {
 
       // check if student already in studentListAvail
       const studentExists = studentListAvail.some(
-        (student) => student.id === studentTemp.id
+        (student) => student.id === studentTemp.id,
       );
 
       if (!studentExists) {
@@ -479,7 +479,7 @@ export default function MatchStudentCourse() {
         //
 
         const studentIndex = studentListAvail.findIndex(
-          (student) => student.id === studentTemp.id
+          (student) => student.id === studentTemp.id,
         );
         if (studentIndex > -1) {
           studentListAvail[studentIndex].ta_available++;
@@ -498,7 +498,7 @@ export default function MatchStudentCourse() {
 
       // find record of courseList with id = student.dropzone and make +1 to ta_needed
       const courseIndex = courseListNeeded.findIndex(
-        (course) => course.id === JSON.parse(student).dropZone
+        (course) => course.id === JSON.parse(student).dropZone,
       );
 
       if (courseIndex > -1) {
@@ -568,7 +568,7 @@ export default function MatchStudentCourse() {
       }
 
       let courseIndex = courseListNeeded.findIndex(
-        (course) => course.id === dropZone
+        (course) => course.id === dropZone,
       );
       if (courseIndex > -1) {
         courseTemp = courseListNeeded[courseIndex];
@@ -583,7 +583,7 @@ export default function MatchStudentCourse() {
 
       const studentIndex = studentListAssigned.findIndex(
         (student) =>
-          student.id === studentTemp.id && student.dropZone === dropZone
+          student.id === studentTemp.id && student.dropZone === dropZone,
       );
       if (studentIndex > -1) {
         setErrorMessage("This student is already in this course");
@@ -602,7 +602,7 @@ export default function MatchStudentCourse() {
 
         // if still available, -1 from ta_available in the available list
         const index = studentListAvail.findIndex(
-          (s) => s.id === studentTemp.id
+          (s) => s.id === studentTemp.id,
         );
 
         if (index > -1) {
@@ -639,7 +639,7 @@ export default function MatchStudentCourse() {
       } else {
         // find the student in the list and remove it
         const index = studentListAssigned.findIndex(
-          (s) => s.id === studentTemp.id && s.dropZone === studentTemp.dropZone
+          (s) => s.id === studentTemp.id && s.dropZone === studentTemp.dropZone,
         );
 
         if (index > -1) {
@@ -650,7 +650,7 @@ export default function MatchStudentCourse() {
 
         // find record of courseList with id = student.dropzone and make +1 to ta_needed
         courseIndex = courseListNeeded.findIndex(
-          (course) => course.id === JSON.parse(student).dropZone
+          (course) => course.id === JSON.parse(student).dropZone,
         );
         if (courseIndex > -1) {
           courseTemp = courseListNeeded[courseIndex];
@@ -680,7 +680,7 @@ export default function MatchStudentCourse() {
       const studentExists = studentListAssigned.some(
         (student) =>
           student.id === studentTemp.id &&
-          student.dropZone === studentTemp.dropZone
+          student.dropZone === studentTemp.dropZone,
       );
       if (!studentExists) {
         setStudentListAssigned([...studentListAssigned, studentTemp]);
@@ -690,7 +690,7 @@ export default function MatchStudentCourse() {
       updateStudent(studentTemp);
 
       courseIndex = courseListNeeded.findIndex(
-        (course) => course.id === dropZone
+        (course) => course.id === dropZone,
       );
 
       if (courseIndex > -1) {
@@ -714,7 +714,7 @@ export default function MatchStudentCourse() {
 
   // Module that create a student react object
   const handleChangeSemester = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setWarningMessage("");
     setErrorMessage("");
@@ -747,7 +747,7 @@ export default function MatchStudentCourse() {
 
     // find all students with ta_available > 0 and no dropZone
     let students = studentListAvail.filter(
-      (student) => student.ta_available > 0
+      (student) => student.ta_available > 0,
     );
 
     // Filter the students array to remove students already in studentListAssigned
@@ -774,7 +774,7 @@ export default function MatchStudentCourse() {
 
     // get minimal expected grad year from students
     const minYear = Math.min(
-      ...students.map((student) => student.expected_grad_year)
+      ...students.map((student) => student.expected_grad_year),
     );
 
     const minSemesterNum = Math.min(
@@ -793,7 +793,7 @@ export default function MatchStudentCourse() {
             default:
               return Infinity; // Use Infinity so it won't affect Math.min
           }
-        })
+        }),
     );
 
     let minSemester = "";
@@ -815,7 +815,7 @@ export default function MatchStudentCourse() {
     }
 
     const courses = courseListNeeded.filter(
-      (course) => course.ta_needed > 0 && course.ta_assigned < course.ta_needed
+      (course) => course.ta_needed > 0 && course.ta_assigned < course.ta_needed,
     );
 
     // get all positive requests from teachers
@@ -906,7 +906,7 @@ export default function MatchStudentCourse() {
               request.student_id === student.id &&
               request.course_id === course.id &&
               request.request_from === "Teacher" &&
-              request.want === 1
+              request.want === 1,
           );
           if (request) {
             studentCourseToAdd.score += 10000;
@@ -916,13 +916,13 @@ export default function MatchStudentCourse() {
           // Get all records from courseQuali
           const courseQualif = courseQualifTable.filter(
             (courseQualification: CourseQualification) =>
-              courseQualification.course_id === course.id
+              courseQualification.course_id === course.id,
           );
 
           // get student's qualifs
           const studentQualif = studentQualifTable.filter(
             (studentQualification: StudentQualification) =>
-              studentQualification.student_id === student.id
+              studentQualification.student_id === student.id,
           );
 
           // Check how many common qualifications in studentQualif and courseQualif
@@ -942,7 +942,7 @@ export default function MatchStudentCourse() {
 
           // Check if student previously assigned to same course
           const responseStudentCourse = await axios.get(
-            "/api/student_course/" + student.id + "/" + course.id
+            "/api/student_course/" + student.id + "/" + course.id,
           );
 
           if (responseStudentCourse.data) {
@@ -974,11 +974,11 @@ export default function MatchStudentCourse() {
           // course areas found
 
           const courseArea = courseAreaTable.filter(
-            (courseArea: CourseArea) => courseArea.course_id === course.id
+            (courseArea: CourseArea) => courseArea.course_id === course.id,
           );
 
           const studentArea = studentAreaTable.filter(
-            (studentArea: StudentArea) => studentArea.student_id === student.id
+            (studentArea: StudentArea) => studentArea.student_id === student.id,
           );
 
           // Check how many common areas in studentArea and courseArea
@@ -1026,7 +1026,7 @@ export default function MatchStudentCourse() {
 
     // order studentCourseToAddList by score
     studentCourseToAddList = studentCourseToAddList.sort(
-      (a, b) => b.score - a.score
+      (a, b) => b.score - a.score,
     );
 
     console.log("studentcoursetoaddlist", studentCourseToAddList);
@@ -1036,14 +1036,14 @@ export default function MatchStudentCourse() {
     for (const studentCourseToAdd of studentCourseToAddList) {
       // find the student and course in the lists
       const student = studentListAvail.find(
-        (s) => s.id === studentCourseToAdd.studentId
+        (s) => s.id === studentCourseToAdd.studentId,
       );
 
       if (student) {
         // check if course has T.A. needed
 
         const course = courseListNeeded.find(
-          (c) => c.id === studentCourseToAdd.courseId
+          (c) => c.id === studentCourseToAdd.courseId,
         );
 
         // Student only assigned once with automatch process, so put in list when matched\
@@ -1090,7 +1090,7 @@ export default function MatchStudentCourse() {
           // get course and update it
 
           const responseCourseToUpdate = await axios.get(
-            "/api/course/" + studentCourseToAdd.courseId
+            "/api/course/" + studentCourseToAdd.courseId,
           );
 
           if (responseCourseToUpdate) {
@@ -1102,7 +1102,7 @@ export default function MatchStudentCourse() {
 
             // also update same course in list courseListNeeded
             const courseIndex = courseListNeeded.findIndex(
-              (course) => course.id === studentCourseToAdd.courseId
+              (course) => course.id === studentCourseToAdd.courseId,
             );
             if (courseIndex > -1) {
               courseListNeeded[courseIndex].ta_assigned += 1;
@@ -1216,7 +1216,7 @@ export default function MatchStudentCourse() {
   const handleSearchStudent = (
     searchTerm: string,
     teacherId: number,
-    area: string
+    area: string,
   ) => {
     if (!studentListAvailUnfiltered) {
       return;
@@ -1244,7 +1244,7 @@ export default function MatchStudentCourse() {
         return studentTeacher.some(
           (studentTeacher) =>
             studentTeacher.teacher_id === teacherId &&
-            studentTeacher.student_id === student.id
+            studentTeacher.student_id === student.id,
         );
       });
     }
@@ -1254,7 +1254,7 @@ export default function MatchStudentCourse() {
         // Check if the search term matches any of the student's properties
         return studentArea.some(
           (studentArea) =>
-            studentArea.area === area && studentArea.student_id === student.id
+            studentArea.area === area && studentArea.student_id === student.id,
         );
       });
     }
@@ -1341,6 +1341,7 @@ export default function MatchStudentCourse() {
                   />
 
                   <div className={styles.dropArea}>
+                    <p>{"T.A. needed: " + course.ta_needed}</p>
                     <h3>Assigned TAs</h3>
 
                     <ProgressBar
@@ -1372,7 +1373,7 @@ export default function MatchStudentCourse() {
 
                     <div className={styles.innerDropArea}>
                       {studentListAssigned.filter(
-                        (student) => student.dropZone === course.id
+                        (student) => student.dropZone === course.id,
                       ).length > 0
                         ? studentListAssigned
                             .filter((student) => student.dropZone === course.id)
@@ -1472,7 +1473,7 @@ export default function MatchStudentCourse() {
                     big={true}
                     assigned={
                       studentListAssigned.find(
-                        (studentAss) => studentAss.id === student.id
+                        (studentAss) => studentAss.id === student.id,
                       )
                         ? true
                         : false

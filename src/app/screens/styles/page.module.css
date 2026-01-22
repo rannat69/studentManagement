@@ -204,7 +204,7 @@
     border-color 0.3s;
   /* Optional: Smooth transition */
   font-size: x-small;
-  max-width: 45%;
+  max-width: 75%;
   margin: 0.1rem;
 }
 
@@ -369,7 +369,7 @@
   padding: 10px;
   margin-bottom: 10px;
   /* Space between drop areas */
-  width: 20rem;
+  width: 100%;
 }
 
 .dropAreaBig {
@@ -504,8 +504,9 @@ a.secondary {
 }
 
 .courseBlock {
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  
   font-size: 1rem;
   height: 10rem;
 }
@@ -847,7 +848,7 @@ a.secondary {
 }
 
 .matchStudentName {
-  width: 70%;
+
   text-align: justify;
 }
 
