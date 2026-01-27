@@ -17,74 +17,71 @@ export const PROGRAMS = ["ISD PhD", "ISD MPhil"];
 
 // Areas :
 export const AREAS = [
-	"MAE",
-	"Mechanical",
-	"Chemical",
-	"CS",
-	"Industrial Design",
-	"ISD",
-	"Architecture",
-	"Urban Design",
-	"Design",
-	"Engineering",
-	"Computing",
-	"Electronics",
+  "Mechanical Engineering",
+  "Materials",
+  "Computer Science",
+  "Robotics",
+  "Architecture",
+  "Design",
+  "Industrial Engineering",
+  "Electrical Engineering",
+  "Entrepreneurship",
 ];
 
 export const QUALIFICATIONS = [
-	"Embedded Systems",
+  "Embedded Systems",
 
-	"AI Hardware",
+  "AI Hardware",
 
-	"Low Energy System Design",
+  "Low Energy System Design",
 
-	"Innovative Design",
+  "Innovative Design",
 
-	"Product Development",
+  "Product Development",
 
-	"Human-Centered Design",
+  "Human-Centered Design",
 
-	"Architectural Geometry",
+  "Architectural Geometry",
 
-	"Computer-Aided Design and Manufacturing (CAD / CAM)",
+  "Computer-Aided Design and Manufacturing (CAD / CAM)",
 
-	"Computer Vision",
+  "Computer Vision",
 
-	"Computer Graphics",
+  "Computer Graphics",
 
-	"Computational Design",
+  "Computational Design",
 
-	"Augmented Reality",
+  "Augmented Reality",
 
-	"Pervasive and Cloud Computing",
+  "Pervasive and Cloud Computing",
 
-	"User-Centered System Design",
+  "User-Centered System Design",
 
-	"Advanced Manufacturing and Material",
+  "Advanced Manufacturing and Material",
 
-	"Wearable Healthcare Devices",
+  "Wearable Healthcare Devices",
 
-	"Microelectronics",
+  "Microelectronics",
 
-	"Edge AI",
+  "Edge AI",
 
-	"Beyond 5G",
+  "Beyond 5G",
 
-	"Bio-Inspired Design",
+  "Bio-Inspired Design",
 
-	"IoT",
+  "IoT",
 
-	"[Tele] Medical Design",
+  "[Tele] Medical Design",
 
-	"Robotics Dynamics and Control",
+  "Robotics Dynamics and Control",
 
-	"Systems Simulation and Modeling",
+  "Systems Simulation and Modeling",
 
-	"Integrative Systems Design",
+  "Integrative Systems Design",
 
-	"Design Theory",
+  "Design Theory",
 
-	"Sustainable Design",
+  "Sustainable Design",
 
-	"Marine Tech, Underwater Vision, Transport, Communication",
+  "Marine Tech, Underwater Vision, Transport, Communication",
 ];
