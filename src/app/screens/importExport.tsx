@@ -24,7 +24,7 @@ export default function ImportExport() {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isImportStudents, setIsImportStudents] = useState<boolean>(true);
-  const [isImportStudentArea, setIsImportStudentArea] = useState<boolean>(true);
+
   const [isImportCourses, setIsImportCourses] = useState<boolean>(true);
   const [isImportCourseArea, setIsImportCourseArea] = useState<boolean>(true);
   const [isImportTeachers, setIsImportTeachers] = useState<boolean>(true);
@@ -97,6 +97,7 @@ export default function ImportExport() {
         "available",
         "areas",
         "qualifs",
+        "teachers",
       ];
 
       // Check for missing required fields
@@ -322,12 +323,15 @@ export default function ImportExport() {
         // Student import
         sheetName = workbook.SheetNames[1];
         sheet = workbook.Sheets[sheetName];
-        const sheetDataStudent: Student[] = XLSX.utils.sheet_to_json(sheet);
+        const sheetDataStudent: any[] = XLSX.utils.sheet_to_json(sheet);
 
         if (isImportStudents) {
           for (const item of sheetDataStudent) {
             // if id is present, update
-            if (validateStudent(item)) {
+
+            const itemStudent: Student = item as Student;
+
+            if (validateStudent(itemStudent)) {
               if (item.id && item.id > 0) {
                 // check item properties, at least l_name, ta_available, and expected_grad_year have to be present
 
@@ -351,17 +355,45 @@ export default function ImportExport() {
                   }
                 };
 
-                const fetchStudentResponse = await fetchStudent(item.id);
+                const fetchStudentResponse = await fetchStudent(itemStudent.id);
                 if (fetchStudentResponse) {
-                  updateStudent(item.id, item);
+                  updateStudent(itemStudent.id, itemStudent);
                 } else {
-                  errors.push(`Error: Student with id ${item.id} not found`);
+                  errors.push(
+                    `Error: Student with id ${itemStudent.id} not found`,
+                  );
                 }
               } else {
-                console.log("student create");
-
                 // if id not present, create
-                createStudent(item);
+                const newStudent = await createStudent(item);
+                item.id = newStudent.id;
+
+                console.log("student create", newStudent);
+              }
+
+              // Delete then create student areas
+
+              // Delete all areas for student first
+              await fetch(`/api/student_area/${item.id}`, {
+                method: "DELETE",
+              });
+
+              // Get all areas from item.areas separated by semicolons;
+
+              const listAreas = item.areas.split(";");
+
+              for (const area of listAreas) {
+                // test if area is in AREAS
+                if (!AREAS.includes(area.trim())) {
+                  errors.push(`Error: Area ${area} not found in AREAS`);
+                  break;
+                }
+
+                const studentArea: StudentArea = {
+                  student_id: item.id,
+                  area: area.trim(),
+                };
+                createStudentArea(studentArea);
               }
             } else {
               break;
@@ -669,78 +701,6 @@ export default function ImportExport() {
                 }
               } else {
                 errors.push(`Error: course id not found`);
-              }
-            } else {
-              break;
-            }
-          }
-        }
-
-        // StudentArea import
-        sheetName = workbook.SheetNames[6];
-        sheet = workbook.Sheets[sheetName];
-        const sheetDataStudentArea: StudentArea[] =
-          XLSX.utils.sheet_to_json(sheet);
-
-        if (isImportStudentArea) {
-
-          for (const item of sheetDataStudentArea) {
-            // if id is present, update
-            if (validateStudentArea(item)) {
-              if (item.student_id && item.student_id > 0) {
-                // Check if course exists
-                const responseStudent = await axios.get(
-                  `/api/student/${item.student_id}`,
-                );
-                if (responseStudent.data) {
-                } else {
-                  errors.push(`Error: course id not found`);
-                  break;
-                }
-
-                const fetchStdentAreas = async () => {
-                  try {
-                    const responseStudentArea = await axios.get(
-                      "/api/student_area/" + item.student_id,
-                    );
-
-                    return responseStudentArea.data;
-                  } catch (error: unknown) {
-                    if (axios.isAxiosError(error)) {
-                      // Gérer les erreurs d'axios
-                      console.error("Axios Error:", error.message);
-                    } else {
-                      // Gérer les autres erreurs
-                      console.error("Error:", error);
-                    }
-                  }
-                };
-
-                const fetchStudentAreaResponse = await fetchStdentAreas();
-                if (fetchStudentAreaResponse) {
-                  // Check if teacher/course exists
-
-                  
-
-                  if (
-                    fetchStudentAreaResponse.length > 0 &&
-                    fetchStudentAreaResponse.find(
-                      (s: StudentArea) =>
-                        s.student_id === item.student_id &&
-                        s.area === item.area,
-                    )
-                  ) {
-                    // record already exists, no need to create
-                  } else {
-                    // update record
-                    createStudentArea(item);
-                  }
-                } else {
-                  // create new record in  studentCourse
-                  createStudentArea(item);
-                }
-              } else {
-                errors.push(`Error: student id not found`);
               }
             } else {
               break;
@@ -1096,7 +1056,7 @@ export default function ImportExport() {
     createSheetTeacherCourse(workbook, teacherCourse);
 
     createSheetCourseArea(workbook, courseAreas);
-    createSheetStudentArea(workbook, studentAreas);
+
     // Create a buffer and trigger download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
@@ -1262,7 +1222,7 @@ export default function ImportExport() {
       let areas = "";
 
       for (const area of areasForStudent) {
-        areas += area + ",";
+        areas += area + ";";
       }
 
       // get qualifs from student
@@ -1273,7 +1233,7 @@ export default function ImportExport() {
       let qualifs = "";
 
       for (const qualif of qualifsForStudent) {
-        qualifs += qualif + ",";
+        qualifs += qualif + ";";
       }
 
       // get teachers from student
@@ -1299,7 +1259,7 @@ export default function ImportExport() {
       let teachersListString = "";
 
       for (const teacher of teachersList) {
-        teachersListString += teacher.l_name + " " + teacher.f_names + ",";
+        teachersListString += teacher.l_name + " " + teacher.f_names + ";";
       }
 
       worksheet.addRow({
@@ -1429,16 +1389,16 @@ export default function ImportExport() {
           };
 
           row.getCell("M").dataValidation = {
-            type: "whole",
-            operator: "equal",
+            type: "textLength",
+            operator: "notEqual",
             allowBlank: true,
             showInputMessage: true,
-            formulae: [999999999999999999999999],
-            promptTitle: "ID",
-            prompt: "Can not be modified. Please modify in app.",
+            formulae: ["XXXXXX"],
+            promptTitle: "Areas",
+            prompt: "Areas separated by ;.",
             errorStyle: "error",
-            errorTitle: "Year",
-            error: "Can not be modified.",
+            errorTitle: "Areas",
+            error: "Wrong value for area.",
             showErrorMessage: true,
           };
 
@@ -1890,87 +1850,6 @@ export default function ImportExport() {
     }
   }
 
-  function createSheetStudentArea(
-    workbook: Workbook,
-    studentAreas: {
-      student_id: number;
-      area: string;
-    }[],
-  ) {
-    const worksheet = workbook.addWorksheet("StudentAreas");
-
-    // Define columns
-    worksheet.columns = [
-      { header: "student_id", key: "student_id", width: 20 },
-      { header: "area", key: "area", width: 50 },
-
-      // Add more columns as needed
-    ];
-
-    // get student and courses
-
-    // Add content of courses into worksheet
-    for (const item of studentAreas) {
-      worksheet.addRow({
-        student_id: item.student_id,
-        area: item.area,
-      });
-    }
-
-    const headerRow = worksheet.getRow(1);
-
-    headerRow.eachCell((cell) => {
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFCCCCCC" }, // Light gray color
-      };
-      cell.font = { bold: true };
-    });
-
-    // add 100 empty rows to have control fields
-    for (let i = 0; i < 100; i++) {
-      worksheet.addRow({});
-    }
-
-    const rows = worksheet.getRows(
-      0,
-      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0,
-    );
-
-    if (rows) {
-      for (const row of rows) {
-        if (row.number && row.number > 1) {
-          row.getCell("A").dataValidation = {
-            type: "whole",
-            operator: "between",
-            allowBlank: true,
-            showInputMessage: true,
-            formulae: [0, 999999],
-            promptTitle: "ID",
-            prompt: "Student ID, use same as the one in Student tab. ",
-            errorStyle: "error",
-            errorTitle: "Student ID",
-            error: "Enter a number.",
-            showErrorMessage: true,
-          };
-
-          row.getCell("B").dataValidation = {
-            type: "list",
-            allowBlank: true,
-            formulae: [
-              '"Mechanical Engineering,Materials,Computer Science,Robotics,Architecture,Design,Industrial Engineering,Electrical Engineering,Entrepreneurship"',
-            ],
-            errorStyle: "error",
-            errorTitle: "Area",
-            error: "The value must be an area",
-            showErrorMessage: true,
-          };
-        }
-      }
-    }
-  }
-
   return (
     <div className={styles.page}>
       <div className={styles.main}>
@@ -2136,32 +2015,6 @@ export default function ImportExport() {
               type="checkbox"
               checked
               onChange={() => setIsImportCourseArea(!isImportCourseArea)}
-            ></input>
-          </div>
-        )}
-
-        {!isImportStudentArea ? (
-          <div
-            className={styles.buttonUnclicked}
-            onClick={() => setIsImportStudentArea(!isImportStudentArea)}
-          >
-            Student areas
-            <input
-              type="checkbox"
-              checked={false}
-              onChange={() => setIsImportStudentArea(!isImportStudentArea)}
-            ></input>
-          </div>
-        ) : (
-          <div
-            className={styles.buttonClicked}
-            onClick={() => setIsImportStudentArea(!isImportStudentArea)}
-          >
-            Student areas
-            <input
-              type="checkbox"
-              checked
-              onChange={() => setIsImportStudentArea(!isImportStudentArea)}
             ></input>
           </div>
         )}
