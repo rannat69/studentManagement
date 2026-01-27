@@ -439,8 +439,6 @@ export default function ImportExport() {
 
                 const fetchStudentCourseResponse = await fetchStudentCourse();
                 if (fetchStudentCourseResponse) {
-            
-
                   // Check if student/course exists for year/semester
 
                   if (
@@ -530,8 +528,6 @@ export default function ImportExport() {
 
                 const fetchTeacherCourseResponse = await fetchTeacherCourse();
                 if (fetchTeacherCourseResponse) {
-            
-
                   // Check if teacher/course exists
 
                   if (
@@ -1672,25 +1668,25 @@ export default function ImportExport() {
         {!isImportTeacherCourse ? (
           <div
             className={styles.buttonUnclicked}
-            onClick={() => setIsImportTeacherCourse(!isImportStudentCourse)}
+            onClick={() => setIsImportTeacherCourse(!isImportTeacherCourse)}
           >
             Match Teachers/courses
             <input
               type="checkbox"
               checked={false}
-              onChange={() => setIsImportTeacherCourse(!isImportStudentCourse)}
+              onChange={() => setIsImportTeacherCourse(!isImportTeacherCourse)}
             ></input>
           </div>
         ) : (
           <div
             className={styles.buttonClicked}
-            onClick={() => setIsImportTeacherCourse(!isImportStudentCourse)}
+            onClick={() => setIsImportTeacherCourse(!isImportTeacherCourse)}
           >
             Match Teachers/courses
             <input
               type="checkbox"
               checked
-              onChange={() => setIsImportTeacherCourse(!isImportStudentCourse)}
+              onChange={() => setIsImportTeacherCourse(!isImportTeacherCourse)}
             ></input>
           </div>
         )}
