@@ -380,20 +380,22 @@ export default function ImportExport() {
 
               // Get all areas from item.areas separated by semicolons;
 
-              const listAreas = item.areas.split(";");
+              if (item.areas) {
+                const listAreas = item.areas.split(";");
 
-              for (const area of listAreas) {
-                // test if area is in AREAS
-                if (!AREAS.includes(area.trim())) {
-                  errors.push(`Error: Area ${area} not found in AREAS`);
-                  break;
+                for (const area of listAreas) {
+                  // test if area is in AREAS
+                  if (!AREAS.includes(area.trim())) {
+                    errors.push(`Error: Area ${area} not found in AREAS`);
+                    break;
+                  }
+
+                  const studentArea: StudentArea = {
+                    student_id: item.id,
+                    area: area.trim(),
+                  };
+                  createStudentArea(studentArea);
                 }
-
-                const studentArea: StudentArea = {
-                  student_id: item.id,
-                  area: area.trim(),
-                };
-                createStudentArea(studentArea);
               }
             } else {
               break;
