@@ -16,6 +16,8 @@ import { StudentArea } from "../data/studentAreaData";
 import { StudentTeacher } from "../data/studentTeacherData";
 import { StudentCourse } from "../data/studentCourseData";
 import { TeacherCourse } from "../data/teacherCourseData";
+import { CourseArea } from "../data/courseAreaData";
+import { AREAS } from "../constants";
 
 export default function ImportExport() {
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -23,6 +25,7 @@ export default function ImportExport() {
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isImportStudents, setIsImportStudents] = useState<boolean>(true);
   const [isImportCourses, setIsImportCourses] = useState<boolean>(true);
+  const [isImportCourseArea, setIsImportCourseArea] = useState<boolean>(true);
   const [isImportTeachers, setIsImportTeachers] = useState<boolean>(true);
   const [isImportStudentCourse, setIsImportStudentCourse] =
     useState<boolean>(true);
@@ -195,6 +198,30 @@ export default function ImportExport() {
       }
       if (!item.course_id) {
         errors.push("Error: Missing required course id for a teacher/course");
+        return false;
+      }
+
+      // Check for invalid properties
+      const courseKeys = Object.keys(item);
+      for (const key of courseKeys) {
+        if (!validKeys.includes(key)) {
+          errors.push(
+            `Error: Invalid property "${key}" found in teacher course object.`,
+          );
+          return false;
+        }
+      }
+      return true;
+    };
+
+    const validateCourseArea = (item: CourseArea): boolean => {
+      const validKeys = ["course_id", "area"];
+
+      console.log("validateCourseArea item", item);
+
+      // Check for missing required fields
+      if (!item.course_id) {
+        errors.push("Error: Missing required course id for a area/course");
         return false;
       }
 
@@ -556,6 +583,74 @@ export default function ImportExport() {
           }
         }
 
+        // CourseArea import
+        sheetName = workbook.SheetNames[5];
+        sheet = workbook.Sheets[sheetName];
+        const sheetDataCourseArea: CourseArea[] =
+          XLSX.utils.sheet_to_json(sheet);
+
+        if (isImportCourseArea) {
+          for (const item of sheetDataCourseArea) {
+            // if id is present, update
+            if (validateCourseArea(item)) {
+              if (item.course_id && item.course_id > 0) {
+                // Check if course exists
+                const responseCourse = await axios.get(
+                  `/api/course/${item.course_id}`,
+                );
+                if (responseCourse.data) {
+                } else {
+                  errors.push(`Error: course id not found`);
+                  break;
+                }
+
+                const fetchCourseAreas = async () => {
+                  try {
+                    const responseTeacherCourse = await axios.get(
+                      "/api/course_area/" + item.course_id,
+                    );
+
+                    return responseTeacherCourse.data;
+                  } catch (error: unknown) {
+                    if (axios.isAxiosError(error)) {
+                      // Gérer les erreurs d'axios
+                      console.error("Axios Error:", error.message);
+                    } else {
+                      // Gérer les autres erreurs
+                      console.error("Error:", error);
+                    }
+                  }
+                };
+
+                const fetchCourseAreaResponse = await fetchCourseAreas();
+                if (fetchCourseAreaResponse) {
+                  // Check if teacher/course exists
+
+                  if (
+                    fetchCourseAreaResponse.length > 0 &&
+                    fetchCourseAreaResponse.find(
+                      (s: CourseArea) =>
+                        s.course_id === item.course_id && s.area === item.area,
+                    )
+                  ) {
+                    // record already exists, no need to create
+                  } else {
+                    // update record
+                    createCourseArea(item);
+                  }
+                } else {
+                  // create new record in  studentCourse
+                  createCourseArea(item);
+                }
+              } else {
+                errors.push(`Error: course id not found`);
+              }
+            } else {
+              break;
+            }
+          }
+        }
+
         if (errors.length > 0) {
           setErrorMessage(errors.join("\n")); // Display all errors
         } else {
@@ -709,6 +804,35 @@ export default function ImportExport() {
     }
   };
 
+  const createCourseArea = async (courseAreaData: CourseArea) => {
+    console.log("courseAreaData", courseAreaData);
+
+    try {
+      const response = await fetch("/api/course_area/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(courseAreaData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        setErrorMessage(data.error);
+      }
+
+      return data; // Return the newly created course ID or object
+    } catch (error) {
+      console.error("Error adding course:", error);
+      throw error; // Rethrow the error for handling in the caller
+    }
+  };
+
   const updateStudent = async (id: number, updatedData: Student) => {
     try {
       const response = await axios.put(`/api/student/${id}`, updatedData);
@@ -755,6 +879,12 @@ export default function ImportExport() {
 
     const fetchCourses = async () => {
       const response = await axios.get("/api/course/all");
+
+      return response.data;
+    };
+
+    const fetchCourseAreas = async () => {
+      const response = await axios.get("/api/course_area/all");
 
       return response.data;
     };
@@ -809,6 +939,8 @@ export default function ImportExport() {
 
     const studentTeachers = await fetchStudentTeacher();
     const teacherCourse = await fetchTeacherCourse();
+    const courseAreas = await fetchCourseAreas();
+
     /*
 				const studentAreas = await fetchStudentAreas();
 		
@@ -836,6 +968,9 @@ export default function ImportExport() {
 
     createSheetStudentCourse(workbook, studentCourses);
     createSheetTeacherCourse(workbook, teacherCourse);
+
+    createSheetCourseArea(workbook, courseAreas);
+
     // Create a buffer and trigger download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
@@ -1548,6 +1683,87 @@ export default function ImportExport() {
     }
   }
 
+  function createSheetCourseArea(
+    workbook: Workbook,
+    courseAreas: {
+      course_id: number;
+      area: string;
+    }[],
+  ) {
+    const worksheet = workbook.addWorksheet("CourseAreas");
+
+    // Define columns
+    worksheet.columns = [
+      { header: "course_id", key: "course_id", width: 20 },
+      { header: "area", key: "area", width: 50 },
+
+      // Add more columns as needed
+    ];
+
+    // get student and courses
+
+    // Add content of courses into worksheet
+    for (const item of courseAreas) {
+      worksheet.addRow({
+        course_id: item.course_id,
+        area: item.area,
+      });
+    }
+
+    const headerRow = worksheet.getRow(1);
+
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFCCCCCC" }, // Light gray color
+      };
+      cell.font = { bold: true };
+    });
+
+    // add 100 empty rows to have control fields
+    for (let i = 0; i < 100; i++) {
+      worksheet.addRow({});
+    }
+
+    const rows = worksheet.getRows(
+      0,
+      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0,
+    );
+
+    if (rows) {
+      for (const row of rows) {
+        if (row.number && row.number > 1) {
+          row.getCell("A").dataValidation = {
+            type: "whole",
+            operator: "between",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: [0, 999999],
+            promptTitle: "ID",
+            prompt: "Course ID, use same as the one in Courses tab. ",
+            errorStyle: "error",
+            errorTitle: "Course ID",
+            error: "Enter a number.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("B").dataValidation = {
+            type: "list",
+            allowBlank: true,
+            formulae: [
+              '"Mechanical Engineering,Materials,Computer Science,Robotics,Architecture,Design,Industrial Engineering,Electrical Engineering,Entrepreneurship"',
+            ],
+            errorStyle: "error",
+            errorTitle: "Semester",
+            error: "The value must be an area",
+            showErrorMessage: true,
+          };
+        }
+      }
+    }
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.main}>
@@ -1690,6 +1906,32 @@ export default function ImportExport() {
             ></input>
           </div>
         )}
+
+        {!isImportCourseArea ? (
+          <div
+            className={styles.buttonUnclicked}
+            onClick={() => setIsImportCourseArea(!isImportCourseArea)}
+          >
+            Course areas
+            <input
+              type="checkbox"
+              checked={false}
+              onChange={() => setIsImportCourseArea(!isImportCourseArea)}
+            ></input>
+          </div>
+        ) : (
+          <div
+            className={styles.buttonClicked}
+            onClick={() => setIsImportCourseArea(!isImportCourseArea)}
+          >
+            Course areas
+            <input
+              type="checkbox"
+              checked
+              onChange={() => setIsImportCourseArea(!isImportCourseArea)}
+            ></input>
+          </div>
+        )}
       </div>
       <footer className={styles.footer}>
         {errorMessage && errorMessage.length > 0 && (
@@ -1699,7 +1941,7 @@ export default function ImportExport() {
           <div className={styles.success}>{successMessage} </div>
         )}
       </footer>
-      v1.7
+      v1.8
     </div>
   );
 }
