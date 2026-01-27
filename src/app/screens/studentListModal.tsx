@@ -362,7 +362,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
       if (areas && areas.length > 0) {
         areas.forEach(async (area) => {
           const studentArea = {
-            studentId: data.id,
+            student_id: data.id,
             area: area,
           };
           response = await fetch("api/student_area/create", {
@@ -447,7 +447,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
       if (areas && areas.length > 0) {
         areas.forEach(async (area) => {
           const areaStudent = {
-            studentId: id,
+            student_id: id,
             area: area,
           };
 

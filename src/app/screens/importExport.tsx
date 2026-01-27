@@ -24,6 +24,7 @@ export default function ImportExport() {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isImportStudents, setIsImportStudents] = useState<boolean>(true);
+  const [isImportStudentArea, setIsImportStudentArea] = useState<boolean>(true);
   const [isImportCourses, setIsImportCourses] = useState<boolean>(true);
   const [isImportCourseArea, setIsImportCourseArea] = useState<boolean>(true);
   const [isImportTeachers, setIsImportTeachers] = useState<boolean>(true);
@@ -230,7 +231,31 @@ export default function ImportExport() {
       for (const key of courseKeys) {
         if (!validKeys.includes(key)) {
           errors.push(
-            `Error: Invalid property "${key}" found in teacher course object.`,
+            `Error: Invalid property "${key}" found in area course object.`,
+          );
+          return false;
+        }
+      }
+      return true;
+    };
+
+    const validateStudentArea = (item: StudentArea): boolean => {
+      const validKeys = ["student_id", "area"];
+
+      console.log("validateStudentArea item", item);
+
+      // Check for missing required fields
+      if (!item.student_id) {
+        errors.push("Error: Missing required course id for a area/student");
+        return false;
+      }
+
+      // Check for invalid properties
+      const courseKeys = Object.keys(item);
+      for (const key of courseKeys) {
+        if (!validKeys.includes(key)) {
+          errors.push(
+            `Error: Invalid property "${key}" found in student area object.`,
           );
           return false;
         }
@@ -651,6 +676,78 @@ export default function ImportExport() {
           }
         }
 
+        // StudentArea import
+        sheetName = workbook.SheetNames[6];
+        sheet = workbook.Sheets[sheetName];
+        const sheetDataStudentArea: StudentArea[] =
+          XLSX.utils.sheet_to_json(sheet);
+
+        if (isImportStudentArea) {
+
+          for (const item of sheetDataStudentArea) {
+            // if id is present, update
+            if (validateStudentArea(item)) {
+              if (item.student_id && item.student_id > 0) {
+                // Check if course exists
+                const responseStudent = await axios.get(
+                  `/api/student/${item.student_id}`,
+                );
+                if (responseStudent.data) {
+                } else {
+                  errors.push(`Error: course id not found`);
+                  break;
+                }
+
+                const fetchStdentAreas = async () => {
+                  try {
+                    const responseStudentArea = await axios.get(
+                      "/api/student_area/" + item.student_id,
+                    );
+
+                    return responseStudentArea.data;
+                  } catch (error: unknown) {
+                    if (axios.isAxiosError(error)) {
+                      // Gérer les erreurs d'axios
+                      console.error("Axios Error:", error.message);
+                    } else {
+                      // Gérer les autres erreurs
+                      console.error("Error:", error);
+                    }
+                  }
+                };
+
+                const fetchStudentAreaResponse = await fetchStdentAreas();
+                if (fetchStudentAreaResponse) {
+                  // Check if teacher/course exists
+
+                  
+
+                  if (
+                    fetchStudentAreaResponse.length > 0 &&
+                    fetchStudentAreaResponse.find(
+                      (s: StudentArea) =>
+                        s.student_id === item.student_id &&
+                        s.area === item.area,
+                    )
+                  ) {
+                    // record already exists, no need to create
+                  } else {
+                    // update record
+                    createStudentArea(item);
+                  }
+                } else {
+                  // create new record in  studentCourse
+                  createStudentArea(item);
+                }
+              } else {
+                errors.push(`Error: student id not found`);
+              }
+            } else {
+              break;
+            }
+          }
+        }
+
         if (errors.length > 0) {
           setErrorMessage(errors.join("\n")); // Display all errors
         } else {
@@ -833,6 +930,35 @@ export default function ImportExport() {
     }
   };
 
+  const createStudentArea = async (studentAreaData: StudentArea) => {
+    console.log("studentAreaData", studentAreaData);
+
+    try {
+      const response = await fetch("/api/student_area/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(studentAreaData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        setErrorMessage(data.error);
+      }
+
+      return data; // Return the newly created course ID or object
+    } catch (error) {
+      console.error("Error adding student area:", error);
+      throw error; // Rethrow the error for handling in the caller
+    }
+  };
+
   const updateStudent = async (id: number, updatedData: Student) => {
     try {
       const response = await axios.put(`/api/student/${id}`, updatedData);
@@ -970,7 +1096,7 @@ export default function ImportExport() {
     createSheetTeacherCourse(workbook, teacherCourse);
 
     createSheetCourseArea(workbook, courseAreas);
-
+    createSheetStudentArea(workbook, studentAreas);
     // Create a buffer and trigger download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
@@ -1755,7 +1881,88 @@ export default function ImportExport() {
               '"Mechanical Engineering,Materials,Computer Science,Robotics,Architecture,Design,Industrial Engineering,Electrical Engineering,Entrepreneurship"',
             ],
             errorStyle: "error",
-            errorTitle: "Semester",
+            errorTitle: "Area",
+            error: "The value must be an area",
+            showErrorMessage: true,
+          };
+        }
+      }
+    }
+  }
+
+  function createSheetStudentArea(
+    workbook: Workbook,
+    studentAreas: {
+      student_id: number;
+      area: string;
+    }[],
+  ) {
+    const worksheet = workbook.addWorksheet("StudentAreas");
+
+    // Define columns
+    worksheet.columns = [
+      { header: "student_id", key: "student_id", width: 20 },
+      { header: "area", key: "area", width: 50 },
+
+      // Add more columns as needed
+    ];
+
+    // get student and courses
+
+    // Add content of courses into worksheet
+    for (const item of studentAreas) {
+      worksheet.addRow({
+        student_id: item.student_id,
+        area: item.area,
+      });
+    }
+
+    const headerRow = worksheet.getRow(1);
+
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFCCCCCC" }, // Light gray color
+      };
+      cell.font = { bold: true };
+    });
+
+    // add 100 empty rows to have control fields
+    for (let i = 0; i < 100; i++) {
+      worksheet.addRow({});
+    }
+
+    const rows = worksheet.getRows(
+      0,
+      worksheet.lastRow?.number ? worksheet.lastRow?.number + 1 : 0,
+    );
+
+    if (rows) {
+      for (const row of rows) {
+        if (row.number && row.number > 1) {
+          row.getCell("A").dataValidation = {
+            type: "whole",
+            operator: "between",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: [0, 999999],
+            promptTitle: "ID",
+            prompt: "Student ID, use same as the one in Student tab. ",
+            errorStyle: "error",
+            errorTitle: "Student ID",
+            error: "Enter a number.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("B").dataValidation = {
+            type: "list",
+            allowBlank: true,
+            formulae: [
+              '"Mechanical Engineering,Materials,Computer Science,Robotics,Architecture,Design,Industrial Engineering,Electrical Engineering,Entrepreneurship"',
+            ],
+            errorStyle: "error",
+            errorTitle: "Area",
             error: "The value must be an area",
             showErrorMessage: true,
           };
@@ -1929,6 +2136,32 @@ export default function ImportExport() {
               type="checkbox"
               checked
               onChange={() => setIsImportCourseArea(!isImportCourseArea)}
+            ></input>
+          </div>
+        )}
+
+        {!isImportStudentArea ? (
+          <div
+            className={styles.buttonUnclicked}
+            onClick={() => setIsImportStudentArea(!isImportStudentArea)}
+          >
+            Student areas
+            <input
+              type="checkbox"
+              checked={false}
+              onChange={() => setIsImportStudentArea(!isImportStudentArea)}
+            ></input>
+          </div>
+        ) : (
+          <div
+            className={styles.buttonClicked}
+            onClick={() => setIsImportStudentArea(!isImportStudentArea)}
+          >
+            Student areas
+            <input
+              type="checkbox"
+              checked
+              onChange={() => setIsImportStudentArea(!isImportStudentArea)}
             ></input>
           </div>
         )}

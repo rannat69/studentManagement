@@ -3,7 +3,7 @@ import { open } from "sqlite";
 import allowedOrigin from "../allowedOrigin";
 
 export default async function handler(req, res) {
-  const { area, studentId } = req.body;
+  const { student_id, area } = req.body;
 
   allowedOrigin(req, res);
 
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     const result = await db.run(
       `INSERT INTO student_area
 		(area , student_id ) VALUES (?, ?)`,
-      [area, studentId],
+      [area, student_id],
 
       function (err) {
         console.log("function");
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
           res.json({ id: this.lastID });
           res.status(200).json({ message: "Record created" });
         }
-      }
+      },
     );
 
     return result.lastID;
