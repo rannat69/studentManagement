@@ -17,7 +17,8 @@ import { StudentTeacher } from "../data/studentTeacherData";
 import { StudentCourse } from "../data/studentCourseData";
 import { TeacherCourse } from "../data/teacherCourseData";
 import { CourseArea } from "../data/courseAreaData";
-import { AREAS } from "../constants";
+import { AREAS, QUALIFICATIONS } from "../constants";
+import { CourseQualification } from "../data/courseQualificationData";
 
 export default function ImportExport() {
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -56,7 +57,8 @@ export default function ImportExport() {
         "description",
         "semester",
         "year",
-        "field",
+        "qualifs",
+        "areas",
         "keywords",
         "ta_needed",
         "ta_assigned",
@@ -216,54 +218,6 @@ export default function ImportExport() {
       return true;
     };
 
-    const validateCourseArea = (item: CourseArea): boolean => {
-      const validKeys = ["course_id", "area"];
-
-      console.log("validateCourseArea item", item);
-
-      // Check for missing required fields
-      if (!item.course_id) {
-        errors.push("Error: Missing required course id for a area/course");
-        return false;
-      }
-
-      // Check for invalid properties
-      const courseKeys = Object.keys(item);
-      for (const key of courseKeys) {
-        if (!validKeys.includes(key)) {
-          errors.push(
-            `Error: Invalid property "${key}" found in area course object.`,
-          );
-          return false;
-        }
-      }
-      return true;
-    };
-
-    const validateStudentArea = (item: StudentArea): boolean => {
-      const validKeys = ["student_id", "area"];
-
-      console.log("validateStudentArea item", item);
-
-      // Check for missing required fields
-      if (!item.student_id) {
-        errors.push("Error: Missing required course id for a area/student");
-        return false;
-      }
-
-      // Check for invalid properties
-      const courseKeys = Object.keys(item);
-      for (const key of courseKeys) {
-        if (!validKeys.includes(key)) {
-          errors.push(
-            `Error: Invalid property "${key}" found in student area object.`,
-          );
-          return false;
-        }
-      }
-      return true;
-    };
-
     reader.onload = async (event) => {
       if (event && event.target) {
         const data = new Uint8Array(event.target.result as ArrayBuffer);
@@ -273,14 +227,16 @@ export default function ImportExport() {
 
         let sheetName = workbook.SheetNames[0];
         let sheet = workbook.Sheets[sheetName];
-        const sheetDataCourse: Course[] = XLSX.utils.sheet_to_json(sheet);
+        const sheetDataCourse: any[] = XLSX.utils.sheet_to_json(sheet);
 
         if (isImportCourses) {
           for (const item of sheetDataCourse) {
             console.log(item);
 
+            const course: Course = item;
+
             // if id is present, update
-            if (validateCourse(item)) {
+            if (validateCourse(course)) {
               if (item.id && item.id > 0) {
                 // check item properties, at least l_name, ta_available, and expected_grad_year have to be present
 
@@ -307,13 +263,77 @@ export default function ImportExport() {
                 const fetchCourseResponse = await fetchCourse(item.id);
 
                 if (fetchCourseResponse) {
-                  updateCourse(item.id, item);
+                  updateCourse(course.id, course);
                 } else {
                   errors.push(`Error: Course with id ${item.id} not found`);
                 }
               } else {
                 // if id not present, create
-                createCourse(item);
+
+                // if id not present, create
+                const newCourse = await createCourse(course);
+                item.id = newCourse.id;
+
+                console.log("course create", newCourse);
+              }
+
+              // Delete then create student areas
+
+              // Delete all areas for student first
+              await fetch(`/api/course_area/${item.id}`, {
+                method: "DELETE",
+              });
+
+              // Get all areas from item.areas separated by semicolons;
+
+              if (item.areas) {
+                const listAreas = item.areas.split(";");
+
+                console.log("listAreas", listAreas);
+
+                for (const area of listAreas) {
+                  if (area.trim() !== "") {
+                    // test if area is in AREAS
+                    if (!AREAS.includes(area.trim())) {
+                      errors.push(`Error: Area ${area} not found in AREAS`);
+                      break;
+                    }
+
+                    const courseArea: CourseArea = {
+                      course_id: item.id,
+                      area: area.trim(),
+                    };
+                    createCourseArea(courseArea);
+                  }
+                }
+              }
+
+              // Get all qualifs from item.qualifs separated by semicolons;
+
+              await fetch(`/api/course_qualif/${item.id}`, {
+                method: "DELETE",
+              });
+
+              if (item.qualifs) {
+                const listQualifs = item.qualifs.split(";");
+
+                for (const qualif of listQualifs) {
+                  if (qualif.trim() !== "") {
+                    // test if qualif is in QUALIFICATIONS
+                    if (!QUALIFICATIONS.includes(qualif.trim())) {
+                      errors.push(
+                        `Error: Qualif ${qualif} not found in QUALIFICATIONS`,
+                      );
+                      break;
+                    }
+
+                    const courseQualif: CourseQualification = {
+                      course_id: item.id,
+                      qualification: qualif.trim(),
+                    };
+                    createCourseQualif(courseQualif);
+                  }
+                }
               }
             } else {
               break;
@@ -383,18 +403,50 @@ export default function ImportExport() {
               if (item.areas) {
                 const listAreas = item.areas.split(";");
 
-                for (const area of listAreas) {
-                  // test if area is in AREAS
-                  if (!AREAS.includes(area.trim())) {
-                    errors.push(`Error: Area ${area} not found in AREAS`);
-                    break;
-                  }
+                console.log("listAreas", listAreas);
 
-                  const studentArea: StudentArea = {
-                    student_id: item.id,
-                    area: area.trim(),
-                  };
-                  createStudentArea(studentArea);
+                for (const area of listAreas) {
+                  if (area.trim() !== "") {
+                    // test if area is in AREAS
+                    if (!AREAS.includes(area.trim())) {
+                      errors.push(`Error: Area ${area} not found in AREAS`);
+                      break;
+                    }
+
+                    const studentArea: StudentArea = {
+                      student_id: item.id,
+                      area: area.trim(),
+                    };
+                    createStudentArea(studentArea);
+                  }
+                }
+              }
+
+              // Get all qualifs from item.qualifs separated by semicolons;
+
+              await fetch(`/api/student_qualif/${item.id}`, {
+                method: "DELETE",
+              });
+
+              if (item.qualifs) {
+                const listQualifs = item.qualifs.split(";");
+
+                for (const qualif of listQualifs) {
+                  if (qualif.trim() !== "") {
+                    // test if qualif is in QUALIFICATIONS
+                    if (!QUALIFICATIONS.includes(qualif.trim())) {
+                      errors.push(
+                        `Error: Qualif ${qualif} not found in QUALIFICATIONS`,
+                      );
+                      break;
+                    }
+
+                    const studentQualif: StudentQualification = {
+                      student_id: item.id,
+                      qualification: qualif.trim(),
+                    };
+                    createStudentQualif(studentQualif);
+                  }
                 }
               }
             } else {
@@ -642,74 +694,6 @@ export default function ImportExport() {
           }
         }
 
-        // CourseArea import
-        sheetName = workbook.SheetNames[5];
-        sheet = workbook.Sheets[sheetName];
-        const sheetDataCourseArea: CourseArea[] =
-          XLSX.utils.sheet_to_json(sheet);
-
-        if (isImportCourseArea) {
-          for (const item of sheetDataCourseArea) {
-            // if id is present, update
-            if (validateCourseArea(item)) {
-              if (item.course_id && item.course_id > 0) {
-                // Check if course exists
-                const responseCourse = await axios.get(
-                  `/api/course/${item.course_id}`,
-                );
-                if (responseCourse.data) {
-                } else {
-                  errors.push(`Error: course id not found`);
-                  break;
-                }
-
-                const fetchCourseAreas = async () => {
-                  try {
-                    const responseTeacherCourse = await axios.get(
-                      "/api/course_area/" + item.course_id,
-                    );
-
-                    return responseTeacherCourse.data;
-                  } catch (error: unknown) {
-                    if (axios.isAxiosError(error)) {
-                      // Gérer les erreurs d'axios
-                      console.error("Axios Error:", error.message);
-                    } else {
-                      // Gérer les autres erreurs
-                      console.error("Error:", error);
-                    }
-                  }
-                };
-
-                const fetchCourseAreaResponse = await fetchCourseAreas();
-                if (fetchCourseAreaResponse) {
-                  // Check if teacher/course exists
-
-                  if (
-                    fetchCourseAreaResponse.length > 0 &&
-                    fetchCourseAreaResponse.find(
-                      (s: CourseArea) =>
-                        s.course_id === item.course_id && s.area === item.area,
-                    )
-                  ) {
-                    // record already exists, no need to create
-                  } else {
-                    // update record
-                    createCourseArea(item);
-                  }
-                } else {
-                  // create new record in  studentCourse
-                  createCourseArea(item);
-                }
-              } else {
-                errors.push(`Error: course id not found`);
-              }
-            } else {
-              break;
-            }
-          }
-        }
-
         if (errors.length > 0) {
           setErrorMessage(errors.join("\n")); // Display all errors
         } else {
@@ -892,6 +876,35 @@ export default function ImportExport() {
     }
   };
 
+  const createCourseQualif = async (courseQualifData: CourseQualification) => {
+    console.log("courseQualifData", courseQualifData);
+
+    try {
+      const response = await fetch("/api/course_qualif/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(courseQualifData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        setErrorMessage(data.error);
+      }
+
+      return data; // Return the newly created course ID or object
+    } catch (error) {
+      console.error("Error adding course:", error);
+      throw error; // Rethrow the error for handling in the caller
+    }
+  };
+
   const createStudentArea = async (studentAreaData: StudentArea) => {
     console.log("studentAreaData", studentAreaData);
 
@@ -917,6 +930,37 @@ export default function ImportExport() {
       return data; // Return the newly created course ID or object
     } catch (error) {
       console.error("Error adding student area:", error);
+      throw error; // Rethrow the error for handling in the caller
+    }
+  };
+
+  const createStudentQualif = async (
+    studentQualifData: StudentQualification,
+  ) => {
+    console.log("studentQualifData", studentQualifData);
+
+    try {
+      const response = await fetch("/api/student_qualif/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(studentQualifData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        setErrorMessage(data.error);
+      }
+
+      return data; // Return the newly created course ID or object
+    } catch (error) {
+      console.error("Error adding student qualif:", error);
       throw error; // Rethrow the error for handling in the caller
     }
   };
@@ -977,6 +1021,12 @@ export default function ImportExport() {
       return response.data;
     };
 
+    const fetchCourseQualifications = async () => {
+      const response = await axios.get("/api/course_qualif/all");
+
+      return response.data;
+    };
+
     const fetchTeachers = async () => {
       const response = await axios.get("/api/teacher/all");
 
@@ -1028,7 +1078,7 @@ export default function ImportExport() {
     const studentTeachers = await fetchStudentTeacher();
     const teacherCourse = await fetchTeacherCourse();
     const courseAreas = await fetchCourseAreas();
-
+    const courseQualifications = await fetchCourseQualifications();
     /*
 				const studentAreas = await fetchStudentAreas();
 		
@@ -1041,7 +1091,7 @@ export default function ImportExport() {
     // put students in an Excel file in a tab, and courses in another tab
     const workbook = new ExcelJS.Workbook();
 
-    createSheetCourse(workbook, courses);
+    createSheetCourse(workbook, courses, courseAreas, courseQualifications);
 
     createSheetStudent(
       workbook,
@@ -1068,7 +1118,12 @@ export default function ImportExport() {
     link.click();
   }
 
-  function createSheetCourse(workbook: Workbook, courses: Course[]) {
+  function createSheetCourse(
+    workbook: Workbook,
+    courses: Course[],
+    courseAreas: CourseArea[],
+    courseQualifications: CourseQualification[],
+  ) {
     const worksheet = workbook.addWorksheet("Courses");
 
     // Define columns
@@ -1080,13 +1135,35 @@ export default function ImportExport() {
       { header: "semester", key: "semester", width: 15 },
       { header: "year", key: "year", width: 10 },
       { header: "ta_needed", key: "ta_needed", width: 10 },
-      { header: "field", key: "field", width: 10 },
+      { header: "areas", key: "areas", width: 10 },
+      { header: "qualifs", key: "qualifs", width: 10 },
       { header: "keywords", key: "keywords", width: 10 },
       // Add more columns as needed
     ];
 
     // Add content of courses into worksheet
     for (const item of courses) {
+      const areasForCourse = courseAreas
+        .filter((area) => area.course_id === item.id)
+        .map((area) => area.area);
+
+      let areas = "";
+
+      for (const area of areasForCourse) {
+        areas += area + ";";
+      }
+
+      // get qualifs from student
+      const qualifsForCourse = courseQualifications
+        .filter((qualif) => qualif.course_id === item.id)
+        .map((qualif) => qualif.qualification);
+
+      let qualifs = "";
+
+      for (const qualif of qualifsForCourse) {
+        qualifs += qualif + ";";
+      }
+
       worksheet.addRow({
         id: item.id,
         hkust_identifier: item.hkust_identifier,
@@ -1095,7 +1172,8 @@ export default function ImportExport() {
         semester: item.semester != "0" ? item.semester : "Spring",
         year: item.year,
         ta_needed: item.ta_needed,
-        field: item.field,
+        areas: areas,
+        qualifs: qualifs,
       });
     }
 
@@ -1173,6 +1251,34 @@ export default function ImportExport() {
             errorStyle: "error",
             errorTitle: "T.A. needed",
             error: "TThe value must a number between 0 and 10",
+            showErrorMessage: true,
+          };
+
+          row.getCell("H").dataValidation = {
+            type: "textLength",
+            operator: "notEqual",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: ["XXXXXX"],
+            promptTitle: "Areas",
+            prompt: "Areas separated by ;.",
+            errorStyle: "error",
+            errorTitle: "Areas",
+            error: "Wrong value for area.",
+            showErrorMessage: true,
+          };
+
+          row.getCell("I").dataValidation = {
+            type: "textLength",
+            operator: "notEqual",
+            allowBlank: true,
+            showInputMessage: true,
+            formulae: ["XXXXXX"],
+            promptTitle: "Qualifications",
+            prompt: "Qualifications separated by ;.",
+            errorStyle: "error",
+            errorTitle: "Qualifications",
+            error: "Wrong value for qualifs.",
             showErrorMessage: true,
           };
         }
@@ -1405,16 +1511,16 @@ export default function ImportExport() {
           };
 
           row.getCell("N").dataValidation = {
-            type: "whole",
-            operator: "equal",
+            type: "textLength",
+            operator: "notEqual",
             allowBlank: true,
             showInputMessage: true,
-            formulae: [999999999999999999999999],
-            promptTitle: "ID",
-            prompt: "Can not be modified. Please modify in app.",
+            formulae: ["XXXXXX"],
+            promptTitle: "Qualifications",
+            prompt: "Qualifications separated by ;.",
             errorStyle: "error",
-            errorTitle: "Year",
-            error: "Can not be modified.",
+            errorTitle: "Qualifications",
+            error: "Wrong value for qualifs.",
             showErrorMessage: true,
           };
 

@@ -341,7 +341,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
       if (qualifications && qualifications.length > 0) {
         qualifications.forEach(async (qualif) => {
           const studentQualif = {
-            studentId: data.id,
+            student_id: data.id,
             qualification: qualif,
           };
           response = await fetch("api/student_qualif/create", {
@@ -430,7 +430,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
       if (qualifications && qualifications.length > 0) {
         qualifications.forEach(async (qualif) => {
           const qualifStudent = {
-            studentId: id,
+            student_id: id,
             qualification: qualif,
           };
           await fetch("/api/student_qualif/create", {

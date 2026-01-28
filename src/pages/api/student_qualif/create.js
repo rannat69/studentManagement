@@ -3,7 +3,7 @@ import { open } from "sqlite";
 import allowedOrigin from "../allowedOrigin";
 
 export default async function handler(req, res) {
-  const { studentId, qualification } = req.body;
+  const { student_id, qualification } = req.body;
 
   allowedOrigin(req, res);
 
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     const result = await db.run(
       `INSERT INTO student_qualification
 		(student_id , qualification ) VALUES (?, ?)`,
-      [studentId, qualification],
+      [student_id, qualification],
 
       function (err) {
         console.log("function");
