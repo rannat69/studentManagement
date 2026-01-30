@@ -14,6 +14,7 @@ export default async function handler(req, res) {
     query: { id },
   } = req;
 
+
   allowedOrigin(req, res);
 
   const courseId = id[0];
@@ -22,11 +23,13 @@ export default async function handler(req, res) {
   if (id.length > 1) {
     teacherId = id[1];
   }
+
   const db = await openDb();
 
   if (req.method === "GET") {
+
     try {
-      if (teacherId === 0) {
+      if (Number(teacherId) === 0) {
         const data = await db.all(
           "SELECT * FROM course_teacher  WHERE course_id = ?",
           courseId,
@@ -37,7 +40,8 @@ export default async function handler(req, res) {
           res.status(200).json([]);
         }
       } else {
-        if (courseId === 0) {
+        if (Number(courseId) === 0) {
+
           const data = await db.all(
             "SELECT * FROM course_teacher  WHERE  teacher_id = ?",
             teacherId,
@@ -48,14 +52,12 @@ export default async function handler(req, res) {
             res.status(200).json([]);
           }
         } else {
-
           const data = await db.all(
             "SELECT * FROM course_teacher  WHERE  teacher_id = ? AND course_id = ?",
             teacherId,
             courseId,
           );
           if (data) {
-      
             res.status(200).json(data);
           } else {
             res.status(200).json([]);

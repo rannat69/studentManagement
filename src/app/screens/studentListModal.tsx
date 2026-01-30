@@ -219,79 +219,90 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
     }
   };
 
-  function addQualif(): void {
+  function addQualif(qualif: string): void {
     // get the currently selected area and add it to the areas array
     //in the formData
 
     setErrorMessage("");
-
+    let isError = false;
     // the currently selected area is in the select whose idea is "area"
 
-    if (selectedQualif === "") {
+    if (qualif === "") {
       setErrorMessage("Please select a qualification");
+      isError = true;
       return;
     }
-    if (qualifications && qualifications.includes(selectedQualif)) {
+    if (qualifications && qualifications.includes(qualif)) {
       setErrorMessage("Qualification already added");
+      isError = true;
       return;
     }
 
-    if (qualifications) {
-      setQualifications([...qualifications, selectedQualif]);
-    } else {
-      setQualifications([selectedQualif]);
+    if (!isError) {
+      if (qualifications) {
+        setQualifications([...qualifications, qualif]);
+      } else {
+        setQualifications([qualif]);
+      }
     }
   }
 
-  function addArea(): void {
+  function addArea(area: string): void {
     // get the currently selected area and add it to the areas array
     //in the formData
 
     setErrorMessage("");
-
+    let isError = false;
     // the currently selected area is in the select whose idea is "area"
 
-    if (selectedArea === "") {
-      setErrorMessage("Please select a qualification");
+    if (area === "") {
+      setErrorMessage("Please select an area");
+      isError = true;
       return;
     }
-    if (areas && areas.includes(selectedArea)) {
-      setErrorMessage("Qualification already added");
+    if (areas && areas.includes(area)) {
+      setErrorMessage("Area already added");
+      isError = true;
       return;
     }
-
-    if (areas) {
-      setAreas([...areas, selectedArea]);
-    } else {
-      setAreas([selectedArea]);
+    if (!isError) {
+      if (areas) {
+        setAreas([...areas, area]);
+      } else {
+        setAreas([area]);
+      }
     }
   }
 
-  function addTeacher(): void {
+  function addTeacher(teacher: Teacher): void {
     // get the currently selected area and add it to the areas array
     //in the formData
 
     setErrorMessage("");
 
+    let isError = false;
     // the currently selected area is in the select whose idea is "area"
 
-    if (!selectedTeacher || selectedTeacher?.id === 0) {
-      setErrorMessage("Please select a qualification");
+    if (!teacher || teacher?.id === 0) {
+      setErrorMessage("Please select a teacher");
+      isError = true;
       return;
     }
 
     // check if teachers contains an object where id = teacher.id
-    teachers.forEach((teacher) => {
-      if (teacher.id === selectedTeacher.id) {
+    teachers.forEach((teacherFromList) => {
+      if (teacherFromList.id === teacher.id) {
         setErrorMessage("Teacher already added");
+        isError = true;
         return;
       }
     });
-
-    if (areas) {
-      setTeachers([...teachers, selectedTeacher]);
-    } else {
-      setTeachers([selectedTeacher]);
+    if (!isError) {
+      if (teachers) {
+        setTeachers([...teachers, teacher]);
+      } else {
+        setTeachers([teacher]);
+      }
     }
   }
 
@@ -559,9 +570,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
   };
 
   const handleChangeTeacher = async (teacherId: number) => {
+    if (teacherId === 0) {
+      return;
+    }
     const response = await axios.get(`/api/teacher/${teacherId}`);
 
     setSelectedTeacher(response.data);
+
+    addTeacher(response.data);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -711,7 +727,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
           <div className={styles.selectContainer}>
             <select
               id="areas"
-              onChange={(e) => setSelectedArea(e.target.value)}
+              onChange={(e) => {
+                setSelectedArea(e.target.value);
+                addArea(e.target.value);
+              }}
               className={styles.select}
             >
               <option key="" value="">
@@ -725,9 +744,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
               ))}
             </select>
 
-            <div onClick={() => addArea()} className={styles.add}>
-              +{" "}
-            </div>
+       
           </div>
         </div>
 
@@ -763,7 +780,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
           <div className={styles.selectContainer}>
             <select
               id="qualifications"
-              onChange={(e) => setSelectedQualif(e.target.value)}
+              onChange={(e) => {
+                setSelectedQualif(e.target.value);
+                addQualif(e.target.value);
+              }}
               className={styles.select}
             >
               <option key="" value="">
@@ -776,9 +796,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
                 </option>
               ))}
             </select>
-            <div onClick={() => addQualif()} className={styles.add}>
-              +{" "}
-            </div>
           </div>
         </div>
 
@@ -816,7 +833,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
           <div className={styles.selectContainer}>
             <select
               id="teachers"
-              onChange={(e) => handleChangeTeacher(Number(e.target.value))}
+              onChange={(e) => {
+                handleChangeTeacher(Number(e.target.value));
+              }}
               className={styles.select}
             >
               <option key="" value="">
@@ -829,9 +848,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
                 </option>
               ))}
             </select>
-            <div onClick={() => addTeacher()} className={styles.add}>
-              +{" "}
-            </div>
           </div>
         </div>
 

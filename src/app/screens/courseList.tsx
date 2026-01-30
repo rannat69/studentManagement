@@ -126,6 +126,30 @@ export default function CourseList() {
     const response = await axios.get("/api/course/all");
 
     const courseList = response.data;
+
+    const responseStudentCourse = await axios.get("/api/student_course/all");
+
+    for (const course of courseList) {
+      if (course.ta_available === null) {
+        course.ta_available = 0;
+      }
+
+      // only take records of  responseStudentCourse.data where course_id = id
+
+      const taAssigned = responseStudentCourse.data.filter(
+        (r: StudentCourse) => {
+          return (
+            Number(r.course_id) === Number(course.id) &&
+            r.year === course.year &&
+            r.semester === course.semester
+          );
+        },
+      );
+
+      course.ta_assigned = taAssigned.length;
+
+    }
+
     setCourseListStateUnfiltered(courseList);
   };
 
