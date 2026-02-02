@@ -489,14 +489,9 @@ a.secondary {
   font-size: 0.8rem;
 }
 
-.popuptop h2 {
-  font-size: 1.2rem;
+.test {
+  background-color: #007bff;
 }
-
-.popuptop h4 {
-  font-size: 0.8rem;
-}
-
 .courseBlockContainer {
   display: flex;
   flex-direction: row;

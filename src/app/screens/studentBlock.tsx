@@ -41,7 +41,7 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
     <OverlayTrigger
       placement="left"
       overlay={
-        <Tooltip id="button-tooltip-2" className={styles.popup}>
+        <Tooltip id="button-tooltip-2" className={styles.popup} bsPrefix="popup">
           <div>
             {student.unoff_name?.length > 0 && (
               <h4>AKA {student.unoff_name}</h4>

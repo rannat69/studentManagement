@@ -22,8 +22,8 @@ const CourseBlock: React.FC<CourseBlockProps> = ({
 		<OverlayTrigger
 			placement='left'
 			overlay={
-				<Tooltip id='button-tooltip-2'>
-					<div className={styles.popup}>
+				<Tooltip id='button-tooltip-2' className={styles.popup} bsPrefix="popup">
+					<div >
 						{courseQualification.filter(
 							(qualification) => qualification.course_id === course.id
 						).length > 0 && (
