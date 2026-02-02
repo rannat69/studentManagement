@@ -2135,7 +2135,7 @@ export default function ImportExport() {
           <div className={styles.success}>{successMessage} </div>
         )}
       </footer>
-      v1.8
+      v1.9
     </div>
   );
 }

@@ -4,7 +4,7 @@ export function createSchedTasks(db, bcrypt) {
 
   /*setInterval(() => {
     console.log("Toto");
-  }, 2000);
+  }, 30000);
 */
 
   /* setInterval(() => {
@@ -64,5 +64,5 @@ export function createSchedTasks(db, bcrypt) {
 
   // Schedule the task to run every day (24 hours in milliseconds)
   //setInterval(dailyDatabaseCopy, 24 * 3600000); // 1 day in milliseconds
-  setInterval(dailyDatabaseCopy, 10000); // 1 day in milliseconds
+  setInterval(dailyDatabaseCopy, 24 * 3600000); // 1 day in milliseconds
 }
