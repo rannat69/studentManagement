@@ -464,9 +464,35 @@ a.secondary {
 }
 
 .popup {
+  /* Position it relative to the containing div */
+
+  border-radius: 5px;
+  /* Rounded corners */
+  padding: 10px;
+  /* Spacing inside the popup */
+  background: #e8f3ff;
+  color: #000;
+
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+  /* Smooth transition */
+
+  z-index: 2;
+}
+
+.popup > .tooltip-inner {
+  background: #e8f3ff !important;
+}
+
+.popup > .tooltip-arrow {
+  background: #e8f3ff !important;
+}
+
+.popuptop {
   position: fixed;
   /* Position it relative to the containing div */
-  right: -20vh;
+  right: -10vh;
   border-radius: 5px;
   /* Rounded corners */
   padding: 10px;
@@ -481,6 +507,7 @@ a.secondary {
   width: 17rem;
 
   z-index: 2;
+  transform: translateY(-100%); /* Move the popup above */
 }
 
 .popup h2 {
@@ -488,6 +515,14 @@ a.secondary {
 }
 
 .popup h4 {
+  font-size: 0.8rem;
+}
+
+.popuptop h2 {
+  font-size: 1.2rem;
+}
+
+.popuptop h4 {
   font-size: 0.8rem;
 }
 

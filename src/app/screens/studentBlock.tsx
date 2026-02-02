@@ -1,10 +1,11 @@
 // StudentBlock.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Student } from "../data/studentListData";
 import { StudentQualification } from "../data/studentQualificationData";
-import styles from "./styles/page.module.css";
+
 import { StudentArea } from "../data/studentAreaData";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import styles from "./styles/page.module.css";
 import { StudentTeacher } from "../data/studentTeacherData";
 import { Teacher } from "../data/teacherListData";
 
@@ -17,7 +18,7 @@ interface StudentBlockProps {
   teachers: Teacher[];
   onDragStart: (
     event: React.DragEvent<HTMLDivElement>,
-    student: Student
+    student: Student,
   ) => void;
   hoveredStudent: number;
   setHoveredStudent: (id: number) => void;
@@ -38,7 +39,7 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
 }) => {
   return (
     <OverlayTrigger
-      placement="bottom"
+      placement="left"
       overlay={
         <Tooltip id="button-tooltip-2">
           <div className={styles.popup}>
@@ -63,13 +64,13 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
             )}
 
             {studentQualification.filter(
-              (qualification) => qualification.student_id === student.id
+              (qualification) => qualification.student_id === student.id,
             ).length > 0 && (
               <div>
                 <h2>Qualifications: </h2>
                 {studentQualification
                   .filter(
-                    (qualification) => qualification.student_id === student.id
+                    (qualification) => qualification.student_id === student.id,
                   )
                   .map((qualification) => (
                     <div key={qualification.qualification}>
@@ -102,12 +103,12 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
                       studentTeacher.find(
                         (studentTeacher) =>
                           studentTeacher.teacher_id === teacher.id &&
-                          studentTeacher.student_id === student.id
+                          studentTeacher.student_id === student.id,
                       ) && (
                         <div key={teacher.id} className={styles.smallText}>
                           {teacher.l_name} {teacher.f_names}
                         </div>
-                      )
+                      ),
                   )}
                 </div>
               </>
@@ -131,12 +132,12 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
                   .length < 2
                   ? styles.green
                   : studentListAssigned.filter((sa) => sa.id === student.id)
-                      .length > 1 ||
-                    (studentListAssigned.some((sa) => sa.id === student.id) &&
-                      !student.available) ||
-                    student.ta_available < 0
-                  ? styles.orange
-                  : styles.grey
+                        .length > 1 ||
+                      (studentListAssigned.some((sa) => sa.id === student.id) &&
+                        !student.available) ||
+                      student.ta_available < 0
+                    ? styles.orange
+                    : styles.grey
               }
             >
               {student.l_name.slice(0, 2)}
@@ -160,12 +161,12 @@ const StudentBlock: React.FC<StudentBlockProps> = ({
                         studentTeacher.find(
                           (studentTeacher) =>
                             studentTeacher.teacher_id === teacher.id &&
-                            studentTeacher.student_id === student.id
+                            studentTeacher.student_id === student.id,
                         ) && (
                           <div key={teacher.id} className={styles.smallText}>
                             {teacher.l_name} {teacher.f_names}
                           </div>
-                        )
+                        ),
                     )}
                   </div>
                 </div>
