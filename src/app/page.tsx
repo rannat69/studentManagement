@@ -31,6 +31,13 @@ export default function Home() {
   };
 
   useEffect(() => {
+    fetch("/api/init", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
     setUserLoggedIn("");
 
     // Check if the user is already logged in
