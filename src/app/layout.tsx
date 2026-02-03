@@ -21,7 +21,6 @@ export const metadata: Metadata = {
 
 //scheduler();
 
-initdb();
 
 export default function RootLayout({
   children,

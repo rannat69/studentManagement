@@ -4,9 +4,8 @@ export function createSchedTasks(db, bcrypt) {
 
   /*setInterval(() => {
     console.log("Toto");
-  }, 30000);
+  }, 10000);
 */
-
   /* setInterval(() => {
     db.serialize(() => {
       const stmt = db.prepare(`DELETE FROM session`);
@@ -27,21 +26,29 @@ export function createSchedTasks(db, bcrypt) {
     console.log("Delete from session every two hours");
   }, 7200000);
 
+  setInterval(() => {
+    db.serialize(() => {
+      const stmt = db.prepare(`DELETE FROM session`);
+      stmt.run();
+      stmt.finalize();
+    });
+
+    console.log("Delete from session every two hours");
+  }, 7200000);
+
   function dailyDatabaseCopy() {
     // Copy pages/api/sql.db adding day in yyyy.mm.dd
     const date = new Date();
     const formattedDate = date.toISOString().split("T")[0].replace(/-/g, "."); // Change date format to yyyy.mm.dd
 
     const sourcePath = path.join(
-      process.cwd(),
-      "src",
-      "pages",
-      "api",
-      "sql.db",
+      process.env.DB_FOLDER,
+      process.env.DB_FILENAME,
     );
+
     const destinationPath = path.join(
-      process.cwd(),
-      `src/pages/api/sql_${formattedDate}.db`,
+      process.env.DB_FOLDER,
+      `sql_${formattedDate}.db`,
     );
 
     // Check if source file exists

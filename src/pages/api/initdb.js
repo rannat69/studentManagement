@@ -4,6 +4,7 @@ import { createTables } from "./createTables";
 import { createTriggers } from "./createTriggers";
 import { createSchedTasks } from "./createSchedTasks";
 import bcrypt from "bcrypt";
+
 export function initdb() {
   console.log("initDB");
 
