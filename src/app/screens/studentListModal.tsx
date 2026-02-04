@@ -169,6 +169,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
       });
       setQualifications([]);
       setAreas([]);
+      setTeachers([]);
       setMode(MODE_CREATION);
     }
   }, [student]); // Add student to the dependency array
@@ -535,6 +536,27 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
 
   const handleCancel = () => {
     setErrorMessage("");
+    setFormData({
+      id: 0,
+      student_number: "",
+      l_name: "",
+      f_names: "",
+      unoff_name: "",
+      program: "",
+      email: "",
+      date_joined: new Date(),
+      expected_grad_year: 0,
+      expected_grad_semester: "Spring",
+      ta_available: 0,
+      ta_assigned: 0,
+      available: true,
+      deleted: false,
+      dropZone: 0,
+      multiCourses: false,
+    });
+    setQualifications([]);
+    setAreas([]);
+    setTeachers([]);
     onClose();
   };
 
@@ -564,6 +586,28 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         dropZone: 0,
         multiCourses: false,
       };
+
+      setFormData({
+        id: 0,
+        student_number: "",
+        l_name: "",
+        f_names: "",
+        unoff_name: "",
+        program: "",
+        email: "",
+        date_joined: new Date(),
+        expected_grad_year: 0,
+        expected_grad_semester: "Spring",
+        ta_available: 0,
+        ta_assigned: 0,
+        available: true,
+        deleted: false,
+        dropZone: 0,
+        multiCourses: false,
+      });
+      setQualifications([]);
+      setAreas([]);
+      setTeachers([]);
 
       onSave(student);
     }
@@ -621,6 +665,28 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         }
         onSave(formData);
       }
+
+      setFormData({
+        id: 0,
+        student_number: "",
+        l_name: "",
+        f_names: "",
+        unoff_name: "",
+        program: "",
+        email: "",
+        date_joined: new Date(),
+        expected_grad_year: 0,
+        expected_grad_semester: "Spring",
+        ta_available: 0,
+        ta_assigned: 0,
+        available: true,
+        deleted: false,
+        dropZone: 0,
+        multiCourses: false,
+      });
+      setQualifications([]);
+      setAreas([]);
+      setTeachers([]);
 
       onClose();
     }
@@ -743,8 +809,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
                 </option>
               ))}
             </select>
-
-       
           </div>
         </div>
 

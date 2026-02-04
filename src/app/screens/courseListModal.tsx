@@ -422,6 +422,40 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
   const handleCancel = () => {
     setErrorMessage("");
+    setFormData({
+      id: 0,
+      hkust_identifier: "",
+      name: "",
+      description: "",
+      field: "",
+
+      semester: "Spring",
+      year: 0,
+      ta_needed: 0,
+      ta_assigned: 0,
+      deleted: false,
+      areas: [],
+      qualifications: [],
+    });
+    course = {
+      id: 0,
+      hkust_identifier: "",
+      name: "",
+      description: "",
+      field: "",
+
+      semester: "Spring",
+      year: 0,
+      ta_needed: 0,
+      ta_assigned: 0,
+      deleted: false,
+      areas: [],
+      qualifications: [],
+    };
+
+    setAreas([]);
+    setQualifications([]);
+    setTeachers([]);
     onClose();
   };
 
@@ -434,6 +468,41 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       deleteCourse(course.id);
 
       course.deleted = true;
+
+      setFormData({
+        id: 0,
+        hkust_identifier: "",
+        name: "",
+        description: "",
+        field: "",
+
+        semester: "Spring",
+        year: 0,
+        ta_needed: 0,
+        ta_assigned: 0,
+        deleted: false,
+        areas: [],
+        qualifications: [],
+      });
+      course = {
+        id: 0,
+        hkust_identifier: "",
+        name: "",
+        description: "",
+        field: "",
+
+        semester: "Spring",
+        year: 0,
+        ta_needed: 0,
+        ta_assigned: 0,
+        deleted: false,
+        areas: [],
+        qualifications: [],
+      };
+
+      setAreas([]);
+      setQualifications([]);
+      setTeachers([]);
 
       onSave(course);
     }
@@ -523,12 +592,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       areas: [],
       qualifications: [],
     };
+
     onClose();
   };
 
   if (!isOpen) return null;
 
-  function addArea(): void {
+  function addArea(areaX: any): void {
     // get the currently selected area and add it to the areas array
     //in the formData
 
@@ -536,24 +606,24 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
     // the currently selected area is in the select whose idea is "area"
 
-    console.log(selectedArea);
-    if (selectedArea === "") {
+    console.log(areaX);
+    if (areaX === "") {
       setErrorMessage("Please select an area");
       return;
     }
-    if (areas && areas.includes(selectedArea)) {
+    if (areas && areas.includes(areaX)) {
       setErrorMessage("Area already added");
       return;
     }
 
     if (areas) {
-      setAreas([...areas, selectedArea]);
+      setAreas([...areas, areaX]);
     } else {
-      setAreas([selectedArea]);
+      setAreas([areaX]);
     }
   }
 
-  function addTeacher(): void {
+  function addTeacher(teacherX: any): void {
     // get the currently selected area and add it to the areas array
     //in the formData
 
@@ -561,27 +631,27 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
     // the currently selected area is in the select whose idea is "area"
 
-    if (!selectedTeacher || selectedTeacher?.id === 0) {
+    if (!teacherX || teacherX?.id === 0) {
       setErrorMessage("Please select a qualification");
       return;
     }
 
     // check if teachers contains an object where id = teacher.id
     teachers.forEach((teacher) => {
-      if (teacher.id === selectedTeacher.id) {
+      if (teacher.id === teacherX.id) {
         setErrorMessage("Teacher already added");
         return;
       }
     });
 
     if (areas) {
-      setTeachers([...teachers, selectedTeacher]);
+      setTeachers([...teachers, teacherX]);
     } else {
-      setTeachers([selectedTeacher]);
+      setTeachers([teacherX]);
     }
   }
 
-  function addQualification(): void {
+  function addQualification(qualifX: any): void {
     // get the currently selected area and add it to the areas array
     //in the formData
 
@@ -589,20 +659,20 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
     // the currently selected area is in the select whose idea is "area"
 
-    console.log(selectedQualification);
-    if (selectedQualification === "") {
+    console.log(qualifX);
+    if (qualifX === "") {
       setErrorMessage("Please select a qualification");
       return;
     }
-    if (qualifications && qualifications.includes(selectedQualification)) {
+    if (qualifications && qualifications.includes(qualifX)) {
       setErrorMessage("Qualification already added");
       return;
     }
 
     if (qualifications) {
-      setQualifications([...qualifications, selectedQualification]);
+      setQualifications([...qualifications, qualifX]);
     } else {
-      setQualifications([selectedQualification]);
+      setQualifications([qualifX]);
     }
   }
 
@@ -610,6 +680,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
     const response = await axios.get(`/api/teacher/${teacherId}`);
 
     setSelectedTeacher(response.data);
+
+    addTeacher(response.data);
   };
 
   return (
@@ -725,7 +797,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
           <div className={styles.selectContainer}>
             <select
               id="areas"
-              onChange={(e) => setSelectedArea(e.target.value)}
+              onChange={(e) => {
+                setSelectedArea(e.target.value);
+                addArea(e.target.value);
+              }}
               className={styles.select}
             >
               <option key="" value="">
@@ -738,9 +813,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
                 </option>
               ))}
             </select>
-          </div>
-          <div className={styles.add} onClick={() => addArea()}>
-            +{" "}
           </div>
         </div>
         {areas && areas.length > 0 && (
@@ -768,7 +840,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
           <div className={styles.selectContainer}>
             <select
               id="qualifications"
-              onChange={(e) => setSelectedQualification(e.target.value)}
+              onChange={(e) => {
+                setSelectedQualification(e.target.value);
+                addQualification(e.target.value);
+              }}
               className={styles.select}
             >
               <option key="" value="">
@@ -781,9 +856,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
                 </option>
               ))}
             </select>
-          </div>
-          <div className={styles.add} onClick={() => addQualification()}>
-            +{" "}
           </div>
         </div>
         {qualifications && qualifications.length > 0 && (
@@ -835,9 +907,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
                 </option>
               ))}
             </select>
-          </div>
-          <div className={styles.add} onClick={() => addTeacher()}>
-            +{" "}
           </div>
         </div>
         {teachers && teachers.length > 0 && (

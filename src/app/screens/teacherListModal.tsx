@@ -117,6 +117,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
 
   const handleCancel = () => {
     setErrorMessage("");
+
+    setFormData({
+      id: 0,
+      l_name: "",
+      f_names: "",
+      unoff_name: "",
+      field: "",
+      deleted: false,
+    });
+
     onClose();
   };
 
@@ -129,6 +139,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, teacher, onClose, onSave }) => {
       deleteTeacher(teacher.id);
 
       teacher.deleted = true;
+
+      setFormData({
+        id: 0,
+        l_name: "",
+        f_names: "",
+        unoff_name: "",
+        field: "",
+        deleted: false,
+      });
 
       onSave(teacher);
     }
