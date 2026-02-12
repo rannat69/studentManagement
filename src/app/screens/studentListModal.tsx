@@ -163,6 +163,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         ta_available: 0,
         ta_assigned: 0,
         available: true,
+        manual_match_only: false,
         deleted: false,
         dropZone: 0,
         multiCourses: false,
@@ -550,6 +551,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
       ta_available: 0,
       ta_assigned: 0,
       available: true,
+      manual_match_only: false,
       deleted: false,
       dropZone: 0,
       multiCourses: false,
@@ -601,6 +603,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         ta_available: 0,
         ta_assigned: 0,
         available: true,
+        manual_match_only: false,
         deleted: false,
         dropZone: 0,
         multiCourses: false,
@@ -680,6 +683,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         ta_available: 0,
         ta_assigned: 0,
         available: true,
+        manual_match_only: false,
         deleted: false,
         dropZone: 0,
         multiCourses: false,
@@ -984,6 +988,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
             name="available"
             type="checkbox"
             checked={formData ? formData.available : true}
+            onChange={handleChange}
+            className={styles.inputCheck}
+          ></input>
+
+          <div className={styles.inputTitle}>Student manual match only</div>
+          <input
+            name="manual_match_only"
+            type="checkbox"
+            checked={formData ? formData.manual_match_only : false}
             onChange={handleChange}
             className={styles.inputCheck}
           ></input>

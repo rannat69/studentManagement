@@ -43,11 +43,12 @@ export default async function handler(req, res) {
       expected_grad_semester,
       ta_available,
       available,
+      manual_match_only,
     } = req.body; // Exemple de champs à modifier
     try {
       const updateStudent = async () => {
         await db.run(
-          `UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, email = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ?, available = ? WHERE id = ?`,
+          `UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, email = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ?, available = ?, manual_match_only = ? WHERE id = ?`,
           [
             student_number,
             l_name,
@@ -60,6 +61,7 @@ export default async function handler(req, res) {
             expected_grad_semester,
             ta_available,
             available,
+            manual_match_only,
             id,
           ],
           function (err) {
@@ -70,7 +72,7 @@ export default async function handler(req, res) {
               if (err.code === "SQLITE_BUSY" && retryCount < maxRetries) {
                 retryCount++;
                 console.log(
-                  `Database busy, retrying in ${delay}ms... (attempt ${retryCount}/${maxRetries})`
+                  `Database busy, retrying in ${delay}ms... (attempt ${retryCount}/${maxRetries})`,
                 );
                 setTimeout(updateCourse, delay);
                 delay *= 2; // Exponential backoff: double the delay for the next retry
@@ -78,14 +80,14 @@ export default async function handler(req, res) {
                 // If max retries exceeded or other error, return a 500 error
                 console.error(
                   "Failed to update student after multiple retries or due to a non-busy error:",
-                  err
+                  err,
                 ); // Log the error
                 res.status(500).json({ error: err.message });
               }
             } else {
               res.json({ id });
             }
-          }
+          },
         );
         console.log("student updated");
         res.status(200).json({ message: "student updated" });

@@ -12,6 +12,7 @@ export interface Student {
   ta_available: number;
   ta_assigned: number;
   available: boolean;
+  manual_match_only: boolean;
   deleted: boolean;
   dropZone: number;
   multiCourses: boolean;

@@ -747,7 +747,8 @@ export default function MatchStudentCourse() {
 
     // find all students with ta_available > 0 and no dropZone
     let students = studentListAvail.filter(
-      (student) => student.ta_available > 0,
+      (student) =>
+        student.ta_available > 0 && student.manual_match_only === false,
     );
 
     // Filter the students array to remove students already in studentListAssigned

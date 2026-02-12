@@ -14,6 +14,7 @@ export default async function handler(req, res) {
     expected_grad_semester,
     ta_available,
     available,
+    manual_match_only,
   } = req.body;
 
   allowedOrigin(req, res);
@@ -33,7 +34,7 @@ export default async function handler(req, res) {
     const db = await openDb();
 
     const result = await db.run(
-      `INSERT INTO student (student_number, l_name, f_names, unoff_name, program, email, date_joined, expected_grad_year, expected_grad_semester, ta_available, available) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO student (student_number, l_name, f_names, unoff_name, program, email, date_joined, expected_grad_year, expected_grad_semester, ta_available, available, manual_match_only) VALUES (?,?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         student_number,
         l_name,
@@ -46,6 +47,7 @@ export default async function handler(req, res) {
         expected_grad_semester,
         ta_available,
         available,
+        manual_match_only,
       ],
 
       function (err) {
@@ -64,7 +66,7 @@ export default async function handler(req, res) {
           res.json({ id: this.lastID });
           res.status(200).json({ message: "Record created" });
         }
-      }
+      },
     );
 
     return result.lastID;

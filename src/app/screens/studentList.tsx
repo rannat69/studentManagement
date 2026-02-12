@@ -17,7 +17,7 @@ export default function StudentList() {
   const [studentListState, setStudentListState] = useState<Student[]>();
   const [orderByField, setOrderByField] = useState<string | null>(null);
   const [orderByDirection, setOrderByDirection] = useState<"asc" | "desc">(
-    "asc"
+    "asc",
   );
 
   const [searchYear, setSearchYear] = useState<number>(0);
@@ -42,9 +42,11 @@ export default function StudentList() {
 
         // only take records of  responseStudentCourse.data where student_id = id
 
-        const taAssigned = responseStudentCourse.data.filter((r: StudentCourse) => {
-          return Number(r.student_id) === Number(response.data[i].id);
-        });
+        const taAssigned = responseStudentCourse.data.filter(
+          (r: StudentCourse) => {
+            return Number(r.student_id) === Number(response.data[i].id);
+          },
+        );
 
         response.data[i].ta_assigned = taAssigned.length;
       }
@@ -78,17 +80,17 @@ export default function StudentList() {
     if (updatedStudent.deleted) {
       // Remove the student from the list
       updatedList = studentListState.filter(
-        (student) => student.id !== updatedStudent.id
+        (student) => student.id !== updatedStudent.id,
       );
     } else {
       // Check if the student exists in the list
       const studentExists = studentListState.some(
-        (student) => student.id === updatedStudent.id
+        (student) => student.id === updatedStudent.id,
       );
 
       updatedList = studentExists
         ? studentListState.map((student) =>
-            student.id === updatedStudent.id ? updatedStudent : student
+            student.id === updatedStudent.id ? updatedStudent : student,
           )
         : [...studentListState, updatedStudent];
     }
@@ -274,6 +276,9 @@ export default function StudentList() {
                   T.A. assigned
                 </th>
                 <th onClick={() => handleOrderBy("available")}>Available</th>
+                <th onClick={() => handleOrderBy("manual_match_only")}>
+                  Manual match only
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -325,12 +330,27 @@ export default function StudentList() {
                       {student.ta_assigned + " / " + student.ta_available}
                     </td>
                     <td>
-                      {student.available && (
+                      {student.available ? (
                         <div className={styles.semesterSpring}>Yes</div>
+                      ) : (
+                        <></>
                       )}
-
-                      {!student.available && (
+                      {!student.available ? (
                         <div className={styles.semesterFall}>No</div>
+                      ) : (
+                        <></>
+                      )}
+                    </td>
+                    <td>
+                      {student.manual_match_only ? (
+                        <div className={styles.semesterSpring}>Yes</div>
+                      ) : (
+                        <></>
+                      )}
+                      {!student.manual_match_only ? (
+                        <div className={styles.semesterFall}>No</div>
+                      ) : (
+                        <></>
                       )}
                     </td>
                   </tr>
