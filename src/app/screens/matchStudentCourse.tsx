@@ -746,6 +746,15 @@ export default function MatchStudentCourse() {
     // Student who graduates the soonest 1pt
 
     // find all students with ta_available > 0 and no dropZone
+
+    for (const student of studentListAvail) {
+      if (Number(student.manual_match_only) === 1) {
+        student.manual_match_only = true;
+      } else {
+        student.manual_match_only = false;
+      }
+    }
+
     let students = studentListAvail.filter(
       (student) =>
         student.ta_available > 0 && student.manual_match_only === false,
@@ -878,7 +887,6 @@ export default function MatchStudentCourse() {
       });
 
       student.ta_assigned = taAssigned.length;
-
       if (student.ta_assigned >= student.ta_available) {
         continue;
       }
@@ -1029,8 +1037,6 @@ export default function MatchStudentCourse() {
     studentCourseToAddList = studentCourseToAddList.sort(
       (a, b) => b.score - a.score,
     );
-
-    console.log("studentcoursetoaddlist", studentCourseToAddList);
 
     const studentIdListAlreadyAdded: number[] = [];
 

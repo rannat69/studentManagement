@@ -26,16 +26,6 @@ export function createSchedTasks(db, bcrypt) {
     console.log("Delete from session every two hours");
   }, 7200000);
 
-  setInterval(() => {
-    db.serialize(() => {
-      const stmt = db.prepare(`DELETE FROM session`);
-      stmt.run();
-      stmt.finalize();
-    });
-
-    console.log("Delete from session every two hours");
-  }, 7200000);
-
   function dailyDatabaseCopy() {
     // Copy pages/api/sql.db adding day in yyyy.mm.dd
     const date = new Date();
