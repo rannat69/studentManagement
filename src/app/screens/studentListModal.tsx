@@ -584,6 +584,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         ta_available: 0,
         ta_assigned: 0,
         available: false,
+        manual_match_only: false,
         deleted: true,
         dropZone: 0,
         multiCourses: false,
