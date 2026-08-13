@@ -33,6 +33,14 @@ export default async function handler(req, res) {
   const createStudent = async () => {
     const db = await openDb();
 
+    if (
+      (!l_name || l_name.length === 0) &&
+      (!f_names || f_names.length === 0)
+    ) {
+      console.log("No name provided");
+      return null;
+    }
+
     const result = await db.run(
       `INSERT INTO student (student_number, l_name, f_names, unoff_name, program, email, date_joined, expected_grad_year, expected_grad_semester, ta_available, available, manual_match_only) VALUES (?,?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
