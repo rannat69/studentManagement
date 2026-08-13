@@ -355,7 +355,7 @@ export default function ImportExport() {
               // Convert Excel date to readable date yyyy-mm-dd
 
               //1899-12-30 + item.date_joined
-              function parseExcelDate(val) {
+              function parseExcelDate(val: any) {
                 if (!val) return null;
 
                 // If it's already a Date instance
@@ -378,9 +378,11 @@ export default function ImportExport() {
               }
 
               if (itemStudent.date_joined) {
-                itemStudent.date_joined = parseExcelDate(
-                  itemStudent.date_joined,
-                );
+                const tempParsedDate = parseExcelDate(itemStudent.date_joined);
+
+                if (tempParsedDate) {
+                  itemStudent.date_joined = tempParsedDate;
+                }
               }
 
               console.log("item student", item);

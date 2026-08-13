@@ -427,6 +427,7 @@ export default function MatchStudentCourse() {
       deleted: false,
       areas: [],
       qualifications: [],
+      teachers: [],
     };
 
     // if destination is Students Available, remove record from its drop area and add it back to Students available
@@ -549,6 +550,7 @@ export default function MatchStudentCourse() {
         deleted: false,
         areas: [],
         qualifications: [],
+        teachers: [],
       };
 
       if (studentTemp.ta_available <= 0) {
