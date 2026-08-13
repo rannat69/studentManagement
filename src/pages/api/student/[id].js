@@ -47,6 +47,26 @@ export default async function handler(req, res) {
     } = req.body; // Exemple de champs à modifier
     try {
       const updateStudent = async () => {
+        function formatYMD(date) {
+          if (!date) return "";
+
+          // If it's a string or serial number, parse it into a Date first
+          const d = date instanceof Date ? date : new Date(date);
+
+          // Guard against invalid dates
+          if (isNaN(d.getTime())) return "";
+
+          // Extract local year, month, and day to avoid UTC timezone shifts
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+
+          return `${year}-${month}-${day}`;
+        }
+
+        // Usage:
+        const date_joined_format = formatYMD(date_joined);
+
         await db.run(
           `UPDATE student SET student_number = ? ,  l_name = ?, f_names = ?, unoff_name = ?, program = ?, email = ?, date_joined = ?, expected_grad_year = ?, expected_grad_semester = ?, ta_available = ?, available = ?, manual_match_only = ? WHERE id = ?`,
           [
@@ -56,7 +76,7 @@ export default async function handler(req, res) {
             unoff_name,
             program,
             email,
-            date_joined,
+            date_joined_format,
             expected_grad_year,
             expected_grad_semester,
             ta_available,

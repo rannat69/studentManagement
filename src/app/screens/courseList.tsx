@@ -148,6 +148,35 @@ export default function CourseList() {
 
       course.ta_assigned = taAssigned.length;
 
+      // get course areas
+      const responseCourseAreas = await axios.get(
+        `/api/course_area/${course.id}`,
+      );
+
+      course.areas = [];
+
+      for (const areas of responseCourseAreas.data) {
+        course.areas.push(areas.area);
+      }
+
+      // get course areas
+      const responseCourseTeachers = await axios.get(
+        `/api/course_teacher/${course.id}`,
+      );
+
+      course.teachers = [];
+
+      for (const teacher of responseCourseTeachers.data) {
+        const responseTeacher = await axios.get(
+          `/api/teacher/${teacher.teacher_id}`,
+        );
+
+        if (responseTeacher.data) {
+          course.teachers.push(
+            responseTeacher.data.l_name + " " + responseTeacher.data.f_names,
+          );
+        }
+      }
     }
 
     setCourseListStateUnfiltered(courseList);
@@ -189,6 +218,38 @@ export default function CourseList() {
       );
 
       course.ta_assigned = taAssigned.length;
+
+      // get course areas
+      const responseCourseAreas = await axios.get(
+        `/api/course_area/${course.id}`,
+      );
+
+      course.areas = [];
+
+      for (const areas of responseCourseAreas.data) {
+        console.log("areas", areas);
+
+        course.areas.push(areas.area);
+      }
+
+      // get course areas
+      const responseCourseTeachers = await axios.get(
+        `/api/course_teacher/${course.id}`,
+      );
+
+      course.teachers = [];
+
+      for (const teacher of responseCourseTeachers.data) {
+        const responseTeacher = await axios.get(
+          `/api/teacher/${teacher.teacher_id}`,
+        );
+
+        if (responseTeacher.data) {
+          course.teachers.push(
+            responseTeacher.data.l_name + " " + responseTeacher.data.f_names,
+          );
+        }
+      }
     }
 
     setCourseListState(courseList);
@@ -352,6 +413,8 @@ export default function CourseList() {
                 <th onClick={() => handleOrderBy("ta_assigned")}>
                   T.A. assigned
                 </th>
+                <th>Teachers</th>
+                <th>Areas</th>
               </tr>
             </thead>
             <tbody>
@@ -376,6 +439,8 @@ export default function CourseList() {
                         </div>
                       )}
                     </td>
+                    <td>{course.teachers.toString()}</td>
+                    <td>{course.areas.toString()}</td>
                   </tr>
                 ))}
             </tbody>

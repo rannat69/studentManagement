@@ -26,6 +26,9 @@ export const AREAS = [
   "Industrial Engineering",
   "Electrical Engineering",
   "Entrepreneurship",
+  "MAE",
+  "Chemical",
+  "Mechanical",
 ];
 
 export const QUALIFICATIONS = [

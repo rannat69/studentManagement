@@ -352,6 +352,40 @@ export default function ImportExport() {
             const itemStudent: Student = item as Student;
 
             if (validateStudent(itemStudent)) {
+              // Convert Excel date to readable date yyyy-mm-dd
+
+              //1899-12-30 + item.date_joined
+              function parseExcelDate(val) {
+                if (!val) return null;
+
+                // If it's already a Date instance
+                if (val instanceof Date) return val;
+
+                // If it's an Excel serial number (number or numeric string)
+                const num = Number(val);
+                if (!isNaN(num) && typeof val !== "boolean") {
+                  return new Date((num - 25569) * 86400 * 1000);
+                }
+
+                // If it's an ISO/date string (e.g., "2026-08-13" or "8/13/2026")
+                const parsedDate = new Date(val);
+                return isNaN(parsedDate.getTime()) ? null : parsedDate;
+              }
+
+              // Usage in your code:
+              if (item.date_joined) {
+                item.date_joined = parseExcelDate(item.date_joined);
+              }
+
+              if (itemStudent.date_joined) {
+                itemStudent.date_joined = parseExcelDate(
+                  itemStudent.date_joined,
+                );
+              }
+
+              console.log("item student", item);
+              console.log("itemStudent", itemStudent);
+
               if (item.id && item.id > 0) {
                 // check item properties, at least l_name, ta_available, and expected_grad_year have to be present
 
@@ -707,6 +741,9 @@ export default function ImportExport() {
   };
 
   const createStudent = async (studentData: Student) => {
+    console.log("studentData", studentData);
+
+    console.log("JSON.stringify(studentData)", JSON.stringify(studentData));
     try {
       const response = await fetch("/api/student/create", {
         method: "POST",
@@ -1370,6 +1407,8 @@ export default function ImportExport() {
         teachersListString += teacher.l_name + " " + teacher.f_names + ";";
       }
 
+      console.log("item.date_joined", item.date_joined);
+
       worksheet.addRow({
         id: item.id,
         student_number: item.student_number,
@@ -1381,7 +1420,9 @@ export default function ImportExport() {
         program: item.program,
         email: item.email,
 
-        date_joined: item.date_joined,
+        date_joined: item.date_joined
+          ? new Date(item.date_joined).toLocaleDateString("en-US")
+          : "",
         expected_grad_semester:
           item.expected_grad_semester != "0"
             ? item.expected_grad_semester

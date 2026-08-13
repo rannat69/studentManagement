@@ -35,10 +35,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher>();
 
   useEffect(() => {
+    AREAS.sort((a, b) => a.localeCompare(b));
+    QUALIFICATIONS.sort((a, b) => a.localeCompare(b));
     const fetchTeachersList = async () => {
       const response = await axios.get("/api/teacher/all/");
 
-      setTeachersList(response.data);
+      // Sort teachers alphabetically by l_name, then f_names
+      const sortedTeachers = response.data.sort((a: any, b: any) => {
+        const lastNameCompare = (a.l_name || "").localeCompare(b.l_name || "");
+        if (lastNameCompare !== 0) {
+          return lastNameCompare;
+        }
+        return (a.f_names || "").localeCompare(b.f_names || "");
+      });
+
+      setTeachersList(sortedTeachers);
     };
 
     fetchTeachersList();
@@ -52,7 +63,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
           if (course) {
             const response = await axios.get(`/api/course_area/${course.id}`);
 
-            console.log(response.data);
 
             for (let i = 0; i < response.data.length; i++) {
               response.data[i] = response.data[i].area;
@@ -79,7 +89,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
           if (course) {
             const response = await axios.get(`/api/course_qualif/${course.id}`);
 
-            console.log(response.data);
 
             for (let i = 0; i < response.data.length; i++) {
               response.data[i] = response.data[i].qualification;
@@ -121,7 +130,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
               );
             }
 
-            setTeachers(teachers);
+            // Sort teachers alphabetically by l_name, then f_names
+            const sortedTeachers = teachers.sort((a, b) => {
+              const lastNameCompare = (a.l_name || "").localeCompare(
+                b.l_name || "",
+              );
+              if (lastNameCompare !== 0) {
+                return lastNameCompare;
+              }
+              return (a.f_names || "").localeCompare(b.f_names || "");
+            });
+
+            setTeachers(sortedTeachers);
             return response.data;
           } else {
             return null;
@@ -175,6 +195,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
         qualifications: [],
         deleted: false,
         field: "",
+        teachers: [],
       });
       setAreas([]);
       setQualifications([]);
@@ -194,7 +215,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
   };
 
   const createCourse = async (courseData: Course) => {
-    console.log("courseData", courseData);
 
     try {
       let response = await fetch("/api/course/create", {
@@ -286,8 +306,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
   };
 
   const updateCourse = async (id: number, updatedData: Course) => {
-    console.log("id", id);
-    console.log("updatedData", updatedData);
+
 
     try {
       await axios.put(`api/course/${id}`, updatedData);
@@ -436,6 +455,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       deleted: false,
       areas: [],
       qualifications: [],
+      teachers: [],
     });
     course = {
       id: 0,
@@ -451,6 +471,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       deleted: false,
       areas: [],
       qualifications: [],
+      teachers: [],
     };
 
     setAreas([]);
@@ -483,6 +504,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
         deleted: false,
         areas: [],
         qualifications: [],
+        teachers: [],
       });
       course = {
         id: 0,
@@ -498,6 +520,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
         deleted: false,
         areas: [],
         qualifications: [],
+        teachers: [],
       };
 
       setAreas([]);
@@ -535,7 +558,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       }
 
       if (formData.year <= 0) {
-        console.log(formData.year);
 
         setErrorMessage("Year must be a positive number");
         return;
@@ -552,7 +574,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
         if (mode === MODE_DELETE) {
           formData.deleted = true;
         } else {
-          console.log("formData", formData);
           updateCourse(formData.id, formData);
         }
         onSave(formData);
@@ -576,6 +597,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       deleted: false,
       areas: [],
       qualifications: [],
+      teachers: [],
     });
     course = {
       id: 0,
@@ -591,6 +613,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       deleted: false,
       areas: [],
       qualifications: [],
+      teachers: [],
     };
 
     onClose();
@@ -606,7 +629,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
     // the currently selected area is in the select whose idea is "area"
 
-    console.log(areaX);
     if (areaX === "") {
       setErrorMessage("Please select an area");
       return;
@@ -659,7 +681,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
 
     // the currently selected area is in the select whose idea is "area"
 
-    console.log(qualifX);
     if (qualifX === "") {
       setErrorMessage("Please select a qualification");
       return;
