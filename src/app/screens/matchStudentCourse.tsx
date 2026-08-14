@@ -69,6 +69,9 @@ export default function MatchStudentCourse() {
 
   const [selectedArea, setSelectedArea] = useState<string>("");
 
+  const [popupDeletePreviousSemesters, setPopupDeletePreviousSemesters] =
+    useState<boolean>(false);
+
   useEffect(() => {
     const fetchTeachersList = async () => {
       const response = await axios.get("/api/teacher/all/");
@@ -1163,6 +1166,7 @@ export default function MatchStudentCourse() {
     await fetchStudents(year, semester);
 
     setAutoMatchRunning(false);
+    setPopupDeletePreviousSemesters(false);
   };
 
   const handleAreYouSure = async () => {
@@ -1220,6 +1224,61 @@ export default function MatchStudentCourse() {
     await fetchStudents(year, semester);
 
     setAutoMatchRunning(false);
+    setPopupDeletePreviousSemesters(false);
+  };
+
+  const handleClearAllPrevious = async () => {
+    setAutoMatchRunning(true);
+    setAreYouSure(false);
+
+    setWarningMessage("");
+    setErrorMessage("");
+
+    for (const student of studentListAssigned) {
+      // read student with id = student.id
+      const response = await axios.get("/api/student/" + student.id);
+
+      if (response.data) {
+        // const studentTemp: Student = response.data;
+        //   studentTemp.ta_available += 1;
+        // await updateStudent(studentTemp);
+      }
+
+      // read course with id=  student.dropZone
+      const responseCourse = await axios.get("/api/course/" + student.dropZone);
+
+      if (responseCourse.data) {
+        const courseTemp: Course = responseCourse.data;
+
+        //if (courseTemp.ta_assigned > 0) {
+        //  courseTemp.ta_assigned = 0;
+        //}
+        await updateCourse(courseTemp);
+      }
+    }
+
+    // Delete all student_course for year/semester
+    await fetch("/api/student_course/deleteAllForPreviousYearSemester", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        year: year,
+        semester: semester,
+      }),
+    });
+
+    // empty the array studentListAssigned
+
+    setStudentListAssigned([]);
+
+    await fetchCourses(year, semester);
+    await fetchStudents(year, semester);
+
+    setAutoMatchRunning(false);
+    setPopupDeletePreviousSemesters(false);
   };
 
   const handleSearchStudent = (
@@ -1315,7 +1374,7 @@ export default function MatchStudentCourse() {
           ) : (
             <div
               className={styles.buttonMatch}
-              onClick={() => handleAutoMatch()}
+              onClick={() => setPopupDeletePreviousSemesters(true)}
             >
               Auto match
             </div>
@@ -1508,6 +1567,30 @@ export default function MatchStudentCourse() {
                   onClick={() => setAreYouSure(false)}
                 >
                   Cancel{" "}
+                </div>{" "}
+              </div>
+            </div>
+          )}
+
+          {popupDeletePreviousSemesters && (
+            <div className={styles.modal}>
+              <div className={styles.modalContent}>
+                Do you want to remove all students of all classes for the
+                previous periods ?
+                <div
+                  className={styles.buttonClear}
+                  onClick={() => {
+                    handleClearAllPrevious();
+                    handleAutoMatch();
+                  }}
+                >
+                  Yes
+                </div>
+                <div
+                  className={styles.buttonClear}
+                  onClick={() => handleAutoMatch()}
+                >
+                  No
                 </div>{" "}
               </div>
             </div>

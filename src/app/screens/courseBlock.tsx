@@ -20,7 +20,7 @@ const CourseBlock: React.FC<CourseBlockProps> = ({
 }) => {
 	return (
 		<OverlayTrigger
-			placement='left'
+			placement='auto'
 			overlay={
 				<Tooltip id='button-tooltip-2' className={styles.popup} bsPrefix="popup">
 					<div >

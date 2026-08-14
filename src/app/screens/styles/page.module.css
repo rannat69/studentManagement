@@ -464,21 +464,22 @@ a.secondary {
 }
 
 .popup {
-  /* Position it relative to the containing div */
+  position: fixed;
+  /* Use JS or dynamic CSS properties to calculate exact coordinates */
+  top: var(--popup-top, 50px);
+  left: var(--popup-left, 10px);
+
+  max-width: calc(100vw - 20px); /* Prevents overflow on right/left edges */
 
   border-radius: 5px;
-  /* Rounded corners */
   padding: 10px;
-  /* Spacing inside the popup */
   background: #e8f3ff;
   color: #000;
 
   transition:
     opacity 0.3s ease,
     visibility 0.3s ease;
-  /* Smooth transition */
-
-  z-index: 2;
+  z-index: 9999; /* Float above other UI layers */
 }
 
 .popup h2 {
