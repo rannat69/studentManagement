@@ -22,6 +22,37 @@ export default function Home() {
   useEffect(() => {
     console.log("useEffect started");
 
+    // test call to AI
+
+    const sendToAI = {
+      prompt: "This is my prompt. What is 1 + 1 ? ",
+    };
+
+    const testAI = async () => {
+      try {
+        const validateRes = await fetch("/api/cv/callAI", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: "Tell me a funny joke",
+          }),
+        });
+
+        console.log("validateRes", validateRes);
+
+        const AIData = await validateRes.json();
+        console.log("AIData", AIData);
+
+        console.log("AIData", AIData.choices[0].message.content);
+      } catch (error) {
+        console.error("API Call Error:", error);
+      }
+    };
+
+    testAI();
+
     const initAuthAndConfig = async () => {
       try {
         // 1. Fetch config and authorised students concurrently to save load time

@@ -30,6 +30,6 @@
     "src/testSqlite/index.js",
     "pages/api/user/scheduler.js",
     ".next/dev/types/**/*.ts"
-  ],
+, "src/pages/api/cv/callToAI.js"  ],
   "exclude": ["node_modules"]
 }
