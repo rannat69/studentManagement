@@ -17,6 +17,7 @@ export default function Home() {
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("useEffect started");
@@ -126,25 +127,62 @@ export default function Home() {
     initAuthAndConfig();
   }, []);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    // check if file is pdf/docx/doc
-
-    // if not, set error
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) {
-      const validTypes = [
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ];
-      if (!validTypes.includes(file.type)) {
-        setErrorMessage("Please upload a PDF, DOC, or DOCX file.");
-        return;
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!validTypes.includes(file.type)) {
+      setErrorMessage("Please upload a PDF, DOC, or DOCX file.");
+      return;
+    }
+
+    setIsUploading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    console.log("toto");
+
+    try {
+      // Convert file to base64
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = "";
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const fileBase64 = btoa(binary);
+      console.log("toto1");
+      const response = await fetch("/api/cv/uploadCV", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          fileName: file.name,
+          fileBase64,
+        }),
+      });
+      console.log("toto1.5");
+      const result = await response.json();
+
+      console.log("toto2");
+      console.log("result", result);
+      if (!response.ok) {
+        throw new Error(result.message || "Upload failed");
       }
 
-      // Proceed with upload
-      setErrorMessage("");
-      setSuccessMessage("File selected. Ready to upload.");
+      setSuccessMessage("CV uploaded successfully!");
+    } catch (err) {
+      const error = err as Error;
+      setErrorMessage(error.message || "An error occurred during upload.");
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
     }
   }
 
@@ -212,6 +250,12 @@ export default function Home() {
                 {successMessage && (
                   <div className={`${styles.messageBox} ${styles.successBox}`}>
                     ✅ {successMessage}
+                  </div>
+                )}
+                {isUploading && (
+                  <div className={styles.importingRow}>
+                    <span className={styles.dot}></span>
+                    <span>Uploading CV…</span>
                   </div>
                 )}
               </div>
