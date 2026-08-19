@@ -167,13 +167,15 @@ export default function CVAdmin({
               <tr>
                 <th>Name</th>
                 <th>Email</th>
+                <th>CV uploaded</th>
               </tr>
             </thead>
             <tbody>
               {students.map((student, index) => (
                 <tr key={index}>
                   <td>{student.name}</td>
-                  <td>{student.email}</td>
+                  <td>{student.email}</td>{" "}
+                  <td>{student.uploaded ? "Yes" : "No"}</td>
                 </tr>
               ))}
             </tbody>

@@ -16,10 +16,6 @@ export default async function handler(req, res) {
   // Handle CORS / Allowed Origins
   const orig = allowedOrigin(req, res);
 
-  console.log("req.method", req.method);
-  console.log("req.body", req.body);
-  console.log("orig", orig);
-
   if (!orig) {
     return res.status(403).json({ message: "Access denied" });
   }
