@@ -22,37 +22,6 @@ export default function Home() {
   useEffect(() => {
     console.log("useEffect started");
 
-    // test call to AI
-
-    const sendToAI = {
-      prompt: "This is my prompt. What is 1 + 1 ? ",
-    };
-
-    const testAI = async () => {
-      try {
-        const validateRes = await fetch("/api/cv/callAI", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            prompt: "Tell me a funny joke",
-          }),
-        });
-
-        console.log("validateRes", validateRes);
-
-        const AIData = await validateRes.json();
-        console.log("AIData", AIData);
-
-        console.log("AIData", AIData.choices[0].message.content);
-      } catch (error) {
-        console.error("API Call Error:", error);
-      }
-    };
-
-    testAI();
-
     const initAuthAndConfig = async () => {
       try {
         // 1. Fetch config and authorised students concurrently to save load time
@@ -188,7 +157,7 @@ export default function Home() {
         binary += String.fromCharCode(bytes[i]);
       }
       const fileBase64 = btoa(binary);
-      console.log("toto1");
+
       const response = await fetch("/api/cv/uploadCV", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -198,14 +167,47 @@ export default function Home() {
           fileBase64,
         }),
       });
-      console.log("toto1.5");
+
       const result = await response.json();
 
-      console.log("toto2");
-      console.log("result", result);
       if (!response.ok) {
         throw new Error(result.message || "Upload failed");
       }
+
+      // Call AI and send it file
+
+      // test call to AI
+
+      const sendToAI = {
+        prompt: "This is my prompt. What is 1 + 1 ? ",
+      };
+
+      const testAI = async () => {
+        try {
+          const validateRes = await fetch("/api/cv/callAI", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              prompt:
+                "I sent you a file, can you tell me if it is a CV or not ?",
+              fileBase64,
+            }),
+          });
+
+          console.log("validateRes", validateRes);
+
+          const AIData = await validateRes.json();
+          console.log("AIData", AIData);
+
+          console.log("AIData", AIData.choices[0].message.content);
+        } catch (error) {
+          console.error("API Call Error:", error);
+        }
+      };
+
+      testAI();
 
       setSuccessMessage("CV uploaded successfully!");
     } catch (err) {

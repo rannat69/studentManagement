@@ -11,9 +11,10 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { prompt } = req.body;
+    const { prompt, fileBase64 } = req.body;
 
     console.log("sendToAI prompt", prompt);
+    console.log("sendToAI fileBase64", fileBase64);
 
     try {
       const sendToAI = {
@@ -21,6 +22,7 @@ export default async function handler(req, res) {
         messages: [
           { role: "system", content: "Test" },
           { role: "user", content: prompt },
+          { role: "user", content: fileBase64 },
         ],
       };
 
