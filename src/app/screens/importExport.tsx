@@ -23,9 +23,9 @@ import { CourseQualification } from "../data/courseQualificationData";
 export default function ImportExport() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
+
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isImportStudents, setIsImportStudents] = useState<boolean>(true);
-
   const [isImportCourses, setIsImportCourses] = useState<boolean>(true);
   const [isImportCourseArea, setIsImportCourseArea] = useState<boolean>(true);
   const [isImportTeachers, setIsImportTeachers] = useState<boolean>(true);
@@ -33,6 +33,16 @@ export default function ImportExport() {
     useState<boolean>(true);
   const [isImportTeacherCourse, setIsImportTeacherCourse] =
     useState<boolean>(true);
+
+  const [isExportStudents, setIsExportStudents] = useState<boolean>(true);
+  const [isExportCourses, setIsExportCourses] = useState<boolean>(true);
+  const [isExportCourseArea, setIsExportCourseArea] = useState<boolean>(true);
+  const [isExportTeachers, setIsExportTeachers] = useState<boolean>(true);
+  const [isExportStudentCourse, setIsExportStudentCourse] =
+    useState<boolean>(true);
+  const [isExportTeacherCourse, setIsExportTeacherCourse] =
+    useState<boolean>(true);
+
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsImporting(true);
     setSuccessMessage("");
@@ -1102,22 +1112,47 @@ export default function ImportExport() {
       return response.data;
     };
 
-    const courses: Course[] = await fetchCourses();
+    let courses: Course[] = [];
 
-    const students: Student[] = await fetchStudents();
+    let courseAreas = [];
+    let courseQualifications = [];
 
-    const teachers: Teacher[] = await fetchTeachers();
+    if (isExportCourses) {
+      courses = await fetchCourses();
+      courseAreas = await fetchCourseAreas();
+      courseQualifications = await fetchCourseQualifications();
+    }
 
-    const studentCourses = await fetchStudentCourses();
+    let students: Student[] = [];
+    let studentAreas = [];
+    let studentQualifications = [];
+    let studentTeachers = [];
 
-    const studentAreas = await fetchStudentAreas();
+    if (isExportStudents) {
+      students = await fetchStudents();
 
-    const studentQualifications = await fetchStudentQualif();
+      studentAreas = await fetchStudentAreas();
 
-    const studentTeachers = await fetchStudentTeacher();
-    const teacherCourse = await fetchTeacherCourse();
-    const courseAreas = await fetchCourseAreas();
-    const courseQualifications = await fetchCourseQualifications();
+      studentQualifications = await fetchStudentQualif();
+
+      studentTeachers = await fetchStudentTeacher();
+    }
+
+    let teachers: Teacher[] = [];
+    if (isExportTeachers) {
+      teachers = await fetchTeachers();
+    }
+
+    let studentCourses = [];
+    if (isExportStudentCourse) {
+      studentCourses = await fetchStudentCourses();
+    }
+
+    let teacherCourse = [];
+    if (isExportTeacherCourse) {
+      teacherCourse = await fetchTeacherCourse();
+    }
+
     /*
 				const studentAreas = await fetchStudentAreas();
 		
@@ -1144,6 +1179,7 @@ export default function ImportExport() {
     createSheetTeacher(workbook, teachers);
 
     createSheetStudentCourse(workbook, studentCourses);
+
     createSheetTeacherCourse(workbook, teacherCourse);
 
     createSheetCourseArea(workbook, courseAreas);
@@ -2009,167 +2045,352 @@ export default function ImportExport() {
             Import
             <input type="file" onChange={handleImport} />
           </div>
+          <>
+            <div>
+              {!isImportStudents ? (
+                <div
+                  className={styles.buttonUnclicked}
+                  onClick={() => setIsImportStudents(!isImportStudents)}
+                >
+                  Students
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={() => setIsImportStudents(!isImportStudents)}
+                  ></input>
+                </div>
+              ) : (
+                <div
+                  className={styles.buttonClicked}
+                  onClick={() => setIsImportStudents(!isImportStudents)}
+                >
+                  Students
+                  <input
+                    type="checkbox"
+                    checked
+                    onChange={() => setIsImportStudents(!isImportStudents)}
+                  ></input>
+                </div>
+              )}
+              {!isImportCourses ? (
+                <div
+                  className={styles.buttonUnclicked}
+                  onClick={() => setIsImportCourses(!isImportCourses)}
+                >
+                  Courses
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={() => setIsImportCourses(!isImportCourses)}
+                  ></input>
+                </div>
+              ) : (
+                <div
+                  className={styles.buttonClicked}
+                  onClick={() => setIsImportCourses(!isImportCourses)}
+                >
+                  Courses
+                  <input
+                    type="checkbox"
+                    checked
+                    onChange={() => setIsImportCourses(!isImportCourses)}
+                  ></input>
+                </div>
+              )}
+              {!isImportTeachers ? (
+                <div
+                  className={styles.buttonUnclicked}
+                  onClick={() => setIsImportTeachers(!isImportTeachers)}
+                >
+                  Teachers
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={() => setIsImportTeachers(!isImportTeachers)}
+                  ></input>
+                </div>
+              ) : (
+                <div
+                  className={styles.buttonClicked}
+                  onClick={() => setIsImportTeachers(!isImportTeachers)}
+                >
+                  Teachers
+                  <input
+                    type="checkbox"
+                    checked
+                    onChange={() => setIsImportTeachers(!isImportTeachers)}
+                  ></input>
+                </div>
+              )}
+
+              {!isImportStudentCourse ? (
+                <div
+                  className={styles.buttonUnclicked}
+                  onClick={() =>
+                    setIsImportStudentCourse(!isImportStudentCourse)
+                  }
+                >
+                  Match Students/courses
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={() =>
+                      setIsImportStudentCourse(!isImportStudentCourse)
+                    }
+                  ></input>
+                </div>
+              ) : (
+                <div
+                  className={styles.buttonClicked}
+                  onClick={() =>
+                    setIsImportStudentCourse(!isImportStudentCourse)
+                  }
+                >
+                  Match Students/courses
+                  <input
+                    type="checkbox"
+                    checked
+                    onChange={() =>
+                      setIsImportStudentCourse(!isImportStudentCourse)
+                    }
+                  ></input>
+                </div>
+              )}
+
+              {!isImportTeacherCourse ? (
+                <div
+                  className={styles.buttonUnclicked}
+                  onClick={() =>
+                    setIsImportTeacherCourse(!isImportTeacherCourse)
+                  }
+                >
+                  Match Teachers/courses
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={() =>
+                      setIsImportTeacherCourse(!isImportTeacherCourse)
+                    }
+                  ></input>
+                </div>
+              ) : (
+                <div
+                  className={styles.buttonClicked}
+                  onClick={() =>
+                    setIsImportTeacherCourse(!isImportTeacherCourse)
+                  }
+                >
+                  Match Teachers/courses
+                  <input
+                    type="checkbox"
+                    checked
+                    onChange={() =>
+                      setIsImportTeacherCourse(!isImportTeacherCourse)
+                    }
+                  ></input>
+                </div>
+              )}
+
+              {!isImportCourseArea ? (
+                <div
+                  className={styles.buttonUnclicked}
+                  onClick={() => setIsImportCourseArea(!isImportCourseArea)}
+                >
+                  Course areas
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={() => setIsImportCourseArea(!isImportCourseArea)}
+                  ></input>
+                </div>
+              ) : (
+                <div
+                  className={styles.buttonClicked}
+                  onClick={() => setIsImportCourseArea(!isImportCourseArea)}
+                >
+                  Course areas
+                  <input
+                    type="checkbox"
+                    checked
+                    onChange={() => setIsImportCourseArea(!isImportCourseArea)}
+                  ></input>
+                </div>
+              )}
+            </div>
+          </>
+
           {isImporting && <Spinner />}
         </div>
         <div className={styles.importExport} onClick={() => handleExport()}>
           <div className={styles.text}>Export</div>
         </div>
+        <div>
+          <div>
+            {!isExportStudents ? (
+              <div
+                className={styles.buttonUnclicked}
+                onClick={() => setIsExportStudents(!isExportStudents)}
+              >
+                Students
+                <input
+                  type="checkbox"
+                  checked={false}
+                  onChange={() => setIsExportStudents(!isExportStudents)}
+                ></input>
+              </div>
+            ) : (
+              <div
+                className={styles.buttonClicked}
+                onClick={() => setIsExportStudents(!isExportStudents)}
+              >
+                Students
+                <input
+                  type="checkbox"
+                  checked
+                  onChange={() => setIsExportStudents(!isExportStudents)}
+                ></input>
+              </div>
+            )}
+            {!isExportCourses ? (
+              <div
+                className={styles.buttonUnclicked}
+                onClick={() => setIsExportCourses(!isExportCourses)}
+              >
+                Courses
+                <input
+                  type="checkbox"
+                  checked={false}
+                  onChange={() => setIsExportCourses(!isExportCourses)}
+                ></input>
+              </div>
+            ) : (
+              <div
+                className={styles.buttonClicked}
+                onClick={() => setIsExportCourses(!isExportCourses)}
+              >
+                Courses
+                <input
+                  type="checkbox"
+                  checked
+                  onChange={() => setIsExportCourses(!isExportCourses)}
+                ></input>
+              </div>
+            )}
+            {!isExportTeachers ? (
+              <div
+                className={styles.buttonUnclicked}
+                onClick={() => setIsExportTeachers(!isExportTeachers)}
+              >
+                Teachers
+                <input
+                  type="checkbox"
+                  checked={false}
+                  onChange={() => setIsExportTeachers(!isExportTeachers)}
+                ></input>
+              </div>
+            ) : (
+              <div
+                className={styles.buttonClicked}
+                onClick={() => setIsExportTeachers(!isExportTeachers)}
+              >
+                Teachers
+                <input
+                  type="checkbox"
+                  checked
+                  onChange={() => setIsExportTeachers(!isExportTeachers)}
+                ></input>
+              </div>
+            )}
+
+            {!isExportStudentCourse ? (
+              <div
+                className={styles.buttonUnclicked}
+                onClick={() => setIsExportStudentCourse(!isExportStudentCourse)}
+              >
+                Match Students/courses
+                <input
+                  type="checkbox"
+                  checked={false}
+                  onChange={() =>
+                    setIsExportStudentCourse(!isExportStudentCourse)
+                  }
+                ></input>
+              </div>
+            ) : (
+              <div
+                className={styles.buttonClicked}
+                onClick={() => setIsExportStudentCourse(!isExportStudentCourse)}
+              >
+                Match Students/courses
+                <input
+                  type="checkbox"
+                  checked
+                  onChange={() =>
+                    setIsExportStudentCourse(!isExportStudentCourse)
+                  }
+                ></input>
+              </div>
+            )}
+
+            {!isExportTeacherCourse ? (
+              <div
+                className={styles.buttonUnclicked}
+                onClick={() => setIsExportTeacherCourse(!isExportTeacherCourse)}
+              >
+                Match Teachers/courses
+                <input
+                  type="checkbox"
+                  checked={false}
+                  onChange={() =>
+                    setIsExportTeacherCourse(!isExportTeacherCourse)
+                  }
+                ></input>
+              </div>
+            ) : (
+              <div
+                className={styles.buttonClicked}
+                onClick={() => setIsExportTeacherCourse(!isExportTeacherCourse)}
+              >
+                Match Teachers/courses
+                <input
+                  type="checkbox"
+                  checked
+                  onChange={() =>
+                    setIsExportTeacherCourse(!isExportTeacherCourse)
+                  }
+                ></input>
+              </div>
+            )}
+
+            {!isExportCourseArea ? (
+              <div
+                className={styles.buttonUnclicked}
+                onClick={() => setIsExportCourseArea(!isExportCourseArea)}
+              >
+                Course areas
+                <input
+                  type="checkbox"
+                  checked={false}
+                  onChange={() => setIsExportCourseArea(!isExportCourseArea)}
+                ></input>
+              </div>
+            ) : (
+              <div
+                className={styles.buttonClicked}
+                onClick={() => setIsExportCourseArea(!isExportCourseArea)}
+              >
+                Course areas
+                <input
+                  type="checkbox"
+                  checked
+                  onChange={() => setIsExportCourseArea(!isExportCourseArea)}
+                ></input>
+              </div>
+            )}
+          </div>
+        </div>{" "}
       </div>
-      <div>
-        {!isImportStudents ? (
-          <div
-            className={styles.buttonUnclicked}
-            onClick={() => setIsImportStudents(!isImportStudents)}
-          >
-            Students
-            <input
-              type="checkbox"
-              checked={false}
-              onChange={() => setIsImportStudents(!isImportStudents)}
-            ></input>
-          </div>
-        ) : (
-          <div
-            className={styles.buttonClicked}
-            onClick={() => setIsImportStudents(!isImportStudents)}
-          >
-            Students
-            <input
-              type="checkbox"
-              checked
-              onChange={() => setIsImportStudents(!isImportStudents)}
-            ></input>
-          </div>
-        )}
-        {!isImportCourses ? (
-          <div
-            className={styles.buttonUnclicked}
-            onClick={() => setIsImportCourses(!isImportCourses)}
-          >
-            Courses
-            <input
-              type="checkbox"
-              checked={false}
-              onChange={() => setIsImportCourses(!isImportCourses)}
-            ></input>
-          </div>
-        ) : (
-          <div
-            className={styles.buttonClicked}
-            onClick={() => setIsImportCourses(!isImportCourses)}
-          >
-            Courses
-            <input
-              type="checkbox"
-              checked
-              onChange={() => setIsImportCourses(!isImportCourses)}
-            ></input>
-          </div>
-        )}
-        {!isImportTeachers ? (
-          <div
-            className={styles.buttonUnclicked}
-            onClick={() => setIsImportTeachers(!isImportTeachers)}
-          >
-            Teachers
-            <input
-              type="checkbox"
-              checked={false}
-              onChange={() => setIsImportTeachers(!isImportTeachers)}
-            ></input>
-          </div>
-        ) : (
-          <div
-            className={styles.buttonClicked}
-            onClick={() => setIsImportTeachers(!isImportTeachers)}
-          >
-            Teachers
-            <input
-              type="checkbox"
-              checked
-              onChange={() => setIsImportTeachers(!isImportTeachers)}
-            ></input>
-          </div>
-        )}
-
-        {!isImportStudentCourse ? (
-          <div
-            className={styles.buttonUnclicked}
-            onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
-          >
-            Match Students/courses
-            <input
-              type="checkbox"
-              checked={false}
-              onChange={() => setIsImportStudentCourse(!isImportStudentCourse)}
-            ></input>
-          </div>
-        ) : (
-          <div
-            className={styles.buttonClicked}
-            onClick={() => setIsImportStudentCourse(!isImportStudentCourse)}
-          >
-            Match Students/courses
-            <input
-              type="checkbox"
-              checked
-              onChange={() => setIsImportStudentCourse(!isImportStudentCourse)}
-            ></input>
-          </div>
-        )}
-
-        {!isImportTeacherCourse ? (
-          <div
-            className={styles.buttonUnclicked}
-            onClick={() => setIsImportTeacherCourse(!isImportTeacherCourse)}
-          >
-            Match Teachers/courses
-            <input
-              type="checkbox"
-              checked={false}
-              onChange={() => setIsImportTeacherCourse(!isImportTeacherCourse)}
-            ></input>
-          </div>
-        ) : (
-          <div
-            className={styles.buttonClicked}
-            onClick={() => setIsImportTeacherCourse(!isImportTeacherCourse)}
-          >
-            Match Teachers/courses
-            <input
-              type="checkbox"
-              checked
-              onChange={() => setIsImportTeacherCourse(!isImportTeacherCourse)}
-            ></input>
-          </div>
-        )}
-
-        {!isImportCourseArea ? (
-          <div
-            className={styles.buttonUnclicked}
-            onClick={() => setIsImportCourseArea(!isImportCourseArea)}
-          >
-            Course areas
-            <input
-              type="checkbox"
-              checked={false}
-              onChange={() => setIsImportCourseArea(!isImportCourseArea)}
-            ></input>
-          </div>
-        ) : (
-          <div
-            className={styles.buttonClicked}
-            onClick={() => setIsImportCourseArea(!isImportCourseArea)}
-          >
-            Course areas
-            <input
-              type="checkbox"
-              checked
-              onChange={() => setIsImportCourseArea(!isImportCourseArea)}
-            ></input>
-          </div>
-        )}
-      </div>
+      <div></div>
       <footer className={styles.footer}>
         {errorMessage && errorMessage.length > 0 && (
           <div className={styles.error}>{errorMessage} </div>
