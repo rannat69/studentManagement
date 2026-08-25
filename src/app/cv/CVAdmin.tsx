@@ -168,6 +168,7 @@ export default function CVAdmin({
                 <th>Name</th>
                 <th>Email</th>
                 <th>CV uploaded</th>
+                <th>Areas</th>
               </tr>
             </thead>
             <tbody>
@@ -176,6 +177,7 @@ export default function CVAdmin({
                   <td>{student.name}</td>
                   <td>{student.email}</td>{" "}
                   <td>{student.uploaded ? "Yes" : "No"}</td>
+                  <td>{student.areas?.join(", ")}</td>
                 </tr>
               ))}
             </tbody>

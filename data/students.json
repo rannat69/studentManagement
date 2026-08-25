@@ -5,7 +5,8 @@
   },
   {
     "name": "Moe Lester",
-    "email": "m.l@toto.com"
+    "email": "m.l@toto.com",
+    "areas": ["AI, DESIGN"]
   },
   {
     "name": "Gabe Hich",
@@ -21,11 +22,13 @@
   },
   {
     "name": "Mai Kun Tichi",
-    "email": "mkt@toto.com"
+    "email": "mkt@toto.com",
+    "areas": ["DESIGN"]
   },
   {
     "name": "Lik Mai Dong",
-    "email": "lmd@toto.com"
+    "email": "lmd@toto.com",
+    "areas": ["ENGINEERING, ROBOTICS"]
   },
   {
     "name": "Dickens Cider",
@@ -55,8 +58,6 @@
     "name": "Rémi ANNAT",
     "email": "remia@ust.hk",
     "uploaded": true,
-    "areas": [
-      "COMPUTING"
-    ]
+    "areas": ["COMPUTING"]
   }
 ]
