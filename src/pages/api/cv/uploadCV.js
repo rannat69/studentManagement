@@ -31,19 +31,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { email, fileName, fileBase64 } = req.body;
+    const { email, fileName, fileBase64, areas } = req.body;
 
     // 1. Validate required fields
-    if (!email || !fileName || !fileBase64) {
+    if (!email || !fileName || !fileBase64 || !areas) {
       return res.status(400).json({
         message:
-          "Missing required fields: email, fileName, fileBase64 are all required.",
+          "Missing required fields: email, fileName, fileBase64, areas are all required.",
       });
     }
 
     console.log("email", email);
     console.log("filename", fileName);
-
+    console.log("areas", areas);
     // 2. Create directory: data/{user}/yyyymmdd/
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const userDir = path.join(process.cwd(), "data", email, dateStr);
@@ -64,7 +64,9 @@ export default async function handler(req, res) {
     }
 
     const updatedStudents = students.map((student) =>
-      student.email === email ? { ...student, uploaded: true } : student,
+      student.email === email
+        ? { ...student, uploaded: true, areas: areas }
+        : student,
     );
 
     await fs.writeFile(

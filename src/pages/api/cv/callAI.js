@@ -4,24 +4,47 @@ import allowedOrigin from "../allowedOrigin";
 
 const filePath = path.join(process.cwd(), "data", "config.json");
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "20mb", // Set this to a higher limit like 10mb or 20mb
+    },
+  },
+};
+
 export default async function handler(req, res) {
   const orig = allowedOrigin(req, res);
   if (!orig) {
     return res.status(403).json({ message: "Access denied" });
   }
 
+  const aiResponseGet = await fetch(
+    "https://hkust.azure-api.net/hkust-genai/v1/balance",
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": "cf0a8bf76cb449fda7c7100f06aed879",
+      },
+    },
+  );
+
+  const balance = await aiResponseGet.json();
+
+  console.log("aiResponseGet", balance);
+
   if (req.method === "POST") {
     const { prompt, fileBase64 } = req.body;
-
-    console.log("sendToAI prompt", prompt);
-    console.log("sendToAI fileBase64", fileBase64);
 
     try {
       const sendToAI = {
         model: "gpt-5-mini",
         messages: [
           { role: "system", content: "Test" },
-          { role: "user", content: prompt },
+          {
+            role: "user",
+            content: prompt,
+          },
           { role: "user", content: fileBase64 },
         ],
       };

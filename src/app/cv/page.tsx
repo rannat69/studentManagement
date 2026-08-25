@@ -5,6 +5,8 @@ import CVMenu from "./CVMenu";
 import CVAdmin from "./CVAdmin";
 import styles from "./styles.module.css";
 
+import pdfToText from "react-pdftotext";
+
 export default function Home() {
   const [user, setUser] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -138,15 +140,13 @@ export default function Home() {
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
     if (!validTypes.includes(file.type)) {
-      setErrorMessage("Please upload a PDF, DOC, or DOCX file.");
-      return;
+      //setErrorMessage("Please upload a PDF, DOC, or DOCX file.");
+      //return;
     }
 
     setIsUploading(true);
     setErrorMessage("");
     setSuccessMessage("");
-
-    console.log("toto");
 
     try {
       // Convert file to base64
@@ -158,20 +158,12 @@ export default function Home() {
       }
       const fileBase64 = btoa(binary);
 
-      const response = await fetch("/api/cv/uploadCV", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          fileName: file.name,
-          fileBase64,
-        }),
-      });
+      let fileContent = "";
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Upload failed");
+      if (file.type === "application/pdf") {
+        //const textFromPDF = await pdfToText(file); //
+        //console.log("textFromPDF", textFromPDF);
+        //fileContent = textFromPDF;
       }
 
       // Call AI and send it file
@@ -190,31 +182,67 @@ export default function Home() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              prompt:
-                "I sent you a file, can you tell me if it is a CV or not ?",
+              prompt: promptAI,
               fileBase64,
             }),
           });
 
-          console.log("validateRes", validateRes);
-
           const AIData = await validateRes.json();
           console.log("AIData", AIData);
 
-          console.log("AIData", AIData.choices[0].message.content);
+          if (AIData.error) {
+            setErrorMessage(AIData.error.message);
+          }
+
+          if (AIData.choices) {
+            console.log("AIData", AIData.choices[0].message.content);
+
+            const AIResponse = AIData.choices[0].message.content;
+
+            if (AIResponse === "INVALID_CV") {
+              setErrorMessage("This document is not recognised as a CV");
+            } else {
+              const areas = AIResponse.split(",").map((item: string) =>
+                item.trim(),
+              ); // ["apple", "banana", "cherry"]
+
+              const response = await fetch("/api/cv/uploadCV", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  email,
+                  fileName: file.name,
+                  fileBase64,
+                  areas: areas,
+                }),
+              });
+
+              const result = await response.json();
+
+              if (!response.ok) {
+                throw new Error(result.message || "Upload failed");
+              }
+
+              setSuccessMessage("CV uploaded successfully!");
+
+              // Fields separated by commas
+
+              // Split and clean up whitespace
+            }
+          }
+
+          setIsUploading(false);
         } catch (error) {
           console.error("API Call Error:", error);
+          setIsUploading(false);
         }
       };
 
       testAI();
-
-      setSuccessMessage("CV uploaded successfully!");
     } catch (err) {
       const error = err as Error;
       setErrorMessage(error.message || "An error occurred during upload.");
     } finally {
-      setIsUploading(false);
       e.target.value = "";
     }
   }

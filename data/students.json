@@ -44,7 +44,7 @@
     "email": "j.m@toto.com"
   },
   {
-    "name": "Jean Cule",
+    "name": "Jean Culefaure",
     "email": "j.c@toto.com"
   },
   {
@@ -54,6 +54,9 @@
   {
     "name": "Rémi ANNAT",
     "email": "remia@ust.hk",
-    "uploaded": true
+    "uploaded": true,
+    "areas": [
+      "COMPUTING"
+    ]
   }
 ]
