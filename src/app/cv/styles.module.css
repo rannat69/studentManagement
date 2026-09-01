@@ -1,0 +1,523 @@
+/* ===== Color Palette ===== */
+:root {
+  --primary-50: #eef2ff;
+  --primary-100: #e0e7ff;
+  --primary-200: #c7d2fe;
+  --primary-300: #a5b4fc;
+  --primary-400: #818cf8;
+  --primary-500: #6366f1;
+  --primary-600: #4f46e5;
+  --primary-700: #4338ca;
+  --primary-800: #3730a3;
+  --primary-900: #312e81;
+
+  --accent-500: #ec4899;
+  --accent-600: #db2777;
+
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  --success: #10b981;
+  --success-bg: #d1fae5;
+  --error: #ef4444;
+  --error-bg: #fee2e2;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* ===== Page Background ===== */
+.pageContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+/* ===== Main Content Card ===== */
+.mainCard {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 900px;
+  padding: 2.5rem;
+}
+
+/* ===== Welcome Header ===== */
+.welcomeHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--gray-100);
+}
+
+.welcomeTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.welcomeEmail {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--primary-600);
+}
+
+/* ===== Loading / Auth States ===== */
+.authMessage {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--gray-500);
+  font-size: 1.125rem;
+}
+
+.authMessage .spinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary-500);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Navigation Menu ===== */
+.navMenu {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.navButton {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.65rem 1.25rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.navButton:hover {
+  background: var(--gray-200);
+  color: var(--gray-800);
+  transform: translateY(-1px);
+}
+
+.navButtonActive {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.navButtonActive:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* ===== Upload Section ===== */
+.uploadSection {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.uploadTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 1rem;
+}
+
+.fileUploadWrapper {
+  display: block;
+  width: 100%;
+  border: 2px dashed var(--gray-300);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  background: var(--gray-50);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.fileUploadWrapper:hover {
+  border-color: var(--primary-400);
+  background: var(--primary-50);
+}
+
+.fileUploadWrapper.dragOver {
+  border-color: var(--primary-500);
+  background: var(--primary-50);
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileUploadLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--gray-600);
+  width: 100%;
+}
+
+.fileUploadLabel .uploadIcon {
+  font-size: 2rem;
+}
+
+/* ===== Admin Panel ===== */
+.adminCard {
+  background: var(--gray-50);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+}
+
+.adminTitle {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adminTitle .titleIcon {
+  font-size: 1.5rem;
+}
+
+/* ===== File Upload Row ===== */
+.uploadRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.uploadLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  min-width: 140px;
+}
+
+.uploadInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.6rem 1rem;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.uploadInput:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.uploadInput[type="file"] {
+  padding: 0.4rem 0.75rem;
+}
+
+/* ===== Status Messages ===== */
+.messageBox {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.errorBox {
+  background: var(--error-bg);
+  color: var(--error);
+  border: 1px solid var(--error);
+}
+
+.successBox {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+
+.infoBox {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid var(--warning);
+}
+
+/* ===== Import Spinner ===== */
+.importingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--gray-600);
+  font-size: 0.9rem;
+}
+
+.importingRow .dot {
+  width: 6px;
+  height: 6px;
+  background: var(--primary-500);
+  border-radius: 50%;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ===== Students Table ===== */
+.tableContainer {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  margin-top: 1rem;
+  height: 30vh;
+}
+
+.studentsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.studentsTable thead th {
+  background: var(--gray-100);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--gray-700);
+  border-bottom: 2px solid var(--gray-200);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.studentsTable tbody td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+}
+
+.studentsTable tbody tr:hover {
+  background: var(--primary-50);
+}
+
+.studentsTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.studentsTable tbody tr:hover td {
+  color: var(--primary-700);
+}
+
+/* ===== AI Prompt Section ===== */
+.promptSection {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--gray-200);
+}
+
+.promptLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.promptInput {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background: #fff;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.promptInput:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ===== Action Buttons ===== */
+.actionButton {
+  padding: 0.55rem 1.25rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.primaryButton:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.secondaryButton {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+
+.secondaryButton:hover {
+  background: var(--gray-200);
+}
+
+/* ===== Empty State ===== */
+.emptyState {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--gray-400);
+}
+
+.emptyState .emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== Dark Mode ===== */
+@media (prefers-color-scheme: dark) {
+  .mainCard {
+    background: rgba(17, 24, 39, 0.88);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .welcomeTitle {
+    color: var(--gray-200);
+  }
+
+  .adminCard {
+    background: var(--gray-800);
+  }
+
+  .adminTitle {
+    color: var(--gray-100);
+  }
+
+  .uploadInput,
+  .promptInput {
+    background: var(--gray-800);
+    border-color: var(--gray-600);
+    color: var(--gray-200);
+  }
+
+  .studentsTable {
+    background: var(--gray-800);
+  }
+
+  .studentsTable thead th {
+    background: var(--gray-800);
+    color: var(--gray-300);
+    border-bottom-color: var(--gray-700);
+  }
+
+  .studentsTable tbody td {
+    border-bottom-color: var(--gray-700);
+    color: var(--gray-300);
+  }
+
+  .studentsTable tbody tr:hover {
+    background: var(--gray-700);
+  }
+
+  .promptSection {
+    border-top-color: var(--gray-700);
+  }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .mainCard {
+    padding: 1.5rem;
+  }
+
+  .navMenu {
+    flex-direction: column;
+  }
+
+  .navButton {
+    width: 100%;
+  }
+
+  .uploadRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
