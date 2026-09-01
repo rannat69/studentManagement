@@ -22,7 +22,7 @@ export default async function handler(
     let currentUrl =
       "https://shib.ust.hk/idp/profile/cas/login?service=" +
       process.env.NEXT_PUBLIC_BASE_URL +
-      "/cv";
+      "/cas";
 
     let ticket: string | null = null;
 

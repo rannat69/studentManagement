@@ -31,17 +31,12 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetch("/api/init", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+
 
     setUserLoggedIn("");
 
     // Check if the user is already logged in
-    const storedUserLogin = localStorage.getItem("login");
+    /*const storedUserLogin = localStorage.getItem("login");
     const storedUserSession = localStorage.getItem("session");
     if (storedUserLogin && storedUserSession) {
       // check if user already logged in
@@ -69,7 +64,39 @@ export default function Home() {
         .catch((error) => {
           console.error("Error:", error);
         });
-    }
+    }**/
+
+    const initAuthAndConfig = async () => {
+      try {
+        const authorisedUsers: any[] = [];
+
+        // 2. Check for the CAS ticket in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticket = urlParams.get("ticket");
+
+        const emailTemp = urlParams.get("email");
+        const userTemp = urlParams.get("user");
+
+        setUserLoggedIn("OK");
+
+        if (!ticket) {
+          // No ticket -> Redirect to CAS Login
+          window.location.href = `https://cas.ust.hk/cas/login?service=${process.env.NEXT_PUBLIC_BASE_URL}/cas`;
+          //return;
+        } else {
+          location.href =
+            "https://cas.ust.hk/cas/login?service=" +
+            process.env.NEXT_PUBLIC_BASE_URL +
+            "/cas";
+        }
+      } catch (error) {
+        console.error("Authentication error:", error);
+        // window.location.href = process.env.NEXT_PUBLIC_BASE_URL || "/";
+      } finally {
+      }
+    };
+
+    initAuthAndConfig();
   }, []);
 
   async function handleLogin(): Promise<void> {
@@ -111,113 +138,5 @@ export default function Home() {
     localStorage.setItem("session", data.sessionCode);
   }
 
-  return (
-    <div>
-      {userLoggedIn ? (
-        <div>
-          <div className={styles.tab}>
-            <img src="/logo.hkust.png" alt="Logo" className={styles.logo} />
-
-            <div
-              className={activeTab === STUDENT_LIST ? styles.active : ""}
-              onClick={() => changeTab(STUDENT_LIST)}
-            >
-              Student list
-            </div>
-            <div
-              className={activeTab === COURSE_LIST ? styles.active : ""}
-              onClick={() => changeTab(COURSE_LIST)}
-            >
-              Course list{" "}
-            </div>
-
-            <div
-              className={activeTab === TEACHER_LIST ? styles.active : ""}
-              onClick={() => changeTab(TEACHER_LIST)}
-            >
-              Teacher list{" "}
-            </div>
-            <div
-              className={
-                activeTab === MATCH_STUDENT_COURSE ? styles.active : ""
-              }
-              onClick={() => changeTab(MATCH_STUDENT_COURSE)}
-            >
-              Match Student and Course{" "}
-            </div>
-
-            <div
-              className={activeTab === MAKE_REQUEST ? styles.active : ""}
-              onClick={() => changeTab(MAKE_REQUEST)}
-            >
-              Requests{" "}
-            </div>
-
-            <div
-              className={activeTab === IMPORT_EXPORT ? styles.active : ""}
-              onClick={() => changeTab(IMPORT_EXPORT)}
-            >
-              Import / Export{" "}
-            </div>
-          </div>
-
-          <div>
-            {activeTab && activeTab === STUDENT_LIST && <StudentList />}
-          </div>
-          <div>{activeTab && activeTab === COURSE_LIST && <CourseList />}</div>
-
-          <div>
-            {activeTab && activeTab === TEACHER_LIST && <TeacherList />}
-          </div>
-          <div>
-            {activeTab && activeTab === MATCH_STUDENT_COURSE && (
-              <MatchStudentCourse />
-            )}
-          </div>
-
-          <div>
-            {activeTab && activeTab === MAKE_REQUEST && <MakeRequest />}
-          </div>
-
-          <div>
-            {activeTab && activeTab === IMPORT_EXPORT && <ImportExport />}
-          </div>
-        </div>
-      ) : (
-        <form>
-          <div className={styles.login}>
-            Login
-            <br />
-            <input
-              type="text"
-              id="login"
-              placeholder="login"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleLogin();
-              }}
-              className={styles.input}
-            />
-            <br />
-            Password
-            <br />
-            <input
-              type="password"
-              id="password"
-              placeholder="password"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleLogin();
-              }}
-              className={styles.input}
-            />
-            <div className={styles.add} onClick={() => handleLogin()}>
-              Login
-            </div>
-            {errorMessage.length > 0 && (
-              <div className={styles.error}>{errorMessage}</div>
-            )}
-          </div>
-        </form>
-      )}
-    </div>
-  );
+  return <div>Not logged in</div>;
 }

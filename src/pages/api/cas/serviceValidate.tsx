@@ -14,7 +14,7 @@ export default async function handler(
         const response = await axios.get(
             'https://cas.ust.hk/cas/serviceValidate?service=' +
                 process.env.NEXT_PUBLIC_BASE_URL +
-                '/cv' +
+                '/cas' +
                 '&ticket=' +
                 _req.body.ticket
         ); // URL of the HTML page
