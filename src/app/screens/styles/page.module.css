@@ -891,3 +891,77 @@ a.secondary {
   text-align: justify;
   width: 80%;
 }
+
+
+
+
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.ratioText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Interactive Badge */
+.infoBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #e0e7ff;
+  color: #4338ca;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-style: italic;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  padding: 0;
+  line-height: 1;
+}
+
+.infoBadge:hover {
+  background-color: #c7d2fe;
+  transform: scale(1.1);
+}
+
+/* Tooltip Customization */
+.tooltip :global(.tooltip-inner) {
+  background-color: #1e293b;
+  padding: 10px 12px;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  max-width: 240px;
+  text-align: left;
+}
+
+.tooltipHeader {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.tooltipBody {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.courseBadge {
+  background-color: #334155;
+  color: #f8fafc;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}

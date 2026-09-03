@@ -8,6 +8,7 @@ import { Course } from "../data/courseListData";
 
 import axios from "axios";
 import { StudentCourse } from "../data/studentCourseData";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export default function CourseList() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -148,6 +149,29 @@ export default function CourseList() {
 
       course.ta_assigned = taAssigned.length;
 
+      const assignments = taAssigned ?? [];
+
+      if (assignments.length > 0) {
+        // Fetch all course data concurrently instead of sequentially in a loop
+        const studentRequests = assignments.map((item: any) =>
+          axios.get(`/api/student/${item.student_id}`),
+        );
+
+        const studentResponses = await Promise.all(studentRequests);
+
+        console.log("studentResponses", studentResponses);
+
+        // Format as a clean, pipe-separated string without leading/trailing delimiters
+        course.students_assigned = studentResponses
+          .map((res) => res.data.l_name)
+          .filter(Boolean)
+          .join(" | ");
+      } else {
+        course.students_assigned = "";
+      }
+
+      console.log("course students_assigned", course.students_assigned);
+
       // get course areas
       const responseCourseAreas = await axios.get(
         `/api/course_area/${course.id}`,
@@ -218,6 +242,29 @@ export default function CourseList() {
       );
 
       course.ta_assigned = taAssigned.length;
+
+      const assignments = taAssigned ?? [];
+
+      if (assignments.length > 0) {
+        // Fetch all course data concurrently instead of sequentially in a loop
+        const studentRequests = assignments.map((item: any) =>
+          axios.get(`/api/student/${item.student_id}`),
+        );
+
+        const studentResponses = await Promise.all(studentRequests);
+
+        console.log("studentResponses", studentResponses);
+
+        // Format as a clean, pipe-separated string without leading/trailing delimiters
+        course.students_assigned = studentResponses
+          .map((res) => res.data.l_name)
+          .filter(Boolean)
+          .join(" | ");
+      } else {
+        course.students_assigned = "";
+      }
+
+      console.log("course students_assigned", course.students_assigned);
 
       // get course areas
       const responseCourseAreas = await axios.get(
@@ -424,20 +471,59 @@ export default function CourseList() {
                     <td>{course.hkust_identifier}</td>
                     <td>{course.name}</td>
                     <td>
-                      {course.ta_assigned === course.ta_needed ||
-                      !course.ta_needed ? (
-                        <div className={styles.semesterSpring}>
-                          {(course.ta_assigned ? course.ta_assigned : 0) +
-                            "/" +
-                            course.ta_needed}
-                        </div>
-                      ) : (
-                        <div className={styles.semesterFall}>
-                          {(course.ta_assigned ? course.ta_assigned : 0) +
-                            "/" +
-                            course.ta_needed}
-                        </div>
-                      )}
+                      <div className={styles.container}>
+                        {course.ta_assigned === course.ta_needed ||
+                        !course.ta_needed ? (
+                          <div className={styles.semesterSpring}>
+                            {(course.ta_assigned ? course.ta_assigned : 0) +
+                              "/" +
+                              course.ta_needed}
+                          </div>
+                        ) : (
+                          <div className={styles.semesterFall}>
+                            {(course.ta_assigned ? course.ta_assigned : 0) +
+                              "/" +
+                              course.ta_needed}
+                          </div>
+                        )}
+
+                        {course.ta_assigned > 0 && (
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={
+                              <Tooltip
+                                id={`tooltip-${course.id}`}
+                                className={styles.tooltip}
+                              >
+                                <div className={styles.tooltipHeader}>
+                                  Assigned Students
+                                </div>
+                                <div className={styles.tooltipBody}>
+                                  {course.students_assigned &&
+                                    course.students_assigned
+                                      .split(" | ")
+                                      .map((course, idx) => (
+                                        <span
+                                          key={idx}
+                                          className={styles.courseBadge}
+                                        >
+                                          {course}
+                                        </span>
+                                      ))}
+                                </div>
+                              </Tooltip>
+                            }
+                          >
+                            <button
+                              type="button"
+                              className={styles.infoBadge}
+                              aria-label="View assigned courses"
+                            >
+                              i
+                            </button>
+                          </OverlayTrigger>
+                        )}
+                      </div>
                     </td>
                     <td>{course.teachers.toString()}</td>
                     <td>{course.areas.toString()}</td>

@@ -4,10 +4,11 @@ import React, { useEffect, useState } from "react";
 
 import Modal from "./studentListModal"; // Adjust the import path as necessary
 import { Student } from "../data/studentListData";
-import "bootstrap/dist/css/bootstrap.min.css";
+
 import styles from "./styles/page.module.css";
 import axios from "axios";
 import { StudentCourse } from "../data/studentCourseData";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export default function StudentList() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -48,6 +49,29 @@ export default function StudentList() {
           },
         );
 
+        const assignments = taAssigned ?? [];
+
+        if (assignments.length > 0) {
+          // Fetch all course data concurrently instead of sequentially in a loop
+          const courseRequests = assignments.map((item: any) =>
+            axios.get(`/api/course/${item.course_id}`),
+          );
+
+          const courseResponses = await Promise.all(courseRequests);
+
+          // Format as a clean, pipe-separated string without leading/trailing delimiters
+          response.data[i].courses_assigned = courseResponses
+            .map((res) => res.data.name)
+            .filter(Boolean)
+            .join(" | ");
+        } else {
+          response.data[i].courses_assigned = "";
+        }
+
+        console.log(
+          "response.data[i].courses_assigned",
+          response.data[i].courses_assigned,
+        );
         response.data[i].ta_assigned = taAssigned.length;
       }
 
@@ -327,7 +351,47 @@ export default function StudentList() {
                       )}
                     </td>
                     <td>
-                      {student.ta_assigned + " / " + student.ta_available}
+                      <div className={styles.container}>
+                        <span className={styles.ratioText}>
+                          {`${student.ta_assigned} / ${student.ta_available}`}
+                        </span>
+
+                        {student.ta_assigned > 0 && (
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={
+                              <Tooltip
+                                id={`tooltip-${student.id}`}
+                                className={styles.tooltip}
+                              >
+                                <div className={styles.tooltipHeader}>
+                                  Assigned Courses
+                                </div>
+                                <div className={styles.tooltipBody}>
+                                  {student.courses_assigned
+                                    .split(" | ")
+                                    .map((course, idx) => (
+                                      <span
+                                        key={idx}
+                                        className={styles.courseBadge}
+                                      >
+                                        {course}
+                                      </span>
+                                    ))}
+                                </div>
+                              </Tooltip>
+                            }
+                          >
+                            <button
+                              type="button"
+                              className={styles.infoBadge}
+                              aria-label="View assigned courses"
+                            >
+                              i
+                            </button>
+                          </OverlayTrigger>
+                        )}
+                      </div>
                     </td>
                     <td>
                       {student.available ? (

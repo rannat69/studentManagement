@@ -4,7 +4,6 @@ import styles from "./styles/page.module.css";
 
 import { Course } from "../data/courseListData";
 
-import "bootstrap/dist/css/bootstrap.min.css";
 import Spinner from "react-bootstrap/Spinner";
 
 import axios from "axios";
@@ -431,6 +430,7 @@ export default function MatchStudentCourse() {
       areas: [],
       qualifications: [],
       teachers: [],
+      students_assigned: "",
     };
 
     // if destination is Students Available, remove record from its drop area and add it back to Students available
@@ -554,6 +554,7 @@ export default function MatchStudentCourse() {
         areas: [],
         qualifications: [],
         teachers: [],
+        students_assigned: "",
       };
 
       if (studentTemp.ta_available <= 0) {
@@ -567,7 +568,7 @@ export default function MatchStudentCourse() {
         //  setErrorMessage("This student is not available.");
         // return;
 
-        warningMessageTemp += " " + "Student is spposed to be unavailable.";
+        warningMessageTemp += " " + "Student is supposed to be unavailable.";
 
         setWarningMessage(warningMessageTemp);
       }

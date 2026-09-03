@@ -12,4 +12,5 @@ export interface Course {
   qualifications: string[];
   field: string;
   teachers: string[];
+  students_assigned: string;
 }
