@@ -63,7 +63,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
           if (course) {
             const response = await axios.get(`/api/course_area/${course.id}`);
 
-
             for (let i = 0; i < response.data.length; i++) {
               response.data[i] = response.data[i].area;
             }
@@ -88,7 +87,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
         try {
           if (course) {
             const response = await axios.get(`/api/course_qualif/${course.id}`);
-
 
             for (let i = 0; i < response.data.length; i++) {
               response.data[i] = response.data[i].qualification;
@@ -196,6 +194,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
         deleted: false,
         field: "",
         teachers: [],
+        students_assigned: "",
       });
       setAreas([]);
       setQualifications([]);
@@ -215,7 +214,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
   };
 
   const createCourse = async (courseData: Course) => {
-
     try {
       let response = await fetch("/api/course/create", {
         method: "POST",
@@ -306,8 +304,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
   };
 
   const updateCourse = async (id: number, updatedData: Course) => {
-
-
     try {
       await axios.put(`api/course/${id}`, updatedData);
 
@@ -456,6 +452,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       areas: [],
       qualifications: [],
       teachers: [],
+      students_assigned: "",
     });
     course = {
       id: 0,
@@ -472,6 +469,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       areas: [],
       qualifications: [],
       teachers: [],
+      students_assigned: "",
     };
 
     setAreas([]);
@@ -505,6 +503,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
         areas: [],
         qualifications: [],
         teachers: [],
+        students_assigned: "",
       });
       course = {
         id: 0,
@@ -521,6 +520,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
         areas: [],
         qualifications: [],
         teachers: [],
+        students_assigned: "",
       };
 
       setAreas([]);
@@ -558,7 +558,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       }
 
       if (formData.year <= 0) {
-
         setErrorMessage("Year must be a positive number");
         return;
       }
@@ -598,6 +597,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       areas: [],
       qualifications: [],
       teachers: [],
+      students_assigned: "",
     });
     course = {
       id: 0,
@@ -614,6 +614,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, course, onClose, onSave }) => {
       areas: [],
       qualifications: [],
       teachers: [],
+      students_assigned: "",
     };
 
     onClose();

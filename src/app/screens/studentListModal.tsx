@@ -167,6 +167,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         deleted: false,
         dropZone: 0,
         multiCourses: false,
+        courses_assigned: "",
       });
       setQualifications([]);
       setAreas([]);
@@ -555,6 +556,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
       deleted: false,
       dropZone: 0,
       multiCourses: false,
+      courses_assigned: "",
     });
     setQualifications([]);
     setAreas([]);
@@ -588,6 +590,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         deleted: true,
         dropZone: 0,
         multiCourses: false,
+        courses_assigned: "",
       };
 
       setFormData({
@@ -608,6 +611,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         deleted: false,
         dropZone: 0,
         multiCourses: false,
+        courses_assigned: "",
       });
       setQualifications([]);
       setAreas([]);
@@ -688,6 +692,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, student, onClose, onSave }) => {
         deleted: false,
         dropZone: 0,
         multiCourses: false,
+        courses_assigned: "",
       });
       setQualifications([]);
       setAreas([]);
